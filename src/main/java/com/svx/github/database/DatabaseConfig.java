@@ -4,8 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-// Was thinking of making a .env-like file. Not sure if I'll pick this up later again though.
-
+// TODO! Was thinking of making a .env-like file. Not sure if I'll pick this up later again though.
 public class DatabaseConfig {
 
     private static final Properties properties = new Properties();

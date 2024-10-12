@@ -1,10 +1,10 @@
-module edu.bluejack24_1.github {
+module com.svx.github {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
     requires jbcrypt;
 
 
-    opens com.svx.github to javafx.fxml;
+    opens com.svx.github.main to javafx.fxml;
     exports com.svx.github.main;
 }

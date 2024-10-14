@@ -5,8 +5,8 @@ import com.svx.github.view.LoginView;
 
 public class LoginController extends Controller<LoginView> {
 
-    public LoginController() {
-        super(new LoginView());
+    public LoginController(AppController appController) {
+        super(new LoginView(), appController);
     }
 
     @Override
@@ -28,6 +28,6 @@ public class LoginController extends Controller<LoginView> {
     }
 
     private void handleRegisterNavigation() {
-        System.out.println("Navigate to the register page...");
+        appController.navigatePage(new RegisterController(appController));
     }
 }

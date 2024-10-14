@@ -21,14 +21,14 @@ public class AppController {
         if (currentUser != null) {
             System.out.println("User is logged in");
         } else {
-            navigatePage(new LoginController());
+            navigatePage(new LoginController(this));
         }
 
         primaryStage.show();
     }
 
     public <T extends Parent> void navigatePage(Controller<? extends View<T>> controller) {
-        Scene scene = controller.getView();
+        Scene scene = controller.getView(primaryStage.getWidth(), primaryStage.getHeight());
         primaryStage.setScene(scene);
     }
 }

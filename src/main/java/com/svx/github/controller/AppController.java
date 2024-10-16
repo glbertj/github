@@ -1,8 +1,10 @@
 package com.svx.github.controller;
 
+import com.svx.github.controller.dialog.DialogController;
 import com.svx.github.manager.SessionManager;
 import com.svx.github.model.User;
 import com.svx.github.view.View;
+import com.svx.github.view.dialog.DialogView;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -13,13 +15,14 @@ public class AppController {
     public AppController(Stage primaryStage) {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("GiThub");
-        this.primaryStage.setMaximized(true);
+        this.primaryStage.setMinWidth(1000);
+        this.primaryStage.setMinHeight(700);
     }
 
     public void startApp() {
         User currentUser = SessionManager.validateSession();
         if (currentUser != null) {
-            System.out.println("User is logged in");
+            navigatePage(new MainLayoutController(this));
         } else {
             navigatePage(new LoginController(this));
         }
@@ -28,7 +31,20 @@ public class AppController {
     }
 
     public <T extends Parent> void navigatePage(Controller<? extends View<T>> controller) {
-        Scene scene = controller.getView(primaryStage.getWidth(), primaryStage.getHeight());
+        Scene scene = controller.getScene(primaryStage.getWidth(), primaryStage.getHeight());
         primaryStage.setScene(scene);
+    }
+
+    public <T extends Parent> void openDialog(DialogController<? extends DialogView<T>> dialogController) {
+        dialogController.getView().setDialogStage(new Stage());
+        Stage dialogStage = dialogController.getView().getDialogStage();
+
+        dialogStage.setScene(dialogController.getScene());
+        dialogStage.initOwner(primaryStage);
+        dialogStage.showAndWait();
+    }
+
+    public void exitApp() {
+        primaryStage.close();
     }
 }

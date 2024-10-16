@@ -2,6 +2,7 @@ package com.svx.github.controller;
 
 import com.svx.github.controller.dialog.AddRepositoryDialogController;
 import com.svx.github.controller.dialog.CreateRepositoryDialogController;
+import com.svx.github.utility.GitUtility;
 import com.svx.github.view.MainLayoutView;
 
 public class MainLayoutController extends Controller<MainLayoutView> {
@@ -14,6 +15,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     @Override
     protected void setActions() {
         setMenuActions();
+        setSidebarActions();
     }
 
     private void setMenuActions() {
@@ -21,8 +23,15 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         view.getAddRepositoryMenu().setOnAction(e -> appController.openDialog(new AddRepositoryDialogController()));
 
-        view.getExitMenu().setOnAction(e -> {
-            appController.exitApp();
+        view.getExitMenu().setOnAction(e -> appController.exitApp());
+    }
+
+    private void setSidebarActions() {
+        view.getChangesButton().setOnAction(e -> view.showChangesTab());
+        view.getHistoryButton().setOnAction(e -> view.showHistoryTab());
+
+        view.getCommitButton().setOnAction(e -> {
+            GitUtility.scanDirectory(view.getRepositoryDropdown().getValue().path());
         });
     }
 }

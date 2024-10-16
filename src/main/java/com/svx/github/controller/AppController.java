@@ -7,6 +7,7 @@ import com.svx.github.view.View;
 import com.svx.github.view.dialog.DialogView;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class AppController {
@@ -39,6 +40,7 @@ public class AppController {
         dialogController.getView().setDialogStage(new Stage());
         Stage dialogStage = dialogController.getView().getDialogStage();
 
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
         dialogStage.setScene(dialogController.getScene());
         dialogStage.initOwner(primaryStage);
         dialogStage.showAndWait();

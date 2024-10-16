@@ -16,6 +16,7 @@ public class LoginView extends View<GridPane> {
     private PasswordField passwordField;
     private Button loginButton;
     private Button registerButton;
+    private Label errorLabel;
 
     public LoginView() {
         super();
@@ -51,6 +52,9 @@ public class LoginView extends View<GridPane> {
         registerButton = new Button("Register");
         root.add(registerButton, 1, 3);
         GridPane.setHgrow(registerButton, Priority.ALWAYS);
+
+        errorLabel = new Label("");
+        root.add(errorLabel, 0, 4);
     }
 
     public Button getLoginButton() {
@@ -67,5 +71,9 @@ public class LoginView extends View<GridPane> {
 
     public PasswordField getPasswordField() {
         return passwordField;
+    }
+
+    public Label getErrorLabel() {
+        return errorLabel;
     }
 }

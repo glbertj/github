@@ -7,14 +7,15 @@ public abstract class View<T extends Parent> {
     protected String styleReference;
 
     public View() {
-        initializeView();
+        root = null;
+        styleReference = null;
     }
+
+    public abstract void initializeView();
 
     public T getRoot() {
         return root;
     }
-
-    public abstract void initializeView();
 
     public String getStyleReference() {
         return styleReference;

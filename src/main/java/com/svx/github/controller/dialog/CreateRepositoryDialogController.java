@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class CreateRepositoryDialogController extends DialogController<CreateRepositoryDialogView> {
     private Debounce debounce;
@@ -34,17 +33,21 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
             }
         });
 
-        view.getPathField().textProperty().addListener((observable, oldValue, newValue)-> {
-            debounce.trigger();
-        });
+        view.getPathField().textProperty().addListener((observable, oldValue, newValue) -> debounce.trigger());
 
         view.getConfirmButton().setOnAction(e -> {
             String path = view.getPathField().getText() + "/.git";
-            File configFile = new File(path, "config");
+            File gitDir = new File(path);
+
+            if (gitDir.mkdirs()) {
+                System.out.println("Created .git directory");
+            }
+
+            File configFile = new File(gitDir, "config");
 
             try (FileWriter writer = new FileWriter(configFile)) {
                 writer.write("[repository]\n");
-                writer.write("name = " + view.getNameField() + "\n");
+                writer.write("name = " + view.getNameField().getText() + "\n");
             } catch (IOException error) {
                 System.out.println("Error creating config file: " + error.getMessage());
             }
@@ -52,7 +55,7 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
             Repository.addRepository(new Repository(view.getNameField().getText(), view.getPathField().getText()));
 
             try {
-                Files.setAttribute(Path.of(path), "dos:hidden", true);
+                Files.setAttribute(gitDir.toPath(), "dos:hidden", true);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -63,7 +66,13 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
 
     private void initializeDebounce() {
         debounce = new Debounce(Duration.seconds(0.5), () -> {
-            FileUtility.checkRepositoryValidity(view.getPathField().getText(), view);
+            if (FileUtility.hasRepository(view.getPathField().getText(), view)) {
+                view.getErrorLabel().setText("Repository already exists");
+                view.getConfirmButton().setDisable(true);
+            } else {
+                view.getErrorLabel().setText("");
+                view.getConfirmButton().setDisable(false);
+            }
         });
     }
 }

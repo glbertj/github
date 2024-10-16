@@ -7,21 +7,15 @@ import java.io.File;
 public class FileUtility {
 
     // Usable only in DialogView (we can make actually improve this but nah)
-    public static void checkRepositoryValidity(String gitPath, DialogView<? extends Parent> view) {
+    public static boolean hasRepository(String gitPath, DialogView<? extends Parent> view) {
         if (gitPath.isBlank()) {
             view.getErrorLabel().setText("");
             view.getConfirmButton().setDisable(true);
-            return;
+            return false;
         }
 
-        File configFile = new File(gitPath.trim(), "config");
+        File configFile = new File(gitPath.trim(), ".git/config");
 
-        if (!configFile.exists() || !configFile.isFile()) {
-            view.getErrorLabel().setText("This folder may not be a repository, did you select the right folder?");
-            view.getConfirmButton().setDisable(true);
-        } else {
-            view.getErrorLabel().setText("");
-            view.getConfirmButton().setDisable(false);
-        }
+        return configFile.exists() && configFile.isFile();
     }
 }

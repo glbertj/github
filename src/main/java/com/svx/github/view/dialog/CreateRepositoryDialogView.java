@@ -25,6 +25,7 @@ public class CreateRepositoryDialogView extends DialogView<VBox> {
 
         chooseDirectoryButton = new Button("Choose");
         confirmButton = new Button("Create New Repository");
+        confirmButton.setDisable(true);
         cancelButton = new Button("Cancel");
         errorLabel = new Label("");
 

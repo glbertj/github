@@ -17,6 +17,7 @@ public class AddRepositoryDialogView extends DialogView<VBox> {
         pathField = new TextField();
         chooseDirectoryButton = new Button("Choose");
         confirmButton = new Button("Add Local Repository");
+        confirmButton.setDisable(true);
         cancelButton = new Button("Cancel");
         errorLabel = new Label("");
 

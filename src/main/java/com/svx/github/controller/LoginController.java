@@ -21,9 +21,9 @@ public class LoginController extends Controller<LoginView> {
 
         boolean loginSuccessful = UserRepository.authenticate(username, password);
         if (loginSuccessful) {
-            System.out.println("Login successful!");
+            appController.navigatePage(new MainLayoutController(appController));
         } else {
-            System.out.println("Invalid credentials!");
+            view.getErrorLabel().setText("Wrong credentials");
         }
     }
 

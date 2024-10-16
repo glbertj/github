@@ -14,6 +14,10 @@ public record Repository(String name, String path) {
         repositories.add(repository);
     }
 
+    public static Repository getRepository(String name) {
+        return repositories.stream().filter(repository -> repository.name().equals(name)).findFirst().orElse(null);
+    }
+
     public static void removeRepository(Repository repository) {
         repositories.remove(repository);
     }

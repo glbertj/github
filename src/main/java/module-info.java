@@ -3,6 +3,8 @@ module com.svx.github {
     requires javafx.fxml;
     requires java.sql;
     requires jbcrypt;
+    requires org.kordamp.ikonli.javafx;
+    requires org.kordamp.ikonli.fontawesome5;
 
 
     opens com.svx.github.main to javafx.fxml;

@@ -3,7 +3,7 @@ package com.svx.github.controller.dialog;
 import com.svx.github.model.Config;
 import com.svx.github.model.Debounce;
 import com.svx.github.model.Repository;
-import com.svx.github.utility.FileUtility;
+import com.svx.github.utility.GitUtility;
 import com.svx.github.view.dialog.AddRepositoryDialogView;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Duration;
@@ -39,12 +39,13 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
             Config config = new Config(configFile);
 
             Repository.addRepository(new Repository(config.getValue("repository", "name"), path));
+            hideDialog();
         });
     }
 
     private void initializeDebounce() {
         debounce = new Debounce(Duration.seconds(0.5), () -> {
-            if (!FileUtility.hasRepository(view.getPathField().getText(), view)) {
+            if (!GitUtility.hasRepository(view.getPathField().getText(), view)) {
                 view.getErrorLabel().setText("Not a repository");
                 view.getConfirmButton().setDisable(true);
             } else {

@@ -3,8 +3,6 @@ package com.svx.github.controller.dialog;
 import com.svx.github.view.dialog.DialogView;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
-
 import java.util.Objects;
 
 public abstract class DialogController<T extends DialogView<? extends Parent>> {

@@ -3,7 +3,7 @@
 }
 
 .side-bar {
-    -fx-background-color: #444;
+    /*-fx-background-color: #444;*/
     -fx-padding: 10;
     -fx-pref-width: 200;
 }

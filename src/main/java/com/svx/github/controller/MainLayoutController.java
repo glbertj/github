@@ -3,14 +3,11 @@ package com.svx.github.controller;
 import com.svx.github.controller.dialog.AddRepositoryDialogController;
 import com.svx.github.controller.dialog.CreateRepositoryDialogController;
 import com.svx.github.manager.RepositoryManager;
-import com.svx.github.model.Blob;
-import com.svx.github.model.Commit;
-import com.svx.github.model.Tree;
-import com.svx.github.model.VersionControl;
+import com.svx.github.model.*;
 import com.svx.github.utility.DiffUtility;
 import com.svx.github.view.MainLayoutView;
 import javafx.scene.control.Button;
-
+import java.io.IOException;
 public class MainLayoutController extends Controller<MainLayoutView> {
 
     public MainLayoutController(AppController appController) {
@@ -47,8 +44,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             view.getTextArea().clear();
         });
 
-
-        view.getStageAllButton().setOnAction(e -> stageFile("file1.txt", "Sample content for testing"));
+        view.getTestButton().setOnAction(e -> performTest());
 
         view.getRepositoryDropdown().valueProperty().addListener((observable, oldRepository, newRepository) -> {
             if (newRepository != null) {
@@ -87,11 +83,30 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getTextArea().setText(difference);
     }
 
-    public void stageFile(String filename, String content) {
-        VersionControl versionControl = RepositoryManager.getVersionControl();
-        if (versionControl == null) return;
+    private void performTest() {
+        Repository repository = RepositoryManager.getCurrentRepository();
+        if (repository == null) {
+            System.out.println("No active repository selected.");
+            return;
+        }
 
-        versionControl.getIndex().addFile(filename, content);
-        updateChangedFilesList();
+        String filename = "file1.txt";
+        String content = "Sample content for testing blob persistence.";
+
+        Blob blob = new Blob(content, repository);
+        System.out.println("Created Blob with ID: " + blob.getId());
+
+        try {
+            Blob loadedBlob = Blob.loadFromDisk(blob.getId(), repository);
+            System.out.println("Loaded Blob Content: " + loadedBlob.getContent());
+
+            if (blob.getContent().equals(loadedBlob.getContent())) {
+                System.out.println("Test Passed");
+            } else {
+                System.out.println("Test Failed");
+            }
+        } catch (IOException ex) {
+            System.out.println("Error loading blob from disk: " + ex.getMessage());
+        }
     }
 }

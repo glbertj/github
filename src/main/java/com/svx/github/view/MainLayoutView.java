@@ -1,17 +1,12 @@
 package com.svx.github.view;
 
 import com.svx.github.model.Repository;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
-
-import java.nio.file.Path;
-import java.util.List;
 import java.util.Objects;
 
 public class MainLayoutView extends View<BorderPane> {
@@ -36,7 +31,7 @@ public class MainLayoutView extends View<BorderPane> {
     // changes tab
     private VBox changesTab;
     private VBox changedFilesList;
-    private Button stageAllButton;
+    private Button testButton;
     private Button commitButton;
 
     // history tab
@@ -133,9 +128,9 @@ public class MainLayoutView extends View<BorderPane> {
         changedFilesList.setSpacing(5);
 
         commitButton = new Button("Commit");
-        stageAllButton = new Button("Stage File (Test)");
+        testButton = new Button("Do testings");
 
-        changesTab.getChildren().addAll(changesLabel, changedFilesList, commitButton, stageAllButton);
+        changesTab.getChildren().addAll(changesLabel, changedFilesList, commitButton, testButton);
     }
 
     private void initializeHistoryTab() {
@@ -194,8 +189,8 @@ public class MainLayoutView extends View<BorderPane> {
         return commitButton;
     }
 
-    public Button getStageAllButton() {
-        return stageAllButton;
+    public Button getTestButton() {
+        return testButton;
     }
 
     public VBox getChangedFilesList() {

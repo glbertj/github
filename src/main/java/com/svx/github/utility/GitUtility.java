@@ -1,15 +1,15 @@
 package com.svx.github.utility;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class GitUtility {
-    public static boolean hasRepository(String path) {
-        File gitDir = new File(path, ".git");
+    public static boolean hasRepository(Path path) {
+        Path gitDir = path.resolve(".git");
 
-        // Check if .git directory exists and contains required subdirectories
-        return gitDir.exists() && gitDir.isDirectory() &&
-                new File(gitDir, "objects").isDirectory() &&
-                new File(gitDir, "refs").isDirectory() &&
-                new File(gitDir, "config").isFile();
+        return Files.isDirectory(gitDir) &&
+                Files.isDirectory(gitDir.resolve("objects")) &&
+                Files.isDirectory(gitDir.resolve("refs")) &&
+                Files.isRegularFile(gitDir.resolve("config"));
     }
 }

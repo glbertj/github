@@ -6,7 +6,7 @@ import javafx.collections.ObservableList;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public record Repository(String name, String path) {
+public record Repository(String name, Path path) {
     private static final ObservableList<Repository> repositories = FXCollections.observableArrayList();
 
     public static ObservableList<Repository> getRepositories() {
@@ -18,7 +18,7 @@ public record Repository(String name, String path) {
     }
 
     public Path getGitPath() {
-        return Paths.get(path, ".git");
+        return path.resolve(".git");
     }
 
     public Path getObjectsPath() {

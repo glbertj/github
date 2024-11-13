@@ -7,11 +7,12 @@ import com.svx.github.utility.GitUtility;
 import com.svx.github.view.dialog.CreateRepositoryDialogView;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Duration;
-
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class CreateRepositoryDialogController extends DialogController<CreateRepositoryDialogView> {
     private Debounce debounce;
@@ -37,43 +38,36 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
         view.getPathField().textProperty().addListener((observable, oldValue, newValue) -> debounce.trigger());
 
         view.getConfirmButton().setOnAction(e -> {
-            String path = view.getPathField().getText() + "/.git";
-
-            File gitDir = new File(path);
-            File objectsDir = new File(gitDir, "objects");
-            File refsDir = new File(gitDir, "refs");
-            File headsDir = new File(refsDir, "heads");
-            File configFile = new File(gitDir, "config");
-            File indexFile = new File(gitDir, "index");
-
-            if (gitDir.mkdirs() && gitDir.isDirectory() && objectsDir.mkdirs() && refsDir.mkdirs() && headsDir.mkdirs()) {
-                System.out.println("Successfully created .git directory structure");
-            }
-
-            try (FileWriter writer = new FileWriter(configFile)) {
-                writer.write("[repository]\n");
-                writer.write("name = " + view.getNameField().getText() + "\n");
-            } catch (IOException error) {
-                System.out.println("Error creating config file: " + error.getMessage());
-            }
+            Path path = Paths.get(view.getPathField().getText().trim());
+            Path gitDir = path.resolve(".git");
+            Path objectsDir = gitDir.resolve("objects");
+            Path refsDir = gitDir.resolve("refs");
+            Path headsDir = refsDir.resolve("heads");
+            Path configFile = gitDir.resolve("config");
+            Path indexFile = gitDir.resolve("index");
 
             try {
-                if (indexFile.createNewFile()) {
-                    System.out.println("Successfully created index file");
+                Files.createDirectories(objectsDir);
+                Files.createDirectories(refsDir);
+                Files.createDirectories(headsDir);
+                System.out.println("Successfully created .git directory structure");
+
+                try (BufferedWriter writer = Files.newBufferedWriter(configFile)) {
+                    writer.write("[repository]\n");
+                    writer.write("name = " + view.getNameField().getText() + "\n");
                 }
-            } catch (IOException error) {
-                System.out.println("Error creating index file: " + error.getMessage());
+
+                Files.createFile(indexFile);
+                System.out.println("Successfully created index file");
+
+                Files.setAttribute(gitDir, "dos:hidden", true);
+            } catch (IOException ex) {
+                System.out.println("Error setting up .git directory structure: " + ex.getMessage());
             }
 
-            Repository newRepo = new Repository(view.getNameField().getText(), view.getPathField().getText());
+            Repository newRepo = new Repository(view.getNameField().getText(), path);
             Repository.addRepository(newRepo);
             RepositoryManager.setCurrentRepository(newRepo);
-
-            try {
-                Files.setAttribute(gitDir.toPath(), "dos:hidden", true);
-            } catch (IOException ex) {
-                System.out.println("Error setting directory attribute: " + ex.getMessage());
-            }
 
             hideDialog();
         });
@@ -81,7 +75,8 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
 
     private void initializeDebounce() {
         debounce = new Debounce(Duration.seconds(0.5), () -> {
-            if (GitUtility.hasRepository(view.getPathField().getText())) {
+            Path path = Paths.get(view.getPathField().getText().trim());
+            if (GitUtility.hasRepository(path)) {
                 view.getErrorLabel().setText("Repository already exists");
                 view.getConfirmButton().setDisable(true);
             } else {

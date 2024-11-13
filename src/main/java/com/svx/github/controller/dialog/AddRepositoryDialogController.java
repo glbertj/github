@@ -8,6 +8,9 @@ import com.svx.github.view.dialog.AddRepositoryDialogView;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Duration;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class AddRepositoryDialogController extends DialogController<AddRepositoryDialogView> {
     private Debounce debounce;
@@ -33,11 +36,11 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
         view.getPathField().textProperty().addListener(((observable, oldValue, newValue) ->debounce.trigger()));
 
         view.getConfirmButton().setOnAction(e -> {
-            String path = view.getPathField().getText().trim();
+            Path path = Paths.get(view.getPathField().getText().trim());
 
             if (GitUtility.hasRepository(path)) {
-                File configFile = new File(path, ".git/config");
-                String repositoryName = loadRepositoryName(configFile);
+                Path configFilePath = path.resolve(".git").resolve("config");
+                String repositoryName = loadRepositoryName(configFilePath);
 
                 Repository newRepo = new Repository(repositoryName, path);
                 Repository.addRepository(newRepo);
@@ -50,10 +53,11 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
                 view.getErrorLabel().setText("The selected directory is not a valid Git repository.");
             }
         });
+
     }
 
-    private String loadRepositoryName(File configFile) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+    private String loadRepositoryName(Path configFilePath) {
+        try (BufferedReader reader = Files.newBufferedReader(configFilePath)) {
             String line;
             boolean inRepositorySection = false;
 
@@ -76,7 +80,9 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
 
     private void initializeDebounce() {
         debounce = new Debounce(Duration.seconds(0.5), () -> {
-            if (!GitUtility.hasRepository(view.getPathField().getText())) {
+            Path path = Paths.get(view.getPathField().getText().trim());
+
+            if (!GitUtility.hasRepository(path)) {
                 view.getErrorLabel().setText("Not a repository");
                 view.getConfirmButton().setDisable(true);
             } else {

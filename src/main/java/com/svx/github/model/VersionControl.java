@@ -23,21 +23,21 @@ public class VersionControl {
             return;
         }
 
-        Tree newTree = new Tree();
-        for (Map.Entry<String, Blob> entry : index.getStagedFiles().entrySet()) {
-            newTree.addEntry(entry.getKey(), entry.getValue());
-        }
+//        Tree newTree = new Tree();
+//        for (Map.Entry<String, Blob> entry : index.getStagedFiles().entrySet()) {
+//            newTree.addEntry(entry.getKey(), entry.getValue());
+//        }
 
-        Commit newCommit;
-        if (referenceManager.hasCommits()) {
-            newCommit = new Commit(newTree, message, referenceManager.getHead());
-        } else {
-            newCommit = new Commit(newTree, message, null);
-        }
+//        Commit newCommit;
+//        if (referenceManager.hasCommits()) {
+//            newCommit = new Commit(newTree, message, referenceManager.getHead());
+//        } else {
+//            newCommit = new Commit(newTree, message, null);
+//        }
 
-        referenceManager.setHead(newCommit);
-        index.clear();
-        System.out.println("Commit created with ID: " + newCommit.getId());
+//        referenceManager.setHead(newCommit);
+//        index.clear();
+//        System.out.println("Commit created with ID: " + newCommit.getId());
     }
 
 

@@ -74,8 +74,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         String oldContent = "";
         if (currentTree != null) {
-            Blob lastBlob = currentTree.getBlob(filename);
-            oldContent = lastBlob != null ? lastBlob.getContent() : "";
+//            Blob lastBlob = currentTree.getBlob(filename);
+//            oldContent = lastBlob != null ? lastBlob.getContent() : "";
         }
 
         String difference = DiffUtility.getDifference(oldContent, newContent);
@@ -84,29 +84,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void performTest() {
-        Repository repository = RepositoryManager.getCurrentRepository();
-        if (repository == null) {
-            System.out.println("No active repository selected.");
-            return;
-        }
 
-        String filename = "file1.txt";
-        String content = "Sample content for testing blob persistence.";
-
-        Blob blob = new Blob(content, repository);
-        System.out.println("Created Blob with ID: " + blob.getId());
-
-        try {
-            Blob loadedBlob = Blob.loadFromDisk(blob.getId(), repository);
-            System.out.println("Loaded Blob Content: " + loadedBlob.getContent());
-
-            if (blob.getContent().equals(loadedBlob.getContent())) {
-                System.out.println("Test Passed");
-            } else {
-                System.out.println("Test Failed");
-            }
-        } catch (IOException ex) {
-            System.out.println("Error loading blob from disk: " + ex.getMessage());
-        }
     }
 }

@@ -38,6 +38,19 @@ public class Tree {
         return entries;
     }
 
+    public String getBlobContent(String filename) {
+        String blobId = entries.get(filename);
+        if (blobId == null) return null;
+
+        try {
+            Blob blob = Blob.loadFromDisk(blobId, repository);
+            return blob.getContent();
+        } catch (IOException e) {
+            System.out.println("Error loading blob content for " + filename + ": " + e.getMessage());
+            return null;
+        }
+    }
+
     private String computeSHA1(String content) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");

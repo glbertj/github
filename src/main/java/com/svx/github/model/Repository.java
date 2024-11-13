@@ -3,6 +3,9 @@ package com.svx.github.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public record Repository(String name, String path) {
     private static final ObservableList<Repository> repositories = FXCollections.observableArrayList();
 
@@ -14,11 +17,15 @@ public record Repository(String name, String path) {
         repositories.add(repository);
     }
 
-    public static Repository getRepository(String name) {
-        return repositories.stream().filter(repository -> repository.name().equals(name)).findFirst().orElse(null);
+    public Path getGitPath() {
+        return Paths.get(path, ".git");
     }
 
-    public static void removeRepository(Repository repository) {
-        repositories.remove(repository);
+    public Path getObjectsPath() {
+        return getGitPath().resolve("objects");
+    }
+
+    public Path getIndexPath() {
+        return getGitPath().resolve("index");
     }
 }

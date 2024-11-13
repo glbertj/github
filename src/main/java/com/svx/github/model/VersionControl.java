@@ -1,20 +1,22 @@
 package com.svx.github.model;
 
 import com.svx.github.manager.ReferenceManager;
+import com.svx.github.manager.RepositoryManager;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class VersionControl {
+    private final Repository repository;
     private final ReferenceManager referenceManager;
     private final Index index;
+    private Commit currentCommit;
 
-    public VersionControl() {
-        this.referenceManager = new ReferenceManager();
-        this.index = new Index();
-    }
-
-    public Index getIndex() {
-        return index;
+    public VersionControl(Repository repository) {
+        this.repository = repository;
+        this.referenceManager = new ReferenceManager(repository);
+        this.index = new Index(repository);
+        loadCurrentCommit();
     }
 
     public void commitChanges(String message) {
@@ -23,25 +25,52 @@ public class VersionControl {
             return;
         }
 
-//        Tree newTree = new Tree();
-//        for (Map.Entry<String, Blob> entry : index.getStagedFiles().entrySet()) {
-//            newTree.addEntry(entry.getKey(), entry.getValue());
-//        }
+        Tree newTree = createTreeFromIndex();
 
-//        Commit newCommit;
-//        if (referenceManager.hasCommits()) {
-//            newCommit = new Commit(newTree, message, referenceManager.getHead());
-//        } else {
-//            newCommit = new Commit(newTree, message, null);
-//        }
+        Commit newCommit = new Commit(newTree.getId(), message,
+                currentCommit != null ? currentCommit.getId() : null,
+                repository);
+        newCommit.saveToDisk();
 
-//        referenceManager.setHead(newCommit);
-//        index.clear();
-//        System.out.println("Commit created with ID: " + newCommit.getId());
+        try {
+            referenceManager.saveHeadCommitId(newCommit.getId());
+        } catch (IOException e) {
+            System.out.println("Error updating HEAD reference: " + e.getMessage());
+        }
+
+        currentCommit = newCommit;
+        index.clear();
+        System.out.println("Commit created with ID: " + newCommit.getId());
     }
 
+    private Tree createTreeFromIndex() {
+        Tree newTree = new Tree(repository);
+
+        for (Map.Entry<String, String> entry : index.getStagedFiles().entrySet()) {
+            newTree.addEntry(entry.getKey(), entry.getValue());
+        }
+
+        newTree.saveToDisk();
+        return newTree;
+    }
+
+    private void loadCurrentCommit() {
+        try {
+            String commitId = referenceManager.loadHeadCommitId();
+            if (commitId != null) {
+                currentCommit = Commit.loadFromDisk(commitId, repository);
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading current commit: " + e.getMessage());
+            currentCommit = null;
+        }
+    }
+
+    public Index getIndex() {
+        return index;
+    }
 
     public Commit getCurrentCommit() {
-        return referenceManager.getHead();
+        return currentCommit;
     }
 }

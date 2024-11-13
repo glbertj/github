@@ -7,8 +7,8 @@ public class Index {
     private final Map<String, Blob> stagedFiles = new HashMap<>();
 
     public void addFile(String filename, String content) {
-        Blob blob = new Blob(content);
-        stagedFiles.put(filename, blob);
+//        Blob blob = new Blob(content);
+//        stagedFiles.put(filename, blob);
     }
 
     public Map<String, Blob> getStagedFiles() {

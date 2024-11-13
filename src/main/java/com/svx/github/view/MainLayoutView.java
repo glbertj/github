@@ -31,7 +31,6 @@ public class MainLayoutView extends View<BorderPane> {
     // changes tab
     private VBox changesTab;
     private VBox changedFilesList;
-    private Button testButton;
     private Button commitButton;
 
     // history tab
@@ -128,9 +127,8 @@ public class MainLayoutView extends View<BorderPane> {
         changedFilesList.setSpacing(5);
 
         commitButton = new Button("Commit");
-        testButton = new Button("Do testings");
 
-        changesTab.getChildren().addAll(changesLabel, changedFilesList, commitButton, testButton);
+        changesTab.getChildren().addAll(changesLabel, changedFilesList, commitButton);
     }
 
     private void initializeHistoryTab() {
@@ -187,10 +185,6 @@ public class MainLayoutView extends View<BorderPane> {
     // Changes tab
     public Button getCommitButton() {
         return commitButton;
-    }
-
-    public Button getTestButton() {
-        return testButton;
     }
 
     public VBox getChangedFilesList() {

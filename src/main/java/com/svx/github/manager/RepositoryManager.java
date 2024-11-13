@@ -11,22 +11,24 @@ public class RepositoryManager {
     private static final ObjectProperty<Repository> currentRepository = new SimpleObjectProperty<>();
     private static final Map<Repository, VersionControl> versionControlMap = new HashMap<>();
 
-    private RepositoryManager() {}
+    public static void setCurrentRepository(Repository repository) {
+        currentRepository.set(repository);
+
+        if (!versionControlMap.containsKey(repository)) {
+            versionControlMap.put(repository, new VersionControl(repository));
+        }
+    }
+
+    public static ObjectProperty<Repository> currentRepositoryProperty() {
+        return currentRepository;
+    }
 
     public static Repository getCurrentRepository() {
         return currentRepository.get();
     }
 
-    public static void setCurrentRepository(Repository repository) {
-        currentRepository.set(repository);
-
-        if (!versionControlMap.containsKey(repository)) {
-            versionControlMap.put(repository, new VersionControl());
-        }
-    }
-
     public static VersionControl getVersionControl() {
-        Repository activeRepo = getCurrentRepository();
-        return activeRepo != null ? versionControlMap.get(activeRepo) : null;
+        Repository repository = currentRepository.get();
+        return versionControlMap.get(repository);
     }
 }

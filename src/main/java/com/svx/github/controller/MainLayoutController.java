@@ -7,7 +7,10 @@ import com.svx.github.model.*;
 import com.svx.github.utility.DiffUtility;
 import com.svx.github.view.MainLayoutView;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import java.io.IOException;
+import java.util.Map;
+
 public class MainLayoutController extends Controller<MainLayoutView> {
 
     public MainLayoutController(AppController appController) {
@@ -19,6 +22,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     protected void setActions() {
         setMenuActions();
         setSidebarActions();
+        setListeners();
     }
 
     private void setMenuActions() {
@@ -44,8 +48,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             view.getTextArea().clear();
         });
 
-        view.getTestButton().setOnAction(e -> performTest());
-
         view.getRepositoryDropdown().valueProperty().addListener((observable, oldRepository, newRepository) -> {
             if (newRepository != null) {
                 RepositoryManager.setCurrentRepository(newRepository);
@@ -53,37 +55,65 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         });
     }
 
+    private void setListeners() {
+        RepositoryManager.currentRepositoryProperty().addListener((observable, oldRepo, newRepo) -> {
+            if (newRepo != null) {
+                detectAndStageChanges();
+                updateChangedFilesList();
+            }
+        });
+    }
+
+    private void detectAndStageChanges() {
+        VersionControl versionControl = RepositoryManager.getVersionControl();
+        if (versionControl != null) {
+            versionControl.getIndex().detectAndStageChanges();
+        }
+    }
+
     public void updateChangedFilesList() {
         VersionControl versionControl = RepositoryManager.getVersionControl();
         if (versionControl == null) return;
 
         view.getChangedFilesList().getChildren().clear();
-        versionControl.getIndex().getStagedFiles().forEach((filename, blob) -> {
+
+        Map<String, String> stagedFiles = versionControl.getIndex().getStagedFiles();
+        if (stagedFiles == null || stagedFiles.isEmpty()) {
+            Label noChangesLabel = new Label("No changed files.");
+            view.getChangedFilesList().getChildren().add(noChangesLabel);
+            return;
+        }
+
+        stagedFiles.forEach((filename, blobId) -> {
             Button fileButton = new Button(filename);
-            fileButton.setOnAction(e -> showFileDifference(filename, blob.getContent()));
+            fileButton.setOnAction(e -> showFileDifference(filename, blobId));
             view.getChangedFilesList().getChildren().add(fileButton);
         });
     }
 
-    private void showFileDifference(String filename, String newContent) {
+    private void showFileDifference(String filename, String blobId) {
         VersionControl versionControl = RepositoryManager.getVersionControl();
         if (versionControl == null) return;
 
-        Commit currentCommit = versionControl.getCurrentCommit();
-        Tree currentTree = currentCommit != null ? currentCommit.getTree() : null;
-
+        String newContent = "";
         String oldContent = "";
-        if (currentTree != null) {
-//            Blob lastBlob = currentTree.getBlob(filename);
-//            oldContent = lastBlob != null ? lastBlob.getContent() : "";
+
+        try {
+            Blob currentBlob = Blob.loadFromDisk(blobId, RepositoryManager.getCurrentRepository());
+            newContent = currentBlob.getContent();
+        } catch (IOException e) {
+            System.out.println("Error loading current content: " + e.getMessage());
+        }
+
+        Commit latestCommit = versionControl.getCurrentCommit();
+        if (latestCommit != null) {
+            Tree tree = latestCommit.getTree();
+            if (tree != null) {
+                oldContent = tree.getBlobContent(filename);
+            }
         }
 
         String difference = DiffUtility.getDifference(oldContent, newContent);
-
         view.getTextArea().setText(difference);
-    }
-
-    private void performTest() {
-
     }
 }

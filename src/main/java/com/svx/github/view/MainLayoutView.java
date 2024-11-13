@@ -1,8 +1,8 @@
 package com.svx.github.view;
 
 import com.svx.github.model.Repository;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -10,26 +10,41 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 
 public class MainLayoutView extends View<BorderPane> {
+    // Top bar //
     private final VBox topBarContainer;
+
+    // Menu
     private MenuItem createRepositoryMenu;
     private MenuItem addRepositoryMenu;
     private MenuItem exitMenu;
 
+    // Top bar buttons
     private ComboBox<Repository> repositoryDropdown;
 
+    // Sidebar //
     private final BorderPane sideBar;
+
+    // Sidebar header
     private Button changesButton;
     private Button historyButton;
 
+    // changes tab
     private VBox changesTab;
+    private VBox changedFilesList;
+    private Button stageAllButton;
     private Button commitButton;
 
+    // history tab
     private VBox historyTab;
 
+    // Main Content //
     private final StackPane mainContent;
+    private TextArea textArea;
 
     public MainLayoutView() {
         super();
@@ -45,8 +60,8 @@ public class MainLayoutView extends View<BorderPane> {
         styleReference = Objects.requireNonNull(getClass().getResource("/com/svx/github/style/main-layout.css")).toExternalForm();
 
         initializeTopBar();
-
         initializeSideBar();
+        initializeMainContent();
 
         root.setTop(topBarContainer);
         root.setLeft(sideBar);
@@ -112,13 +127,15 @@ public class MainLayoutView extends View<BorderPane> {
 
     private void initializeChangesTab() {
         changesTab = new VBox();
-
         Label changesLabel = new Label("Changes");
 
-        commitButton = new Button("Commit");
+        changedFilesList = new VBox();
+        changedFilesList.setSpacing(5);
 
-        changesTab.getChildren().addAll(
-                changesLabel, commitButton);
+        commitButton = new Button("Commit");
+        stageAllButton = new Button("Stage File (Test)");
+
+        changesTab.getChildren().addAll(changesLabel, changedFilesList, commitButton, stageAllButton);
     }
 
     private void initializeHistoryTab() {
@@ -128,6 +145,12 @@ public class MainLayoutView extends View<BorderPane> {
 
         historyTab.getChildren().addAll(
                 historyLabel);
+    }
+
+    private void initializeMainContent() {
+        textArea = new TextArea();
+
+        mainContent.getChildren().add(textArea);
     }
 
     // Change sidebar tab
@@ -166,8 +189,21 @@ public class MainLayoutView extends View<BorderPane> {
         return historyButton;
     }
 
-    // Sidebar changes tab
+    // Changes tab
     public Button getCommitButton() {
         return commitButton;
+    }
+
+    public Button getStageAllButton() {
+        return stageAllButton;
+    }
+
+    public VBox getChangedFilesList() {
+        return changedFilesList;
+    }
+
+    // Main content
+    public TextArea getTextArea() {
+        return textArea;
     }
 }

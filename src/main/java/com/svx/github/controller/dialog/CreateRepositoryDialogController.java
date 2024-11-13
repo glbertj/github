@@ -1,5 +1,6 @@
 package com.svx.github.controller.dialog;
 
+import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.Debounce;
 import com.svx.github.model.Repository;
 import com.svx.github.utility.GitUtility;
@@ -64,12 +65,14 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
                 System.out.println("Error creating index file: " + error.getMessage());
             }
 
-            Repository.addRepository(new Repository(view.getNameField().getText(), view.getPathField().getText()));
+            Repository newRepo = new Repository(view.getNameField().getText(), view.getPathField().getText());
+            Repository.addRepository(newRepo);
+            RepositoryManager.setCurrentRepository(newRepo);
 
             try {
                 Files.setAttribute(gitDir.toPath(), "dos:hidden", true);
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
+                System.out.println("Error setting directory attribute: " + ex.getMessage());
             }
 
             hideDialog();
@@ -78,7 +81,7 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
 
     private void initializeDebounce() {
         debounce = new Debounce(Duration.seconds(0.5), () -> {
-            if (GitUtility.hasRepository(view.getPathField().getText(), view)) {
+            if (GitUtility.hasRepository(view.getPathField().getText())) {
                 view.getErrorLabel().setText("Repository already exists");
                 view.getConfirmButton().setDisable(true);
             } else {

@@ -35,6 +35,7 @@ public class MainLayoutView extends View<BorderPane> {
 
     // history tab
     private VBox historyTab;
+    private VBox historyList;
 
     // Main Content //
     private final StackPane mainContent;
@@ -136,8 +137,11 @@ public class MainLayoutView extends View<BorderPane> {
 
         Label historyLabel = new Label("History");
 
+        historyList = new VBox();
+
         historyTab.getChildren().addAll(
-                historyLabel);
+                historyLabel,
+                historyList);
     }
 
     private void initializeMainContent() {
@@ -189,6 +193,11 @@ public class MainLayoutView extends View<BorderPane> {
 
     public VBox getChangedFilesList() {
         return changedFilesList;
+    }
+
+    // History tab
+    public VBox getHistoryList() {
+        return historyList;
     }
 
     // Main content

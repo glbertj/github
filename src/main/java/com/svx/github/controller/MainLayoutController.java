@@ -1,10 +1,12 @@
 package com.svx.github.controller;
 
 import com.svx.github.controller.dialog.AddRepositoryDialogController;
+import com.svx.github.controller.dialog.CommitMessageDialogController;
 import com.svx.github.controller.dialog.CreateRepositoryDialogController;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
 import com.svx.github.utility.DiffUtility;
+import com.svx.github.utility.TimeUtility;
 import com.svx.github.view.MainLayoutView;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -37,16 +39,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getChangesButton().setOnAction(e -> view.showChangesTab());
         view.getHistoryButton().setOnAction(e -> view.showHistoryTab());
 
-        view.getCommitButton().setOnAction(e -> {
-            VersionControl versionControl = RepositoryManager.getVersionControl();
-            if (versionControl == null) return;
-
-            System.out.println("Committing changes...");
-            versionControl.commitChanges("Commit from UI");
-
-            updateChangedFilesList();
-            view.getTextArea().clear();
-        });
+        view.getCommitButton().setOnAction(e -> handleCommitAction());
 
         view.getRepositoryDropdown().valueProperty().addListener((observable, oldRepository, newRepository) -> {
             if (newRepository != null) {
@@ -115,5 +108,69 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         String difference = DiffUtility.getDifference(oldContent, newContent);
         view.getTextArea().setText(difference);
+    }
+
+    private void handleCommitAction() {
+        VersionControl versionControl = RepositoryManager.getVersionControl();
+        if (versionControl == null) return;
+
+        CommitMessageDialogController dialogController = new CommitMessageDialogController();
+        appController.openDialog(dialogController);
+
+        String commitMessage = dialogController.showAndGetCommitMessage();
+        if (commitMessage == null || commitMessage.isEmpty()) {
+            System.out.println("Commit canceled or message was empty.");
+            return;
+        }
+
+        versionControl.commitChanges(commitMessage);
+        updateChangedFilesList();
+        updateHistoryTab();
+    }
+
+    public void updateHistoryTab() {
+        VersionControl versionControl = RepositoryManager.getVersionControl();
+        if (versionControl == null) return;
+
+        view.getHistoryList().getChildren().clear();
+
+        Commit commit = versionControl.getCurrentCommit();
+        while (commit != null) {
+            String commitDisplayText = String.format("Commit: %s\nMessage: %s\nDate: %s",
+                    commit.getId(), commit.getMessage(), commit.getTimestamp());
+
+            Button commitButton = new Button(commitDisplayText);
+            Commit finalCommit = commit;
+            commitButton.setOnAction(e -> showCommitDetails(finalCommit));
+            view.getHistoryList().getChildren().add(commitButton);
+
+            String parentCommitId = commit.getParentId();
+            if (parentCommitId != null) {
+                try {
+                    commit = Commit.loadFromDisk(parentCommitId, RepositoryManager.getCurrentRepository());
+                } catch (IOException e) {
+                    System.out.println("Error loading commit: " + e.getMessage());
+                    break;
+                }
+            } else {
+                commit = null;
+            }
+        }
+    }
+
+    private void showCommitDetails(Commit commit) {
+        if (commit == null) return;
+
+        StringBuilder commitDetails = new StringBuilder(String.format("Commit ID: %s\nMessage: %s\nDate: %s\n\nFiles:\n",
+                commit.getId(), commit.getMessage(), TimeUtility.formatTimestamp(commit.getTimestamp())));
+
+        Tree tree = commit.getTree();
+        if (tree != null) {
+            for (String filename : tree.getFilenames()) {
+                commitDetails.append("- ").append(filename).append("\n");
+            }
+        }
+
+        view.getTextArea().setText(commitDetails.toString());
     }
 }

@@ -10,7 +10,9 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
@@ -36,6 +38,10 @@ public class Tree {
 
     public Map<String, String> getEntries() {
         return entries;
+    }
+
+    public List<String> getFilenames() {
+        return new ArrayList<>(entries.keySet());
     }
 
     public String getBlobContent(String filename) {

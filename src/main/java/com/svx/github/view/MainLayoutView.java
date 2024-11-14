@@ -10,6 +10,15 @@ import javafx.util.StringConverter;
 import java.util.Objects;
 
 public class MainLayoutView extends View<BorderPane> {
+    // Global //
+    public void showInfoMessage(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Info");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     // Top bar //
     private final VBox topBarContainer;
 

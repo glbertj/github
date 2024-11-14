@@ -125,6 +125,12 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         VersionControl versionControl = RepositoryManager.getVersionControl();
         if (versionControl == null) return;
 
+        if (versionControl.getIndex().getStagedFiles().isEmpty()) {
+            System.out.println("No changes staged for commit.");
+            view.showInfoMessage("No changes staged for commit.");
+            return;
+        }
+
         CommitMessageDialogController dialogController = new CommitMessageDialogController();
         appController.openDialog(dialogController);
 

@@ -53,6 +53,14 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             if (newRepo != null) {
                 detectAndStageChanges();
                 updateChangedFilesList();
+                view.getRepositoryDropdown().getSelectionModel().select(newRepo);
+            }
+        });
+
+        appController.getFocusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                detectAndStageChanges();
+                updateChangedFilesList();
             }
         });
     }
@@ -106,7 +114,10 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             }
         }
 
-        String difference = DiffUtility.getDifference(oldContent, newContent);
+        String difference = DiffUtility.getDifference(
+                oldContent != null ? oldContent : "",
+                newContent != null ? newContent : ""
+        );
         view.getTextArea().setText(difference);
     }
 

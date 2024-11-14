@@ -53,7 +53,6 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
                 view.getErrorLabel().setText("The selected directory is not a valid Git repository.");
             }
         });
-
     }
 
     private String loadRepositoryName(Path configFilePath) {
@@ -76,7 +75,6 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
         }
         return "Unnamed Repository";
     }
-
 
     private void initializeDebounce() {
         debounce = new Debounce(Duration.seconds(0.5), () -> {

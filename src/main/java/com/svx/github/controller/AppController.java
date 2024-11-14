@@ -5,6 +5,7 @@ import com.svx.github.manager.SessionManager;
 import com.svx.github.model.User;
 import com.svx.github.view.View;
 import com.svx.github.view.dialog.DialogView;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
@@ -48,5 +49,9 @@ public class AppController {
 
     public void exitApp() {
         primaryStage.close();
+    }
+
+    public ReadOnlyBooleanProperty getFocusedProperty() {
+        return primaryStage.focusedProperty();
     }
 }

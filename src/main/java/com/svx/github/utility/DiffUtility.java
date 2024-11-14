@@ -6,8 +6,8 @@ import java.util.List;
 public class DiffUtility {
 
     public static String getDifference(String oldContent, String newContent) {
-        String[] oldLines = oldContent.split("\n");
-        String[] newLines = newContent.split("\n");
+        String[] oldLines = (oldContent != null) ? oldContent.split("\n") : new String[0];
+        String[] newLines = (newContent != null) ? newContent.split("\n") : new String[0];
 
         List<String> diff = new ArrayList<>();
 
@@ -33,4 +33,5 @@ public class DiffUtility {
 
         return String.join("\n", diff);
     }
+
 }

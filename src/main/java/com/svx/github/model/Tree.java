@@ -36,10 +36,6 @@ public class Tree {
         return id;
     }
 
-    public Map<String, String> getEntries() {
-        return entries;
-    }
-
     public List<String> getFilenames() {
         return new ArrayList<>(entries.keySet());
     }

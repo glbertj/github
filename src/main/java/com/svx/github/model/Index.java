@@ -11,6 +11,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class Index {
     private final Map<String, String> stagedFiles;
@@ -29,9 +30,8 @@ public class Index {
 
     public void detectAndStageChanges() {
         Path repoPath = repository.path();
-        try {
-            Files.walk(repoPath)
-                    .filter(Files::isRegularFile)
+        try (Stream<Path> paths = Files.walk(repoPath)) {
+            paths.filter(Files::isRegularFile)
                     .filter(path -> !path.startsWith(repoPath.resolve(".git")))
                     .forEach(this::processFileForStaging);
         } catch (IOException e) {

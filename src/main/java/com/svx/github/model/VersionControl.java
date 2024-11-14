@@ -1,8 +1,6 @@
 package com.svx.github.model;
 
 import com.svx.github.manager.ReferenceManager;
-import com.svx.github.manager.RepositoryManager;
-
 import java.io.IOException;
 import java.util.Map;
 

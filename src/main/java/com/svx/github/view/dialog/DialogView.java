@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 public abstract class DialogView<T extends Parent> {
     protected Stage dialogStage;
     protected T root;
-    protected String styleReference;
+    protected final String styleReference;
 
     protected Button cancelButton;
     protected Button confirmButton;

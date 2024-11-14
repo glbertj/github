@@ -1,10 +1,8 @@
 package com.svx.github.controller;
 
 import com.svx.github.controller.dialog.DialogController;
-import com.svx.github.manager.RepositoryManager;
 import com.svx.github.manager.SessionManager;
 import com.svx.github.model.User;
-import com.svx.github.model.VersionControl;
 import com.svx.github.view.View;
 import com.svx.github.view.dialog.DialogView;
 import javafx.scene.Parent;

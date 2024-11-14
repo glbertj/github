@@ -23,9 +23,7 @@ public class CommitMessageDialogView extends DialogView<VBox> {
         cancelButton = new Button("Cancel");
         errorLabel = new Label("");
 
-        messageTextArea.textProperty().addListener((observable, oldValue, newValue) -> {
-            confirmButton.setDisable(newValue.trim().isEmpty());
-        });
+        messageTextArea.textProperty().addListener((observable, oldValue, newValue) -> confirmButton.setDisable(newValue.trim().isEmpty()));
 
         root.getChildren().addAll(
                 messageLabel,

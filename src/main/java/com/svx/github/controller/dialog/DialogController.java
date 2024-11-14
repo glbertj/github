@@ -6,7 +6,7 @@ import javafx.scene.Scene;
 import java.util.Objects;
 
 public abstract class DialogController<T extends DialogView<? extends Parent>> {
-    protected T view;
+    protected final T view;
 
     public DialogController(T view) {
         this.view = view;

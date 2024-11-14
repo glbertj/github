@@ -2,9 +2,7 @@ package com.svx.github.model;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public record Repository(String name, Path path) {
     private static final ObservableList<Repository> repositories = FXCollections.observableArrayList();

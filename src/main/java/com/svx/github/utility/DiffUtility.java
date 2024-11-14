@@ -16,14 +16,12 @@ public class DiffUtility {
             if (oldIndex < oldLines.length && newIndex < newLines.length) {
                 if (oldLines[oldIndex].equals(newLines[newIndex])) {
                     diff.add("  " + oldLines[oldIndex]);
-                    oldIndex++;
-                    newIndex++;
                 } else {
                     diff.add("- " + oldLines[oldIndex]);
                     diff.add("+ " + newLines[newIndex]);
-                    oldIndex++;
-                    newIndex++;
                 }
+                oldIndex++;
+                newIndex++;
             } else if (oldIndex < oldLines.length) {
                 diff.add("- " + oldLines[oldIndex]);
                 oldIndex++;

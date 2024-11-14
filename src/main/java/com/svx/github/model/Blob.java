@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -21,7 +19,7 @@ public class Blob {
 
     public Blob(String content, Repository repository) {
         this.content = content;
-        this.id = computeSHA1(content);
+        this.id = HashUtility.computeSHA1(content);
         this.repository = repository;
         saveBlobToDisk();
     }
@@ -32,16 +30,6 @@ public class Blob {
 
     public String getContent() {
         return content;
-    }
-
-    private String computeSHA1(String content) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] encodedHash = digest.digest(content.getBytes(StandardCharsets.UTF_8));
-            return HashUtility.bytesToHex(encodedHash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-1 algorithm not found");
-        }
     }
 
     private void saveBlobToDisk() {
@@ -60,6 +48,11 @@ public class Blob {
         } catch (IOException e) {
             System.out.println("Error saving blob to disk: " + e.getMessage());
         }
+    }
+
+    public static String computeBlobId(Path filePath) throws IOException {
+        String content = Files.readString(filePath);
+        return HashUtility.computeSHA1(content);
     }
 
     public static Blob loadFromDisk(String id, Repository repository) throws IOException {

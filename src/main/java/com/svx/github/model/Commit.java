@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
@@ -28,7 +26,7 @@ public class Commit {
         this.parentId = parentId;
         this.timestamp = LocalDateTime.now();
         this.repository = repository;
-        this.id = computeSHA1(getContentForHashing());
+        this.id = HashUtility.computeSHA1(getContentForHashing());
         saveToDisk();
     }
 
@@ -55,16 +53,6 @@ public class Commit {
 
     public LocalDateTime getTimestamp() {
         return timestamp;
-    }
-
-    private String computeSHA1(String content) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] encodedHash = digest.digest(content.getBytes(StandardCharsets.UTF_8));
-            return HashUtility.bytesToHex(encodedHash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-1 algorithm not found!");
-        }
     }
 
     private String getContentForHashing() {

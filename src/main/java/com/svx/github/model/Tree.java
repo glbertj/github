@@ -7,8 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +23,7 @@ public class Tree {
     public Tree(Repository repository) {
         this.entries = new HashMap<>();
         this.repository = repository;
-        this.id = computeSHA1(getContentForHashing());
+        this.id = HashUtility.computeSHA1(getContentForHashing());
     }
 
     public void addEntry(String name, String objectId) {
@@ -40,6 +38,10 @@ public class Tree {
         return new ArrayList<>(entries.keySet());
     }
 
+    public String getBlobId(String filename) {
+        return entries.get(filename);
+    }
+
     public String getBlobContent(String filename) {
         String blobId = entries.get(filename);
         if (blobId == null) return null;
@@ -50,16 +52,6 @@ public class Tree {
         } catch (IOException e) {
             System.out.println("Error loading blob content for " + filename + ": " + e.getMessage());
             return null;
-        }
-    }
-
-    private String computeSHA1(String content) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] encodedHash = digest.digest(content.getBytes(StandardCharsets.UTF_8));
-            return HashUtility.bytesToHex(encodedHash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-1 algorithm not found!");
         }
     }
 

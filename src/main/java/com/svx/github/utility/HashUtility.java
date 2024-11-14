@@ -1,6 +1,21 @@
 package com.svx.github.utility;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class HashUtility {
+
+    public static String computeSHA1(String content) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            byte[] encodedHash = digest.digest(content.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(encodedHash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-1 algorithm not found!", e);
+        }
+    }
+
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (byte b : hash) {

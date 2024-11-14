@@ -1,5 +1,6 @@
 package com.svx.github.model;
 
+import com.svx.github.manager.RepositoryManager;
 import com.svx.github.utility.HashUtility;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -7,8 +8,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -30,10 +29,26 @@ public class Index {
 
     public void detectAndStageChanges() {
         Path repoPath = repository.path();
+        Commit latestCommit = RepositoryManager.getVersionControl().getCurrentCommit();
+        Tree lastCommitTree = (latestCommit != null) ? latestCommit.getTree() : null;
+
         try (Stream<Path> paths = Files.walk(repoPath)) {
             paths.filter(Files::isRegularFile)
                     .filter(path -> !path.startsWith(repoPath.resolve(".git")))
-                    .forEach(this::processFileForStaging);
+                    .forEach(path -> {
+                        String filename = repoPath.relativize(path).toString();
+
+                        String currentBlobId = null;
+                        try {
+                            currentBlobId = Blob.computeBlobId(path);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        if (lastCommitTree == null || !currentBlobId.equals(lastCommitTree.getBlobId(filename))) {
+                            processFileForStaging(path);
+                        }
+                    });
         } catch (IOException e) {
             System.out.println("Error scanning repository for changes: " + e.getMessage());
         }
@@ -42,7 +57,7 @@ public class Index {
     private void processFileForStaging(Path filePath) {
         try {
             String content = Files.readString(filePath, StandardCharsets.UTF_8);
-            String blobId = computeSHA1(content);
+            String blobId = HashUtility.computeSHA1(content);
             String relativePath = repository.path().relativize(filePath).toString();
 
             if (!stagedFiles.containsKey(relativePath) || !stagedFiles.get(relativePath).equals(blobId)) {
@@ -52,16 +67,6 @@ public class Index {
             }
         } catch (IOException e) {
             System.out.println("Error reading file: " + filePath + " - " + e.getMessage());
-        }
-    }
-
-    private String computeSHA1(String content) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] encodedHash = digest.digest(content.getBytes(StandardCharsets.UTF_8));
-            return HashUtility.bytesToHex(encodedHash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-1 algorithm not found!");
         }
     }
 

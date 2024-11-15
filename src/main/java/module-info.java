@@ -5,6 +5,7 @@ module com.svx.github {
     requires jbcrypt;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.fontawesome5;
+    requires com.fasterxml.jackson.databind;
 
 
     opens com.svx.github.main to javafx.fxml;

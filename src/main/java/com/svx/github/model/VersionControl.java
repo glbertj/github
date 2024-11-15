@@ -42,14 +42,15 @@ public class VersionControl {
     }
 
     private Tree createTreeFromIndex() {
-        Tree newTree = new Tree(repository);
-
-        for (Map.Entry<String, String> entry : index.getStagedFiles().entrySet()) {
-            newTree.addEntry(entry.getKey(), entry.getValue());
-        }
-
-        newTree.saveToDisk();
-        return newTree;
+//        Tree newTree = new Tree(repository);
+//
+//        for (Map.Entry<String, String> entry : index.getStagedFiles().entrySet()) {
+//            newTree.addEntry(entry.getKey(), entry.getValue());
+//        }
+//
+//        newTree.saveToDisk();
+//        return newTree;
+        return null;
     }
 
     private void loadCurrentCommit() {

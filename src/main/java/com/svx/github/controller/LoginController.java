@@ -19,12 +19,12 @@ public class LoginController extends Controller<LoginView> {
         String username = view.getUsernameField().getText();
         String password = view.getPasswordField().getText();
 
-//        boolean loginSuccessful = UserRepository.authenticate(username, password);
-//        if (loginSuccessful) {
+        boolean loginSuccessful = UserRepository.authenticate(username, password);
+        if (loginSuccessful) {
             appController.navigatePage(new MainLayoutController(appController));
-//        } else {
-//            view.getErrorLabel().setText("Wrong credentials");
-//        }
+        } else {
+            view.getErrorLabel().setText("Wrong credentials");
+        }
     }
 
     private void handleRegisterNavigation() {

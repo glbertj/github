@@ -9,11 +9,19 @@ import java.util.Map;
 public class JsonUtility {
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static String serialize(Map<String, String> entries) throws JsonProcessingException {
-        return mapper.writeValueAsString(entries);
+    public static String serialize(Map<String, String> entries) {
+        try {
+            return mapper.writeValueAsString(entries);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static Map<String, String> deserialize(String json) throws IOException {
-        return mapper.readValue(json, new TypeReference<>() {});
+    public static Map<String, String> deserialize(String json) {
+        try {
+            return mapper.readValue(json, new TypeReference<>() {});
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

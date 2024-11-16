@@ -5,31 +5,33 @@ import com.svx.github.model.Commit;
 import com.svx.github.model.Repository;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class CommitRepository {
 
-    public static void saveToDatabase(Commit commit) {
-        String query = "INSERT INTO commits (commit_id, repository_id, tree_id, parent_commit_id, message, timestamp) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = ConnectionManager.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, commit.getDatabaseUuid());
-            stmt.setString(2, String.valueOf(commit.getRepository().id()));
-            stmt.setString(3, commit.getTreeId());
-            stmt.setString(4, commit.getParentId());
-            stmt.setString(5, commit.getMessage());
-            stmt.setTimestamp(6, Timestamp.valueOf(commit.getTimestamp()));
+    public static boolean save(Commit commit) {
+        String query = "INSERT INTO commits (id, tree_id, parent_commit_id, message, timestamp) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, commit.getId());
+            stmt.setString(2, commit.getTreeId());
+            stmt.setString(3, commit.getParentId());
+            stmt.setString(4, commit.getMessage());
+            stmt.setTimestamp(5, Timestamp.valueOf(commit.getTimestamp()));
+
             stmt.executeUpdate();
-            System.out.println("Commit saved to database: " + commit.getDatabaseUuid());
+            return true;
         } catch (SQLException e) {
             System.out.println("Error saving commit to database: " + e.getMessage());
+            return false;
         }
     }
 
-    public static Commit loadById(String commitId, Repository repository) {
-        String query = "SELECT * FROM commits WHERE commit_id = ?";
-        try (Connection conn = ConnectionManager.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+    public static Commit load(String commitId, Repository repository) {
+        String query = "SELECT tree_id, parent_commit_id, message, timestamp FROM commits WHERE id = ?";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
             stmt.setString(1, commitId);
             ResultSet rs = stmt.executeQuery();
 
@@ -38,10 +40,11 @@ public class CommitRepository {
                 String parentId = rs.getString("parent_commit_id");
                 String message = rs.getString("message");
                 LocalDateTime timestamp = rs.getTimestamp("timestamp").toLocalDateTime();
-                return new Commit(UUID.fromString(commitId), treeId, parentId, message, timestamp, commitId, repository);
+
+                return new Commit(commitId, treeId, parentId, message, timestamp);
             }
         } catch (SQLException e) {
-            System.out.println("Error loading commit: " + e.getMessage());
+            System.out.println("Error loading commit from database: " + e.getMessage());
         }
         return null;
     }

@@ -12,16 +12,15 @@ import java.sql.SQLException;
 
 public class BlobRepository {
 
-    public static boolean save(Blob blob, String ownerId) {
-        String query = "INSERT INTO blobs (blob_id, owner_id, content) VALUES (?, ?, ?)";
+    public static boolean save(Blob blob) {
+        String query = "INSERT INTO blobs (id, content) VALUES (?, ?)";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             byte[] compressedContent = CompressionUtility.compress(blob.getContent());
 
-            stmt.setString(1, blob.getDatabaseUuid());
-            stmt.setString(2, ownerId);
-            stmt.setBytes(3, compressedContent);
+            stmt.setString(1, blob.getId()); // SHA1 ID
+            stmt.setBytes(2, compressedContent);
             stmt.executeUpdate();
             return true;
         } catch (SQLException | IOException e) {
@@ -31,7 +30,7 @@ public class BlobRepository {
     }
 
     public static Blob load(String blobId, Repository repository) {
-        String query = "SELECT content FROM blobs WHERE blob_id = ?";
+        String query = "SELECT content FROM blobs WHERE id = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -41,7 +40,7 @@ public class BlobRepository {
             if (rs.next()) {
                 byte[] compressedContent = rs.getBytes("content");
                 String content = CompressionUtility.decompress(compressedContent);
-                return new Blob(content, blobId, repository);
+                return new Blob(content, repository);
             }
         } catch (SQLException | IOException e) {
             System.out.println("Error loading blob from database: " + e.getMessage());

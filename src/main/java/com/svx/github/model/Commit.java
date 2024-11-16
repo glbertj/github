@@ -1,60 +1,52 @@
 package com.svx.github.model;
 
-import com.svx.github.utility.CompressionUtility;
+import com.svx.github.utility.FileUtility;
 import com.svx.github.utility.HashUtility;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.UUID;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.InflaterInputStream;
 
 public class Commit {
-    private final UUID id; // UUID for commit
+    private final String id;
     private final String treeId;
     private final String parentId;
     private final String message;
     private final LocalDateTime timestamp;
-    private final Repository repository;
-    private final String databaseUuid;
 
-    public Commit(String treeId, String message, String parentId, Repository repository) {
+    public Commit(String treeId, String message, String parentId) {
         this.treeId = treeId;
         this.message = message;
         this.parentId = parentId;
         this.timestamp = LocalDateTime.now();
-        this.repository = repository;
-        this.id = UUID.randomUUID();  // Generate a unique commit ID
-        this.databaseUuid = UUID.randomUUID().toString();  // Generate a UUID for the database
-        saveToDisk();  // Save the commit to disk immediately
+        this.id = HashUtility.computeSHA1(getContentForHashing());
     }
 
-    public Commit(UUID id, String treeId, String parentId, String message, LocalDateTime timestamp, String databaseUuid, Repository repository) {
+    public Commit(String id, String treeId, String parentId, String message, LocalDateTime timestamp) {
         this.id = id;
         this.treeId = treeId;
         this.parentId = parentId;
         this.message = message;
         this.timestamp = timestamp;
-        this.repository = repository;
-        this.databaseUuid = databaseUuid;
     }
 
-    public UUID getId() {
-        return id;
+    private String getContentForHashing() {
+        return "tree " + treeId + "\n" +
+                (parentId != null ? "parent " + parentId + "\n" : "") +
+                "message " + message + "\n" +
+                "timestamp " + timestamp.toString();
     }
 
-    public Tree getTree() {
+    public void saveToDisk(Path objectsPath) {
         try {
-            return Tree.loadFromDisk(treeId, repository);
+            String content = getContentForHashing();
+            FileUtility.saveToDisk(id, content, objectsPath);
         } catch (IOException e) {
-            System.out.println("Error loading tree: " + e.getMessage());
-            return null;
+            System.out.println("Error saving commit to disk: " + e.getMessage());
         }
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getTreeId() {
@@ -73,51 +65,24 @@ public class Commit {
         return timestamp;
     }
 
-    public String getDatabaseUuid() {
-        return databaseUuid;
-    }
-
-    public Repository getRepository() {
-        return repository;
-    }
-
-    private String getContentForHashing() {
-        return "tree " + treeId + "\n" +
-                (parentId != null ? "parent " + parentId + "\n" : "") +
-                "message " + message + "\n" +
-                "timestamp " + timestamp.toString() + "\n";
-    }
-
-    public void saveToDisk() {
-        Path objectDir = repository.getObjectsPath().resolve(id.toString().substring(0, 2));
-        Path objectPath = objectDir.resolve(id.toString().substring(2));
-
-        try {
-            Files.createDirectories(objectDir);
-            byte[] compressedContent = CompressionUtility.compress(getContentForHashing());
-            Files.write(objectPath, compressedContent);
-            System.out.println("Commit saved to disk with ID: " + id);
-        } catch (IOException e) {
-            System.out.println("Error saving commit to disk: " + e.getMessage());
-        }
-    }
-
-    public static Commit loadFromDisk(UUID id, Repository repository) throws IOException {
-        Path objectPath = repository.getObjectsPath().resolve(id.toString().substring(0, 2)).resolve(id.toString().substring(2));
-
-        byte[] compressedContent = Files.readAllBytes(objectPath);
-        String content = CompressionUtility.decompress(compressedContent);
+    public static Commit loadFromDisk(String id, Path objectsPath) throws IOException {
+        String content = FileUtility.loadFromDisk(id, objectsPath);
 
         String treeId = null, parentId = null, message = null;
         LocalDateTime timestamp = null;
 
         for (String line : content.split("\n")) {
-            if (line.startsWith("tree ")) treeId = line.substring(5).trim();
-            else if (line.startsWith("parent ")) parentId = line.substring(7).trim();
-            else if (line.startsWith("message ")) message = line.substring(8).trim();
-            else if (line.startsWith("timestamp ")) timestamp = LocalDateTime.parse(line.substring(10).trim());
+            if (line.startsWith("tree ")) {
+                treeId = line.substring(5).trim();
+            } else if (line.startsWith("parent ")) {
+                parentId = line.substring(7).trim();
+            } else if (line.startsWith("message ")) {
+                message = line.substring(8).trim();
+            } else if (line.startsWith("timestamp ")) {
+                timestamp = LocalDateTime.parse(line.substring(10).trim());
+            }
         }
 
-        return new Commit(id, treeId, parentId, message, timestamp, null, repository);
+        return new Commit(id, treeId, parentId, message, timestamp);
     }
 }

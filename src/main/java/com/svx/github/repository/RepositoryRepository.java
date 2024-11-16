@@ -17,33 +17,40 @@ import java.util.UUID;
 
 public class RepositoryRepository {
 
-    public static void save(Repository repository) {
-        String query = "INSERT INTO repositories (repository_id, owner_id, name, latest_commit_id) VALUES (?, ?, ?, ?)";
-        try (Connection conn = ConnectionManager.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, repository.id().toString());
-            stmt.setString(2, repository.ownerId().toString());
-            stmt.setString(3, repository.name());
-            stmt.setString(4, repository.latestCommitId());
+    public static boolean save(Repository repository) {
+        String query = "INSERT INTO repositories (id, owner_id, name, head_commit_id) VALUES (?, ?, ?, ?)";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, repository.getId().toString());
+            stmt.setString(2, repository.getOwnerId().toString());
+            stmt.setString(3, repository.getName());
+            stmt.setString(4, repository.getLatestCommitId());
+
             stmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
-            System.out.println("Error saving repository: " + e.getMessage());
+            System.out.println("Error saving repository to database: " + e.getMessage());
+            return false;
         }
     }
 
-    public static ObservableList<Repository> loadAllUserRepositories(UUID ownerId) {
-        ObservableList<Repository> repositories = FXCollections.observableArrayList();
-        String query = "SELECT * FROM repositories WHERE owner_id = ?";
-        try (Connection conn = ConnectionManager.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+    public static List<Repository> loadAllUserRepositories(UUID ownerId) {
+        String query = "SELECT id, name, head_commit_id FROM repositories WHERE owner_id = ?";
+        List<Repository> repositories = new ArrayList<>();
+
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
             stmt.setString(1, ownerId.toString());
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                UUID id = UUID.fromString(rs.getString("repository_id"));
+                UUID id = UUID.fromString(rs.getString("id"));
                 String name = rs.getString("name");
-                String latestCommitId = rs.getString("latest_commit_id");
-                Repository repository = new Repository(id, name, latestCommitId, ownerId);
+                String headCommitId = rs.getString("head_commit_id");
+
+                Repository repository = new Repository(id, name, headCommitId, ownerId);
                 repositories.add(repository);
             }
         } catch (SQLException e) {
@@ -52,15 +59,18 @@ public class RepositoryRepository {
         return repositories;
     }
 
-    public static void updateLatestCommitId(UUID repositoryId, String latestCommitId) {
-        String query = "UPDATE repositories SET latest_commit_id = ? WHERE repository_id = ?";
-        try (Connection conn = ConnectionManager.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, latestCommitId);
+    public static boolean updateHead(UUID repositoryId, String commitId) {
+        String query = "UPDATE repositories SET head_commit_id = ? WHERE id = ?";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, commitId);
             stmt.setString(2, repositoryId.toString());
             stmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
-            System.out.println("Error updating latest commit ID: " + e.getMessage());
+            System.out.println("Error updating repository's latest commit ID: " + e.getMessage());
+            return false;
         }
     }
 }

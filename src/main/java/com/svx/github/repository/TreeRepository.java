@@ -14,27 +14,25 @@ import java.util.Map;
 
 public class TreeRepository {
 
-    public static boolean save(Tree tree, String ownerId) {
-        String query = "INSERT INTO trees (tree_id, owner_id, entries) VALUES (?, ?, ?)";
+    public static boolean save(Tree tree) {
+        String query = "INSERT INTO trees (id, entries) VALUES (?, ?)";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            String entriesJson = JsonUtility.serialize(tree.getEntries());
-            byte[] compressedEntries = CompressionUtility.compress(entriesJson);
+            String serializedEntries = JsonUtility.serialize(tree.getEntries());
 
-            stmt.setString(1, tree.getDatabaseUuid());
-            stmt.setString(2, ownerId);
-            stmt.setBytes(3, compressedEntries);
+            stmt.setString(1, tree.getId());
+            stmt.setString(2, serializedEntries);
             stmt.executeUpdate();
             return true;
-        } catch (SQLException | IOException e) {
+        } catch (SQLException e) {
             System.out.println("Error saving tree to database: " + e.getMessage());
             return false;
         }
     }
 
     public static Tree load(String treeId, Repository repository) {
-        String query = "SELECT entries, tree_id FROM trees WHERE tree_id = ?";
+        String query = "SELECT entries FROM trees WHERE id = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -42,14 +40,11 @@ public class TreeRepository {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                byte[] compressedEntries = rs.getBytes("entries");
-                String entriesJson = CompressionUtility.decompress(compressedEntries);
-                Map<String, String> entries = JsonUtility.deserialize(entriesJson);
-
-                String databaseUuid = rs.getString("tree_id");
-                return new Tree(treeId, entries, databaseUuid, repository);
+                String serializedEntries = rs.getString("entries");
+                Map<String, String> entries = JsonUtility.deserialize(serializedEntries);
+                return new Tree(entries);
             }
-        } catch (SQLException | IOException e) {
+        } catch (SQLException e) {
             System.out.println("Error loading tree from database: " + e.getMessage());
         }
         return null;

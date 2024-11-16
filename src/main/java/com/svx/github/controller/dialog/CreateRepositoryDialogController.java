@@ -3,6 +3,7 @@ package com.svx.github.controller.dialog;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.Debounce;
 import com.svx.github.model.Repository;
+import com.svx.github.model.UserSingleton;
 import com.svx.github.utility.GitUtility;
 import com.svx.github.view.dialog.CreateRepositoryDialogView;
 import javafx.stage.DirectoryChooser;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 public class CreateRepositoryDialogController extends DialogController<CreateRepositoryDialogView> {
     private Debounce debounce;
@@ -65,7 +67,7 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
                 System.out.println("Error setting up .git directory structure: " + ex.getMessage());
             }
 
-            Repository newRepo = new Repository(view.getNameField().getText(), path);
+            Repository newRepo = new Repository(UUID.randomUUID(), view.getNameField().getText(), "", UserSingleton.getCurrentUser().getId(), path);
             Repository.addRepository(newRepo);
             RepositoryManager.setCurrentRepository(newRepo);
 

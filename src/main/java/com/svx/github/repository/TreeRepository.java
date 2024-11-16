@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class TreeRepository {
 
-    public static boolean saveTreeToDatabase(Tree tree, String ownerId) {
+    public static boolean save(Tree tree, String ownerId) {
         String query = "INSERT INTO trees (tree_id, owner_id, entries) VALUES (?, ?, ?)";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -33,7 +33,7 @@ public class TreeRepository {
         }
     }
 
-    public static Tree loadTreeFromDatabase(String treeId, Repository repository) {
+    public static Tree load(String treeId, Repository repository) {
         String query = "SELECT entries, tree_id FROM trees WHERE tree_id = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {

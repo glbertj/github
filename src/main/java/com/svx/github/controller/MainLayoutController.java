@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 public class MainLayoutController extends Controller<MainLayoutView> {
 
@@ -164,7 +165,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             String parentCommitId = commit.getParentId();
             if (parentCommitId != null) {
                 try {
-                    commit = Commit.loadFromDisk(parentCommitId, RepositoryManager.getCurrentRepository());
+                    commit = Commit.loadFromDisk(UUID.fromString(parentCommitId), RepositoryManager.getCurrentRepository());
                 } catch (IOException e) {
                     System.out.println("Error loading commit: " + e.getMessage());
                     break;

@@ -3,6 +3,7 @@ package com.svx.github.controller.dialog;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.Debounce;
 import com.svx.github.model.Repository;
+import com.svx.github.model.UserSingleton;
 import com.svx.github.utility.GitUtility;
 import com.svx.github.view.dialog.AddRepositoryDialogView;
 import javafx.stage.DirectoryChooser;
@@ -11,6 +12,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 public class AddRepositoryDialogController extends DialogController<AddRepositoryDialogView> {
     private Debounce debounce;
@@ -42,7 +44,7 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
                 Path configFilePath = path.resolve(".git").resolve("config");
                 String repositoryName = loadRepositoryName(configFilePath);
 
-                Repository newRepo = new Repository(repositoryName, path);
+                Repository newRepo = new Repository(UUID.randomUUID(), repositoryName, "", UserSingleton.getCurrentUser().getId(), path);
                 Repository.addRepository(newRepo);
                 RepositoryManager.setCurrentRepository(newRepo);
 

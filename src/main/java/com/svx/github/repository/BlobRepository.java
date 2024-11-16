@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 public class BlobRepository {
 
-    public static boolean saveBlob(Blob blob, String ownerId) {
+    public static boolean save(Blob blob, String ownerId) {
         String query = "INSERT INTO blobs (blob_id, owner_id, content) VALUES (?, ?, ?)";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -30,7 +30,7 @@ public class BlobRepository {
         }
     }
 
-    public static Blob loadBlob(String blobId, Repository repository) {
+    public static Blob load(String blobId, Repository repository) {
         String query = "SELECT content FROM blobs WHERE blob_id = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {

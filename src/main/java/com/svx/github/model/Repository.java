@@ -3,8 +3,14 @@ package com.svx.github.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.nio.file.Path;
+import java.util.UUID;
 
-public record Repository(String name, Path path) {
+public record Repository(UUID id, String name, String latestCommitId, UUID ownerId, Path path) {
+
+    public Repository(UUID id, String name, String latestCommitId, UUID ownerId) {
+        this(id, name, latestCommitId, ownerId, null);
+    }
+
     private static final ObservableList<Repository> repositories = FXCollections.observableArrayList();
 
     public static ObservableList<Repository> getRepositories() {

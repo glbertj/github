@@ -18,27 +18,27 @@ public class VersionControl {
     }
 
     public void commitChanges(String message) {
-        if (index.getStagedFiles().isEmpty()) {
-            System.out.println("No files staged for commit.");
-            return;
-        }
-
-        Tree newTree = createTreeFromIndex();
-
-        Commit newCommit = new Commit(newTree.getId(), message,
-                currentCommit != null ? currentCommit.getId() : null,
-                repository);
-        newCommit.saveToDisk();
-
-        try {
-            referenceManager.saveHeadCommitId(newCommit.getId());
-        } catch (IOException e) {
-            System.out.println("Error updating HEAD reference: " + e.getMessage());
-        }
-
-        currentCommit = newCommit;
-        index.clear();
-        System.out.println("Commit created with ID: " + newCommit.getId());
+//        if (index.getStagedFiles().isEmpty()) {
+//            System.out.println("No files staged for commit.");
+//            return;
+//        }
+//
+//        Tree newTree = createTreeFromIndex();
+//
+//        Commit newCommit = new Commit(newTree.getId(), message,
+//                currentCommit != null ? currentCommit.getId() : null,
+//                repository);
+//        newCommit.saveToDisk();
+//
+//        try {
+//            referenceManager.saveHeadCommitId(newCommit.getId());
+//        } catch (IOException e) {
+//            System.out.println("Error updating HEAD reference: " + e.getMessage());
+//        }
+//
+//        currentCommit = newCommit;
+//        index.clear();
+//        System.out.println("Commit created with ID: " + newCommit.getId());
     }
 
     private Tree createTreeFromIndex() {
@@ -54,15 +54,15 @@ public class VersionControl {
     }
 
     private void loadCurrentCommit() {
-        try {
-            String commitId = referenceManager.loadHeadCommitId();
-            if (commitId != null) {
-                currentCommit = Commit.loadFromDisk(commitId, repository);
-            }
-        } catch (IOException e) {
-            System.out.println("Error loading current commit: " + e.getMessage());
-            currentCommit = null;
-        }
+//        try {
+//            String commitId = referenceManager.loadHeadCommitId();
+//            if (commitId != null) {
+//                currentCommit = Commit.loadFromDisk(commitId, repository);
+//            }
+//        } catch (IOException e) {
+//            System.out.println("Error loading current commit: " + e.getMessage());
+//            currentCommit = null;
+//        }
     }
 
     public Index getIndex() {

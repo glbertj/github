@@ -2,6 +2,7 @@ package com.svx.github.repository;
 
 import com.svx.github.manager.ConnectionManager;
 import com.svx.github.model.User;
+import com.svx.github.model.UserSingleton;
 import com.svx.github.utility.CryptoUtility;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,6 +39,7 @@ public class UserRepository {
 
     public static boolean authenticate(String username, String password) {
         User user = getByUsername(username);
+        UserSingleton.setCurrentUser(user);
         return user != null && CryptoUtility.verifyPassword(password, user.getPassword());
     }
 

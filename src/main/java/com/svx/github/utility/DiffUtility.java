@@ -33,5 +33,4 @@ public class DiffUtility {
 
         return String.join("\n", diff);
     }
-
 }

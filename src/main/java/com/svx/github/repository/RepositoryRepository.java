@@ -31,6 +31,31 @@ public class RepositoryRepository {
         }
     }
 
+    public static Repository loadById(UUID repositoryId) {
+        String query = "SELECT id, name, head_commit_id, owner_id FROM repositories WHERE id = ?";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, repositoryId.toString());
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String id = rs.getString("id");
+                String name = rs.getString("name");
+                String headCommitId = rs.getString("head_commit_id");
+                String ownerId = rs.getString("owner_id");
+
+                // Returning a new Repository object
+                return new Repository(UUID.fromString(id), name, headCommitId, UUID.fromString(ownerId));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error loading repository by ID: " + e.getMessage());
+        }
+
+        return null; // Return null if no repository is found
+    }
+
+
     public static List<Repository> loadAllUserRepositories(UUID ownerId) {
         String query = "SELECT id, name, head_commit_id FROM repositories WHERE owner_id = ?";
         List<Repository> repositories = new ArrayList<>();
@@ -55,17 +80,20 @@ public class RepositoryRepository {
         return repositories;
     }
 
-    public static void updateHead(UUID repositoryId, String commitId) {
+    public static void updateHead(Repository repository, String newHeadCommitId) {
         String query = "UPDATE repositories SET head_commit_id = ? WHERE id = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, commitId);
-            stmt.setString(2, repositoryId.toString());
-            stmt.executeUpdate();
+            stmt.setString(1, newHeadCommitId);
+            stmt.setString(2, repository.getId().toString());
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Repository head updated to commit: " + newHeadCommitId);
+            }
         } catch (SQLException e) {
-            System.out.println("Error updating repository's latest commit ID: " + e.getMessage());
+            System.out.println("Error updating repository head: " + e.getMessage());
         }
     }
 }
-

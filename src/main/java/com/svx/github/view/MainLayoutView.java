@@ -30,6 +30,7 @@ public class MainLayoutView extends View<BorderPane> {
 
     // Top bar buttons
     private ComboBox<Repository> repositoryDropdown;
+    private Button multiFunctionButton;
 
     // Sidebar //
     private final BorderPane sideBar;
@@ -94,8 +95,9 @@ public class MainLayoutView extends View<BorderPane> {
         HBox topBar = new HBox();
 
         repositoryDropdown = getRepositoryComboBox();
+        multiFunctionButton = new Button("...");
 
-        topBar.getChildren().add(repositoryDropdown);
+        topBar.getChildren().addAll(repositoryDropdown, multiFunctionButton);
         topBarContainer.getChildren().addAll(menuBar, topBar);
     }
 
@@ -190,6 +192,10 @@ public class MainLayoutView extends View<BorderPane> {
     // Top bar
     public ComboBox<Repository> getRepositoryDropdown() {
         return repositoryDropdown;
+    }
+
+    public Button getMultiFunctionButton() {
+        return multiFunctionButton;
     }
 
     // Sidebar header

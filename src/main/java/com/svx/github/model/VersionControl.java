@@ -2,11 +2,16 @@ package com.svx.github.model;
 
 import com.svx.github.repository.BlobRepository;
 import com.svx.github.repository.CommitRepository;
+import com.svx.github.repository.RepositoryRepository;
 import com.svx.github.repository.TreeRepository;
 import com.svx.github.utility.FileUtility;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class VersionControl {
     private final Repository repository;
@@ -71,28 +76,49 @@ public class VersionControl {
             return;
         }
 
+        boolean isFirstCommit = RepositoryRepository.loadById(repository.getId()) == null;
+
+        if (isFirstCommit) {
+            RepositoryRepository.save(repository);
+            System.out.println("Repository saved to database as this is the first commit.");
+        }
+
+        List<Commit> commitsToPush = new ArrayList<>();
         Commit commitToPush = currentCommit;
-        while (commitToPush != null) {
-            if (CommitRepository.load(commitToPush.getId(), repository) != null) break;
 
-            CommitRepository.save(commitToPush);
+        try {
+            while (commitToPush != null) {
+                commitsToPush.add(commitToPush);
+                commitToPush = commitToPush.getParentId() != null
+                        ? Commit.loadFromDisk(commitToPush.getParentId(), repository.getObjectsPath())
+                        : null;
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading commit during push operation: " + e.getMessage());
+            return;
+        }
 
-            Tree tree = Tree.loadFromDisk(commitToPush.getTreeId(), repository.getObjectsPath());
+        Collections.reverse(commitsToPush);
+
+        for (Commit commit : commitsToPush) {
+            Tree tree = Tree.loadFromDisk(commit.getTreeId(), repository.getObjectsPath());
             TreeRepository.save(tree);
 
-            for (String blobId : tree.getEntries().values()) {
-                if (BlobRepository.load(blobId, repository) == null) { // Avoid duplicate saves
+            for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
+                String blobId = entry.getValue();
+                if (BlobRepository.load(blobId, repository) == null) {
                     String blobContent = FileUtility.loadFromDisk(blobId, repository.getObjectsPath());
                     Blob blob = new Blob(blobContent, repository);
                     BlobRepository.save(blob);
                 }
             }
 
-            commitToPush = commitToPush.getParentId() != null
-                    ? CommitRepository.load(commitToPush.getParentId(), repository)
-                    : null;
+            CommitRepository.save(commit);
         }
 
-        System.out.println("Push completed.");
+        RepositoryRepository.updateHead(repository, currentCommit.getId());
+
+        System.out.println("Push completed. Repository head updated to commit: " + currentCommit.getId());
     }
+
 }

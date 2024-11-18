@@ -47,8 +47,15 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void setSidebarActions() {
-        view.getChangesButton().setOnAction(e -> view.showChangesTab());
-        view.getHistoryButton().setOnAction(e -> view.showHistoryTab());
+        view.getChangesButton().setOnAction(e -> {
+            view.showChangesTab();
+            view.getTextArea().clear();
+
+        });
+        view.getHistoryButton().setOnAction(e -> {
+            view.showHistoryTab();
+            view.getTextArea().clear();
+        });
 
         view.getCommitButton().setOnAction(e -> handleCommitAction());
 
@@ -105,7 +112,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
-        // Load the latest commit's tree
         Commit latestCommit = versionControl.getCurrentCommit();
         Tree latestTree;
         if (latestCommit != null) {
@@ -117,15 +123,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         stagedFiles.forEach((filename, stagedBlobId) -> {
             boolean isChanged = true;
 
-            // Compare with the latest tree's blob ID (if available)
             if (latestTree != null) {
                 String committedBlobId = latestTree.getEntries().get(filename);
                 if (stagedBlobId.equals(committedBlobId)) {
-                    isChanged = false; // File is unchanged
+                    isChanged = false;
                 }
             }
 
-            // Only add files that are actually changed
             if (isChanged) {
                 Button fileButton = new Button(filename);
                 fileButton.setOnAction(e -> showFileDifference(filename, stagedBlobId));
@@ -133,7 +137,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             }
         });
 
-        // Add a label if no files are actually changed
         if (view.getChangedFilesList().getChildren().isEmpty()) {
             Label noChangesLabel = new Label("No changed files.");
             view.getChangedFilesList().getChildren().add(noChangesLabel);

@@ -64,6 +64,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     private void setListeners() {
         RepositoryManager.currentRepositoryProperty().addListener((observable, oldRepo, newRepo) -> {
             if (newRepo != null) {
+                view.getTextArea().clear();
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
@@ -73,6 +74,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         appController.getFocusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                view.getTextArea().clear();
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
@@ -103,11 +105,39 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
-        stagedFiles.forEach((filename, blobId) -> {
-            Button fileButton = new Button(filename);
-            fileButton.setOnAction(e -> showFileDifference(filename, blobId));
-            view.getChangedFilesList().getChildren().add(fileButton);
+        // Load the latest commit's tree
+        Commit latestCommit = versionControl.getCurrentCommit();
+        Tree latestTree;
+        if (latestCommit != null) {
+            latestTree = Tree.loadFromDisk(latestCommit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
+        } else {
+            latestTree = null;
+        }
+
+        stagedFiles.forEach((filename, stagedBlobId) -> {
+            boolean isChanged = true;
+
+            // Compare with the latest tree's blob ID (if available)
+            if (latestTree != null) {
+                String committedBlobId = latestTree.getEntries().get(filename);
+                if (stagedBlobId.equals(committedBlobId)) {
+                    isChanged = false; // File is unchanged
+                }
+            }
+
+            // Only add files that are actually changed
+            if (isChanged) {
+                Button fileButton = new Button(filename);
+                fileButton.setOnAction(e -> showFileDifference(filename, stagedBlobId));
+                view.getChangedFilesList().getChildren().add(fileButton);
+            }
         });
+
+        // Add a label if no files are actually changed
+        if (view.getChangedFilesList().getChildren().isEmpty()) {
+            Label noChangesLabel = new Label("No changed files.");
+            view.getChangedFilesList().getChildren().add(noChangesLabel);
+        }
     }
 
     private void showFileDifference(String filename, String blobId) {
@@ -154,7 +184,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         VersionControl versionControl = RepositoryManager.getVersionControl();
         versionControl.commitChanges(commitMessage);
 
-        refreshChangesTab();
+        updateChangedFilesList();
         updateHistoryTab();
     }
 

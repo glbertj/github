@@ -17,12 +17,8 @@ public class Tree {
     }
 
     public void saveToDisk(Path objectsPath) {
-        try {
-            String serializedEntries = JsonUtility.serialize(entries);
-            FileUtility.saveToDisk(id, serializedEntries, objectsPath);
-        } catch (IOException e) {
-            System.out.println("Error saving tree to disk: " + e.getMessage());
-        }
+        String serializedEntries = JsonUtility.serialize(entries);
+        FileUtility.saveToDisk(id, serializedEntries, objectsPath);
     }
 
     public String getId() {
@@ -33,7 +29,7 @@ public class Tree {
         return new HashMap<>(entries);
     }
 
-    public static Tree loadFromDisk(String id, Path objectsPath) throws IOException {
+    public static Tree loadFromDisk(String id, Path objectsPath) {
         String serializedEntries = FileUtility.loadFromDisk(id, objectsPath);
         Map<String, String> entries = JsonUtility.deserialize(serializedEntries);
         return new Tree(entries);

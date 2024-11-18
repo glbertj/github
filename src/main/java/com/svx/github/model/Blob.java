@@ -14,11 +14,7 @@ public class Blob {
         this.id = HashUtility.computeSHA1(content);
         this.content = content;
 
-        try {
-            FileUtility.saveToDisk(id, content, repository.getObjectsPath());
-        } catch (IOException e) {
-            System.out.println("Error saving blob to disk: " + e.getMessage());
-        }
+        FileUtility.saveToDisk(id, content, repository.getObjectsPath());
     }
 
     public String getId() {

@@ -37,12 +37,8 @@ public class Commit {
     }
 
     public void saveToDisk(Path objectsPath) {
-        try {
-            String content = getContentForHashing();
-            FileUtility.saveToDisk(id, content, objectsPath);
-        } catch (IOException e) {
-            System.out.println("Error saving commit to disk: " + e.getMessage());
-        }
+        String content = getContentForHashing();
+        FileUtility.saveToDisk(id, content, objectsPath);
     }
 
     public String getId() {

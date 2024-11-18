@@ -102,7 +102,7 @@ public class MainLayoutView extends View<BorderPane> {
         dropdown.setConverter(new StringConverter<>() {
             @Override
             public String toString(Repository repository) {
-                return repository != null ? repository.name() : "";
+                return repository != null ? repository.getName() : "";
             }
 
             @Override

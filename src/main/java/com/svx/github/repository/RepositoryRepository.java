@@ -2,10 +2,6 @@ package com.svx.github.repository;
 
 import com.svx.github.manager.ConnectionManager;
 import com.svx.github.model.Repository;
-import com.svx.github.model.User;
-import com.svx.github.model.UserSingleton;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -59,7 +55,7 @@ public class RepositoryRepository {
         return repositories;
     }
 
-    public static boolean updateHead(UUID repositoryId, String commitId) {
+    public static void updateHead(UUID repositoryId, String commitId) {
         String query = "UPDATE repositories SET head_commit_id = ? WHERE id = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -67,10 +63,8 @@ public class RepositoryRepository {
             stmt.setString(1, commitId);
             stmt.setString(2, repositoryId.toString());
             stmt.executeUpdate();
-            return true;
         } catch (SQLException e) {
             System.out.println("Error updating repository's latest commit ID: " + e.getMessage());
-            return false;
         }
     }
 }

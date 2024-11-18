@@ -32,3 +32,4 @@ public class RepositoryManager {
         return versionControlMap.get(repository);
     }
 }
+

@@ -1,9 +1,13 @@
 package com.svx.github.manager;
 
+import com.svx.github.model.Commit;
 import com.svx.github.model.Repository;
 import com.svx.github.model.VersionControl;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +19,21 @@ public class RepositoryManager {
         currentRepository.set(repository);
 
         if (!versionControlMap.containsKey(repository)) {
-            versionControlMap.put(repository, new VersionControl(repository));
+            VersionControl versionControl = new VersionControl(repository);
+
+            Path headFilePath = repository.getGitPath().resolve("refs").resolve("heads").resolve("master");
+            if (Files.exists(headFilePath)) {
+                try {
+                    String headCommitId = Files.readString(headFilePath).trim();
+                    repository.setLatestCommitId(headCommitId); // Update repository's latest commit ID
+                    Commit headCommit = Commit.loadFromDisk(headCommitId, repository.getObjectsPath());
+                    versionControl.setCurrentCommit(headCommit);
+                } catch (IOException e) {
+                    System.out.println("Error reading HEAD file: " + e.getMessage());
+                }
+            }
+
+            versionControlMap.put(repository, versionControl);
         }
     }
 

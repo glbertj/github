@@ -5,13 +5,12 @@ import com.svx.github.controller.dialog.CommitMessageDialogController;
 import com.svx.github.controller.dialog.CreateRepositoryDialogController;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
-import com.svx.github.repository.BlobRepository;
-import com.svx.github.repository.CommitRepository;
-import com.svx.github.repository.TreeRepository;
 import com.svx.github.utility.DiffUtility;
+import com.svx.github.utility.FileUtility;
 import com.svx.github.view.MainLayoutView;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import java.io.IOException;
 import java.util.Map;
 
 public class MainLayoutController extends Controller<MainLayoutView> {
@@ -33,12 +32,22 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         view.getAddRepositoryMenu().setOnAction(e -> appController.openDialog(new AddRepositoryDialogController()));
 
+        view.getPushMenu().setOnAction(e -> {
+            Repository currentRepo = RepositoryManager.getCurrentRepository();
+            if (currentRepo == null) {
+                System.out.println("No repository selected.");
+                return;
+            }
+
+            VersionControl versionControl = RepositoryManager.getVersionControl();
+            versionControl.push();
+        });
+
         view.getExitMenu().setOnAction(e -> appController.exitApp());
     }
 
     private void setSidebarActions() {
         view.getChangesButton().setOnAction(e -> view.showChangesTab());
-
         view.getHistoryButton().setOnAction(e -> view.showHistoryTab());
 
         view.getCommitButton().setOnAction(e -> handleCommitAction());
@@ -57,6 +66,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             if (newRepo != null) {
                 detectAndStageChanges();
                 updateChangedFilesList();
+                updateHistoryTab();
                 view.getRepositoryDropdown().getSelectionModel().select(newRepo);
             }
         });
@@ -65,6 +75,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             if (newValue) {
                 detectAndStageChanges();
                 updateChangedFilesList();
+                updateHistoryTab();
             }
         });
     }
@@ -100,27 +111,25 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void showFileDifference(String filename, String blobId) {
+        VersionControl versionControl = RepositoryManager.getVersionControl();
+        if (versionControl == null) return;
+
         Repository currentRepo = RepositoryManager.getCurrentRepository();
         if (currentRepo == null) return;
 
-        Blob currentBlob = BlobRepository.load(blobId, currentRepo);
-        if (currentBlob == null) return;
+        String newContent = FileUtility.loadFromDisk(blobId, currentRepo.getObjectsPath());
+        System.out.println("New content: " + newContent);
 
-        String newContent = currentBlob.getContent();
         String oldContent = "";
-
-        VersionControl versionControl = RepositoryManager.getVersionControl();
         Commit latestCommit = versionControl.getCurrentCommit();
         if (latestCommit != null) {
-            Tree latestTree = TreeRepository.load(latestCommit.getTreeId(), currentRepo);
-            if (latestTree != null) {
-                String oldBlobId = latestTree.getEntries().get(filename);
-                if (oldBlobId != null) {
-                    Blob oldBlob = BlobRepository.load(oldBlobId, currentRepo);
-                    if (oldBlob != null) oldContent = oldBlob.getContent();
-                }
+            Tree latestTree = Tree.loadFromDisk(latestCommit.getTreeId(), currentRepo.getObjectsPath());
+            String oldBlobId = latestTree.getEntries().get(filename);
+            if (oldBlobId != null) {
+                oldContent = FileUtility.loadFromDisk(oldBlobId, currentRepo.getObjectsPath());
             }
         }
+        System.out.println("Old content: " + oldContent);
 
         String difference = DiffUtility.getDifference(oldContent, newContent);
         view.getTextArea().setText(difference);
@@ -152,17 +161,51 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     private void updateHistoryTab() {
         view.getHistoryList().getChildren().clear();
         Repository currentRepo = RepositoryManager.getCurrentRepository();
-        if (currentRepo == null) return;
-
-        String commitId = currentRepo.getLatestCommitId();
-        while (commitId != null) {
-            Commit commit = CommitRepository.load(commitId, currentRepo);
-            if (commit == null) break;
-
-            Button commitButton = new Button(commit.getMessage() + " - " + commit.getTimestamp());
-            view.getHistoryList().getChildren().add(commitButton);
-            commitId = commit.getParentId();
+        if (currentRepo == null) {
+            Label noRepoLabel = new Label("No repository selected.");
+            view.getHistoryList().getChildren().add(noRepoLabel);
+            return;
         }
+
+        System.out.println("commit id" + currentRepo.getLatestCommitId());
+        String commitId = currentRepo.getLatestCommitId();
+        if (commitId == null) {
+            Label noCommitsLabel = new Label("No commit history.");
+            view.getHistoryList().getChildren().add(noCommitsLabel);
+            return;
+        }
+
+        while (commitId != null && !commitId.isBlank()) {
+            try {
+                Commit commit = Commit.loadFromDisk(commitId, currentRepo.getObjectsPath());
+
+                Button commitButton = new Button(commit.getMessage() + " - " + commit.getTimestamp());
+                commitButton.setOnAction(e -> showCommitDetails(commit));
+                view.getHistoryList().getChildren().add(commitButton);
+
+                commitId = commit.getParentId();
+            } catch (IOException e) {
+                System.out.println("Error loading commit from disk: " + e.getMessage());
+                break;
+            }
+        }
+    }
+
+    private void showCommitDetails(Commit commit) {
+        StringBuilder details = new StringBuilder();
+        details.append("Commit Details:\n");
+        details.append("ID: ").append(commit.getId()).append("\n");
+        details.append("Message: ").append(commit.getMessage()).append("\n");
+        details.append("Timestamp: ").append(commit.getTimestamp()).append("\n");
+        details.append("Tree ID: ").append(commit.getTreeId()).append("\n");
+
+        Tree tree = Tree.loadFromDisk(commit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
+        details.append("\nTree Entries:\n");
+        for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
+            details.append("  ").append(entry.getKey()).append(" -> ").append(entry.getValue()).append("\n");
+        }
+
+        view.getTextArea().setText(details.toString());
     }
 
     private void refreshChangesTab() {

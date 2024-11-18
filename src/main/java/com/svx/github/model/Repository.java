@@ -8,7 +8,7 @@ import java.util.UUID;
 public class Repository {
     private final UUID id;
     private final String name;
-    private final String latestCommitId;
+    private String latestCommitId;
     private final UUID ownerId;
     private final Path path;
 
@@ -36,6 +36,10 @@ public class Repository {
 
     public String getLatestCommitId() {
         return latestCommitId;
+    }
+
+    public void setLatestCommitId(String latestCommitId) {
+        this.latestCommitId = latestCommitId;
     }
 
     public UUID getOwnerId() {

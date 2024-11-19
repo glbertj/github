@@ -24,10 +24,8 @@ public class LoginController extends Controller<LoginView> {
         String username = view.getUsernameField().getText().trim();
         String password = view.getPasswordField().getText();
 
-        clearError();
-
         if (username.isEmpty() || password.isEmpty()) {
-            appController.showNotification("All fields must be filled.", NotificationBox.NotificationType.ERROR, null);
+            appController.showNotification("All fields must be filled.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
             return;
         }
 
@@ -36,19 +34,14 @@ public class LoginController extends Controller<LoginView> {
             SessionManager.createSession(authenticatedUser);
             UserSingleton.setCurrentUser(authenticatedUser);
 
-            appController.showNotification("Logged in.", NotificationBox.NotificationType.SUCCESS, null);
+            appController.showNotification("Logged in.", NotificationBox.NotificationType.SUCCESS, "fas-lock-open");
             appController.navigatePage(new MainLayoutController(appController));
         } else {
-            appController.showNotification("Invalid username or password.", NotificationBox.NotificationType.ERROR, null);
+            appController.showNotification("Invalid username or password.", NotificationBox.NotificationType.ERROR, "fas-lock");
         }
     }
 
     private void navigateToRegister() {
         appController.navigatePage(new RegisterController(appController));
-    }
-
-    private void clearError() {
-        view.getErrorLabel().setVisible(false);
-        view.getErrorLabel().setText("");
     }
 }

@@ -1,6 +1,7 @@
 package com.svx.github.controller;
 
 import com.svx.github.controller.dialog.AddRepositoryDialogController;
+import com.svx.github.controller.dialog.CloneRepositoryDialogController;
 import com.svx.github.controller.dialog.CommitMessageDialogController;
 import com.svx.github.controller.dialog.CreateRepositoryDialogController;
 import com.svx.github.manager.RepositoryManager;
@@ -14,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MainLayoutController extends Controller<MainLayoutView> {
@@ -38,14 +40,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         view.getAddRepositoryMenu().setOnAction(e -> appController.openDialog(new AddRepositoryDialogController()));
 
-        view.getPushMenu().setOnAction(e -> {
-            Repository currentRepo = RepositoryManager.getCurrentRepository();
-            if (currentRepo == null) {
-                System.out.println("No repository selected.");
-                return;
-            }
-            RepositoryManager.getVersionControl().push();
-        });
+        view.getCloneRepositoryMenu().setOnAction(e -> appController.openDialog(new CloneRepositoryDialogController()));
 
         view.getExitMenu().setOnAction(e -> appController.exitApp());
     }
@@ -106,7 +101,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         }
     }
 
-    private void updateChangedFilesList() {
+    public void updateChangedFilesList() {
         VersionControl versionControl = RepositoryManager.getVersionControl();
         if (versionControl == null) return;
 
@@ -119,13 +114,15 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
-        Commit latestCommit = versionControl.getCurrentCommit();
-        Tree latestTree = (latestCommit != null)
-                ? Tree.loadFromDisk(latestCommit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath())
-                : null;
+        // Load the cumulative tree (all parent commits included)
+        Commit currentCommit = versionControl.getCurrentCommit();
+        Map<String, String> cumulativeTree = loadCumulativeTree(currentCommit);
 
         stagedFiles.forEach((filename, stagedBlobId) -> {
-            boolean isChanged = latestTree == null || !stagedBlobId.equals(latestTree.getEntries().get(filename));
+            String committedBlobId = cumulativeTree.get(filename);
+
+            // Check if the file is truly changed
+            boolean isChanged = committedBlobId == null || !stagedBlobId.equals(committedBlobId);
 
             if (isChanged) {
                 Button fileButton = new Button(filename);
@@ -138,6 +135,28 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             Label noChangesLabel = new Label("No changed files.");
             view.getChangedFilesList().getChildren().add(noChangesLabel);
         }
+    }
+
+    private Map<String, String> loadCumulativeTree(Commit commit) {
+        if (commit == null) return new HashMap<>();
+
+        Map<String, String> cumulativeTree = new HashMap<>();
+
+        try {
+            Commit currentCommit = commit;
+            while (currentCommit != null) {
+                Tree currentTree = Tree.loadFromDisk(currentCommit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
+                cumulativeTree.putAll(currentTree.getEntries());
+
+                // Move to the parent commit
+                String parentId = currentCommit.getParentId();
+                currentCommit = (parentId != null) ? Commit.loadFromDisk(parentId, RepositoryManager.getCurrentRepository().getObjectsPath()) : null;
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading cumulative tree: " + e.getMessage());
+        }
+
+        return cumulativeTree;
     }
 
     private void resetMultiFunctionButton() {

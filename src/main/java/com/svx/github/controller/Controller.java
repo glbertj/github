@@ -2,8 +2,6 @@ package com.svx.github.controller;
 
 import com.svx.github.view.View;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
-import java.util.Objects;
 
 public abstract class Controller<T extends View<? extends Parent>> {
     protected final T view;
@@ -16,18 +14,9 @@ public abstract class Controller<T extends View<? extends Parent>> {
         setActions();
     }
 
-    public Scene getScene(double width, double height) {
-        Scene scene = new Scene(view.getRoot(), width, height);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/svx/github/style/styles.css")).toExternalForm());
-
-        if (view.getStyleReference() != null) {
-            scene.getStylesheets().add(view.getStyleReference());
-        } else {
-            System.out.println("No style reference found for " + view.getClass().getSimpleName());
-        }
-
-        return scene;
-    }
-
     protected abstract void setActions();
+
+    public T getView() {
+        return view;
+    }
 }

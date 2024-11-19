@@ -140,38 +140,64 @@ public class VersionControl {
             return;
         }
 
-        if (isCommitPresentLocally(latestDatabaseCommitId)) {
-            System.out.println("Local repository is up to date with the database.");
-            return;
-        }
+        Path objectsPath = repository.getObjectsPath();
 
-        System.out.println("Pulling changes from the database...");
+        try {
+            Commit commitToPull = CommitRepository.load(latestDatabaseCommitId, repository);
+            while (commitToPull != null) {
+                commitToPull.saveToDisk(objectsPath);
 
-        Commit commitToPull = CommitRepository.load(latestDatabaseCommitId, repository);
-        while (commitToPull != null) {
-            commitToPull.saveToDisk(repository.getObjectsPath());
+                Tree treeToPull = TreeRepository.load(commitToPull.getTreeId(), repository);
+                if (treeToPull != null) {
+                    treeToPull.saveToDisk(objectsPath);
 
-            Tree treeToPull = TreeRepository.load(commitToPull.getTreeId(), repository);
-            if (treeToPull != null) {
-                treeToPull.saveToDisk(repository.getObjectsPath());
-
-                for (String blobId : treeToPull.getEntries().values()) {
-                    Blob blobToPull = BlobRepository.load(blobId, repository);
-                    if (blobToPull != null) {
-                        FileUtility.saveToDisk(blobToPull.getId(), blobToPull.getContent(), repository.getObjectsPath());
+                    for (String blobId : treeToPull.getEntries().values()) {
+                        if (!Files.exists(objectsPath.resolve(blobId.substring(0, 2)).resolve(blobId.substring(2)))) {
+                            Blob blobToPull = BlobRepository.load(blobId, repository);
+                            if (blobToPull != null) {
+                                FileUtility.saveToDisk(blobToPull.getId(), blobToPull.getContent(), objectsPath);
+                            }
+                        }
                     }
                 }
+
+                restoreFilesFromCommit(commitToPull, repository);
+
+                String parentId = commitToPull.getParentId();
+                commitToPull = (parentId != null) ? CommitRepository.load(parentId, repository) : null;
             }
 
-            String parentId = commitToPull.getParentId();
-            commitToPull = (parentId != null) ? CommitRepository.load(parentId, repository) : null;
+            Path headFilePath = repository.getGitPath().resolve("refs").resolve("heads").resolve("master");
+            Files.createDirectories(headFilePath.getParent());
+            Files.writeString(headFilePath, latestDatabaseCommitId);
+
+            repository.setLatestCommitId(latestDatabaseCommitId);
+            RepositoryManager.setCurrentRepository(repository);
+
+            System.out.println("Pull completed successfully.");
+        } catch (IOException e) {
+            System.out.println("Error during pull operation: " + e.getMessage());
         }
+    }
 
-        updateHeadFile(latestDatabaseCommitId);
-        repository.setLatestCommitId(latestDatabaseCommitId);
-        RepositoryManager.setCurrentRepository(repository);
+    private void restoreFilesFromCommit(Commit commit, Repository repository) {
+        try {
+            Tree tree = Tree.loadFromDisk(commit.getTreeId(), repository.getObjectsPath());
+            for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
+                String filename = entry.getKey();
+                String blobId = entry.getValue();
 
-        System.out.println("Pull completed successfully.");
+                String blobContent = FileUtility.loadFromDisk(blobId, repository.getObjectsPath());
+
+                Path filePath = repository.getPath().resolve(filename);
+                Files.createDirectories(filePath.getParent());
+                Files.writeString(filePath, blobContent);
+
+                System.out.println("Restored file: " + filename);
+            }
+        } catch (IOException e) {
+            System.out.println("Error restoring files from commit: " + e.getMessage());
+        }
     }
 
     private boolean isCommitPresentLocally(String commitId) {

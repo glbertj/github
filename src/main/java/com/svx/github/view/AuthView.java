@@ -11,14 +11,12 @@ import java.util.Objects;
 
 public abstract class AuthView extends View<GridPane> {
     protected Label titleLabel;
-    protected Label errorLabel;
 
     public AuthView(String title) {
         super();
         titleLabel = new Label(title);
         titleLabel.setFont(new Font(24));
         titleLabel.setId("auth-title");
-        errorLabel = new Label("");
     }
 
     protected void setupRoot() {
@@ -51,12 +49,6 @@ public abstract class AuthView extends View<GridPane> {
         Button button = createAnimatedButton(text);
         button.getStyleClass().add("auth-button");
         return button;
-    }
-
-    protected void addErrorLabel() {
-        errorLabel.setId("error-label");
-        errorLabel.setVisible(false);
-        root.add(errorLabel, 0, 5, 2, 1);
     }
 }
 

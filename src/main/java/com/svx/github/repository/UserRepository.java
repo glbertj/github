@@ -38,26 +38,15 @@ public class UserRepository {
     }
 
     public static boolean registerUser(User user) {
-        String checkEmailQuery = "SELECT COUNT(*) FROM users WHERE email = ?";
-        String insertUserQuery = "INSERT INTO users (id, username, email, password) VALUES (?, ?, ?, ?)";
-
         try (Connection conn = ConnectionManager.getConnection()) {
-            try (PreparedStatement checkStmt = conn.prepareStatement(checkEmailQuery)) {
-                checkStmt.setString(1, user.getEmail());
-                ResultSet rs = checkStmt.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    return false;
-                }
-            }
-
-            try (PreparedStatement insertStmt = conn.prepareStatement(insertUserQuery)) {
-                insertStmt.setString(1, user.getId().toString());
-                insertStmt.setString(2, user.getUsername());
-                insertStmt.setString(3, user.getEmail());
-                insertStmt.setString(4, user.getPassword());
-                insertStmt.executeUpdate();
-                return true;
-            }
+            String query = "INSERT INTO users (id, username, email, password) VALUES (?, ?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, user.getId().toString());
+            stmt.setString(2, user.getUsername());
+            stmt.setString(3, user.getEmail());
+            stmt.setString(4, user.getPassword());
+            stmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
             System.out.println("Error registering user: " + e.getMessage());
         }

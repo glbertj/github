@@ -32,8 +32,6 @@ public class LoginView extends AuthView {
 
         registerButton = createButton("Register");
         root.add(registerButton, 1, 3);
-
-        addErrorLabel();
     }
 
     public TextField getUsernameField() {
@@ -50,9 +48,5 @@ public class LoginView extends AuthView {
 
     public Button getRegisterButton() {
         return registerButton;
-    }
-
-    public Label getErrorLabel() {
-        return errorLabel;
     }
 }

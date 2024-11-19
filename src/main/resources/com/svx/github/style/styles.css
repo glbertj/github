@@ -1,0 +1,23 @@
+.label, .text-field .text, .password-field .text {
+    -fx-text-fill: #e1e4e8; /* Light gray text */
+}
+
+/* Input Fields Placeholder */
+.text-field .text:empty, .password-field .text:empty {
+    -fx-fill: #888; /* Subtle gray for placeholder text */
+}
+
+/* Button Text */
+.auth-button {
+    -fx-text-fill: white; /* Bright text for buttons */
+}
+
+/* Error Message Text */
+#error-label {
+    -fx-text-fill: #d73a49; /* Bright red for error messages */
+}
+
+/* Success Message Text */
+#error-label.success {
+    -fx-text-fill: #28a745; /* Bright green for success messages */
+}

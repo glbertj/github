@@ -1,6 +1,7 @@
 package com.svx.github.controller;
 
 import com.svx.github.manager.SessionManager;
+import com.svx.github.model.NotificationBox;
 import com.svx.github.model.User;
 import com.svx.github.model.UserSingleton;
 import com.svx.github.repository.UserRepository;
@@ -26,6 +27,7 @@ public class LoginController extends Controller<LoginView> {
         clearError();
 
         if (username.isEmpty() || password.isEmpty()) {
+            appController.showNotification("All fields must be filled.", NotificationBox.NotificationType.ERROR, null);
             return;
         }
 
@@ -34,9 +36,10 @@ public class LoginController extends Controller<LoginView> {
             SessionManager.createSession(authenticatedUser);
             UserSingleton.setCurrentUser(authenticatedUser);
 
+            appController.showNotification("Logged in.", NotificationBox.NotificationType.SUCCESS, null);
             appController.navigatePage(new MainLayoutController(appController));
         } else {
-
+            appController.showNotification("Invalid username or password.", NotificationBox.NotificationType.ERROR, null);
         }
     }
 

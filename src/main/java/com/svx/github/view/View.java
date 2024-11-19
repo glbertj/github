@@ -44,5 +44,4 @@ public abstract class View<T extends Parent> {
 
         return button;
     }
-
 }

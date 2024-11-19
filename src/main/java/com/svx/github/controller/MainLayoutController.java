@@ -42,6 +42,14 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         view.getCloneRepositoryMenu().setOnAction(e -> appController.openDialog(new CloneRepositoryDialogController()));
 
+        view.getLogoutMenu().setOnAction(e -> {
+            if (RepositoryManager.getCurrentRepository() != null) {
+                RepositoryManager.setCurrentRepository(null);
+                
+            }
+            appController.logout();
+        });
+
         view.getExitMenu().setOnAction(e -> appController.exitApp());
     }
 
@@ -114,15 +122,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
-        // Load the cumulative tree (all parent commits included)
         Commit currentCommit = versionControl.getCurrentCommit();
         Map<String, String> cumulativeTree = loadCumulativeTree(currentCommit);
 
         stagedFiles.forEach((filename, stagedBlobId) -> {
             String committedBlobId = cumulativeTree.get(filename);
 
-            // Check if the file is truly changed
-            boolean isChanged = committedBlobId == null || !stagedBlobId.equals(committedBlobId);
+            boolean isChanged = !stagedBlobId.equals(committedBlobId);
 
             if (isChanged) {
                 Button fileButton = new Button(filename);

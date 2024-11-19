@@ -1,13 +1,12 @@
 package com.svx.github.utility;
 
 import org.mindrot.jbcrypt.BCrypt;
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
 public class CryptoUtility {
-    private static final String SECRET_KEY = "YOUR_MOM";
+    private static final String SECRET_KEY = "big_black_niggay";
 
     public static String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());

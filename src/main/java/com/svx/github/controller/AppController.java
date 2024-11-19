@@ -3,6 +3,7 @@ package com.svx.github.controller;
 import com.svx.github.controller.dialog.DialogController;
 import com.svx.github.manager.SessionManager;
 import com.svx.github.model.User;
+import com.svx.github.model.UserSingleton;
 import com.svx.github.view.View;
 import com.svx.github.view.dialog.DialogView;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -45,6 +46,12 @@ public class AppController {
         dialogStage.setScene(dialogController.getScene());
         dialogStage.initOwner(primaryStage);
         dialogStage.showAndWait();
+    }
+
+    public void logout() {
+        navigatePage(new LoginController(this));
+        SessionManager.removeSession();
+        UserSingleton.clearCurrentUser();
     }
 
     public void exitApp() {

@@ -25,7 +25,7 @@ public class MainLayoutView extends View<BorderPane> {
     // Menu
     private MenuItem createRepositoryMenu;
     private MenuItem addRepositoryMenu;
-    private MenuItem pushMenu;
+    private MenuItem cloneRepositoryMenu;
     private MenuItem exitMenu;
 
     // Top bar buttons
@@ -86,11 +86,11 @@ public class MainLayoutView extends View<BorderPane> {
 
         createRepositoryMenu = new MenuItem("New Repository...");
         addRepositoryMenu = new MenuItem("Add Local Repository...");
-        pushMenu = new MenuItem("Push");
+        cloneRepositoryMenu = new MenuItem("Clone Repository...");
         exitMenu = new MenuItem("Exit");
 
         fileMenu.getItems().addAll(createRepositoryMenu, new SeparatorMenuItem(), addRepositoryMenu,
-                new SeparatorMenuItem(), pushMenu, new SeparatorMenuItem(), exitMenu);
+                new SeparatorMenuItem(), cloneRepositoryMenu, new SeparatorMenuItem(), exitMenu);
 
         HBox topBar = new HBox();
 
@@ -181,8 +181,8 @@ public class MainLayoutView extends View<BorderPane> {
         return addRepositoryMenu;
     }
 
-    public MenuItem getPushMenu() {
-        return pushMenu;
+    public MenuItem getCloneRepositoryMenu() {
+        return cloneRepositoryMenu;
     }
 
     public MenuItem getExitMenu() {

@@ -22,10 +22,6 @@ public class Index {
         return new HashMap<>(stagedFiles);
     }
 
-    public void addFile(String filePath, String blobId) {
-        stagedFiles.put(filePath, blobId);
-    }
-
     public void clear() {
         stagedFiles.clear();
     }
@@ -99,11 +95,6 @@ public class Index {
             System.out.println("Error detecting changes: " + e.getMessage());
         }
 
-        saveToIndexFile(repository);
-    }
-
-    public void clearCommittedFiles(Set<String> committedFiles, Repository repository) {
-        committedFiles.forEach(stagedFiles::remove);
         saveToIndexFile(repository);
     }
 }

@@ -1,10 +1,12 @@
 package com.svx.github.model;
 
+import com.svx.github.manager.RepositoryManager;
 import com.svx.github.repository.BlobRepository;
 import com.svx.github.repository.CommitRepository;
 import com.svx.github.repository.RepositoryRepository;
 import com.svx.github.repository.TreeRepository;
 import com.svx.github.utility.FileUtility;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,12 +31,12 @@ public class VersionControl {
         return index;
     }
 
-    public void setCurrentCommit(Commit commit) {
-        this.currentCommit = commit;
-    }
-
     public Commit getCurrentCommit() {
         return currentCommit;
+    }
+
+    public void setCurrentCommit(Commit commit) {
+        this.currentCommit = commit;
     }
 
     private void loadCurrentCommit() {
@@ -56,18 +58,22 @@ public class VersionControl {
         Commit newCommit = new Commit(newTree.getId(), message, currentCommit != null ? currentCommit.getId() : null);
         newCommit.saveToDisk(repository.getObjectsPath());
 
-        Path headFilePath = repository.getGitPath().resolve("refs").resolve("heads").resolve("master");
-        try {
-            Files.createDirectories(headFilePath.getParent());
-            Files.writeString(headFilePath, newCommit.getId());
-        } catch (IOException e) {
-            System.out.println("Error updating HEAD file: " + e.getMessage());
-        }
-
+        updateHeadFile(newCommit.getId());
         currentCommit = newCommit;
         repository.setLatestCommitId(newCommit.getId());
 
+        index.clear();
         System.out.println("Commit created locally with ID: " + newCommit.getId());
+    }
+
+    private void updateHeadFile(String commitId) {
+        Path headFilePath = repository.getGitPath().resolve("refs").resolve("heads").resolve("master");
+        try {
+            Files.createDirectories(headFilePath.getParent());
+            Files.writeString(headFilePath, commitId);
+        } catch (IOException e) {
+            System.out.println("Error updating HEAD file: " + e.getMessage());
+        }
     }
 
     public void push() {
@@ -83,42 +89,102 @@ public class VersionControl {
             System.out.println("Repository saved to database as this is the first commit.");
         }
 
-        List<Commit> commitsToPush = new ArrayList<>();
-        Commit commitToPush = currentCommit;
-
-        try {
-            while (commitToPush != null) {
-                commitsToPush.add(commitToPush);
-                commitToPush = commitToPush.getParentId() != null
-                        ? Commit.loadFromDisk(commitToPush.getParentId(), repository.getObjectsPath())
-                        : null;
-            }
-        } catch (IOException e) {
-            System.out.println("Error loading commit during push operation: " + e.getMessage());
+        List<Commit> commitsToPush = getCommitsToPush();
+        if (commitsToPush.isEmpty()) {
+            System.out.println("No new commits to push.");
             return;
         }
-
-        Collections.reverse(commitsToPush);
 
         for (Commit commit : commitsToPush) {
             Tree tree = Tree.loadFromDisk(commit.getTreeId(), repository.getObjectsPath());
             TreeRepository.save(tree);
 
-            for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
-                String blobId = entry.getValue();
+            for (String blobId : tree.getEntries().values()) {
                 if (BlobRepository.load(blobId, repository) == null) {
                     String blobContent = FileUtility.loadFromDisk(blobId, repository.getObjectsPath());
                     Blob blob = new Blob(blobContent, repository);
                     BlobRepository.save(blob);
+                    System.out.println("Blob saved to database: " + blob.getId());
                 }
             }
-
             CommitRepository.save(commit);
+            System.out.println("Commit saved to database: " + commit.getId());
         }
 
         RepositoryRepository.updateHead(repository, currentCommit.getId());
-
         System.out.println("Push completed. Repository head updated to commit: " + currentCommit.getId());
     }
 
+    private List<Commit> getCommitsToPush() {
+        List<Commit> commitsToPush = new ArrayList<>();
+        Commit commitToPush = currentCommit;
+
+        while (commitToPush != null) {
+            if (CommitRepository.load(commitToPush.getId(), repository) != null) {
+                break;
+            }
+            commitsToPush.add(commitToPush);
+
+            try {
+                commitToPush = commitToPush.getParentId() != null
+                        ? Commit.loadFromDisk(commitToPush.getParentId(), repository.getObjectsPath())
+                        : null;
+            } catch (IOException e) {
+                System.out.println("Error loading parent commit: " + e.getMessage());
+                break;
+            }
+        }
+
+        Collections.reverse(commitsToPush);
+        return commitsToPush;
+    }
+
+    public void pull() {
+        String latestDatabaseCommitId = RepositoryRepository.getLatestCommitId(repository);
+
+        if (latestDatabaseCommitId == null) {
+            System.out.println("No commits found in the database for this repository.");
+            return;
+        }
+
+        if (isCommitPresentLocally(latestDatabaseCommitId)) {
+            System.out.println("Local repository is up to date with the database.");
+            return;
+        }
+
+        System.out.println("Pulling changes from the database...");
+
+        Commit commitToPull = CommitRepository.load(latestDatabaseCommitId, repository);
+        while (commitToPull != null) {
+            commitToPull.saveToDisk(repository.getObjectsPath());
+
+            Tree treeToPull = TreeRepository.load(commitToPull.getTreeId(), repository);
+            if (treeToPull != null) {
+                treeToPull.saveToDisk(repository.getObjectsPath());
+
+                for (String blobId : treeToPull.getEntries().values()) {
+                    Blob blobToPull = BlobRepository.load(blobId, repository);
+                    if (blobToPull != null) {
+                        FileUtility.saveToDisk(blobToPull.getId(), blobToPull.getContent(), repository.getObjectsPath());
+                    }
+                }
+            }
+
+            String parentId = commitToPull.getParentId();
+            commitToPull = (parentId != null) ? CommitRepository.load(parentId, repository) : null;
+        }
+
+        updateHeadFile(latestDatabaseCommitId);
+        repository.setLatestCommitId(latestDatabaseCommitId);
+        RepositoryManager.setCurrentRepository(repository);
+
+        System.out.println("Pull completed successfully.");
+    }
+
+    private boolean isCommitPresentLocally(String commitId) {
+        Path commitPath = repository.getObjectsPath()
+                .resolve(commitId.substring(0, 2))
+                .resolve(commitId.substring(2));
+        return Files.exists(commitPath);
+    }
 }

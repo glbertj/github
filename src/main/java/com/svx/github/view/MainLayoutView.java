@@ -95,7 +95,7 @@ public class MainLayoutView extends View<BorderPane> {
         HBox topBar = new HBox();
 
         repositoryDropdown = getRepositoryComboBox();
-        multiFunctionButton = new Button("...");
+        multiFunctionButton = new Button("Fetch Origin");
 
         topBar.getChildren().addAll(repositoryDropdown, multiFunctionButton);
         topBarContainer.getChildren().addAll(menuBar, topBar);

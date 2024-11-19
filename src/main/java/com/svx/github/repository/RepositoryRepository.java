@@ -31,6 +31,24 @@ public class RepositoryRepository {
         }
     }
 
+    public static String getLatestCommitId(Repository repository) {
+        String query = "SELECT head_commit_id FROM repositories WHERE id = ?";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, repository.getId().toString());
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("head_commit_id");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching latest commit ID: " + e.getMessage());
+        }
+
+        return null;
+    }
+
     public static Repository loadById(UUID repositoryId) {
         String query = "SELECT id, name, head_commit_id, owner_id FROM repositories WHERE id = ?";
         try (Connection conn = ConnectionManager.getConnection();
@@ -45,16 +63,14 @@ public class RepositoryRepository {
                 String headCommitId = rs.getString("head_commit_id");
                 String ownerId = rs.getString("owner_id");
 
-                // Returning a new Repository object
                 return new Repository(UUID.fromString(id), name, headCommitId, UUID.fromString(ownerId));
             }
         } catch (SQLException e) {
             System.out.println("Error loading repository by ID: " + e.getMessage());
         }
 
-        return null; // Return null if no repository is found
+        return null;
     }
-
 
     public static List<Repository> loadAllUserRepositories(UUID ownerId) {
         String query = "SELECT id, name, head_commit_id FROM repositories WHERE owner_id = ?";

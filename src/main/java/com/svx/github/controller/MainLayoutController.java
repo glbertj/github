@@ -5,11 +5,14 @@ import com.svx.github.controller.dialog.CommitMessageDialogController;
 import com.svx.github.controller.dialog.CreateRepositoryDialogController;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
+import com.svx.github.repository.CommitRepository;
+import com.svx.github.repository.RepositoryRepository;
 import com.svx.github.utility.DiffUtility;
 import com.svx.github.utility.FileUtility;
 import com.svx.github.view.MainLayoutView;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -25,6 +28,9 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         setMenuActions();
         setSidebarActions();
         setListeners();
+        updateChangedFilesList();
+        updateHistoryTab();
+        updateMultiFunctionButton();
     }
 
     private void setMenuActions() {
@@ -38,9 +44,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 System.out.println("No repository selected.");
                 return;
             }
-
-            VersionControl versionControl = RepositoryManager.getVersionControl();
-            versionControl.push();
+            RepositoryManager.getVersionControl().push();
         });
 
         view.getExitMenu().setOnAction(e -> appController.exitApp());
@@ -50,8 +54,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getChangesButton().setOnAction(e -> {
             view.showChangesTab();
             view.getTextArea().clear();
-
         });
+
         view.getHistoryButton().setOnAction(e -> {
             view.showHistoryTab();
             view.getTextArea().clear();
@@ -64,6 +68,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 RepositoryManager.setCurrentRepository(newRepo);
                 refreshChangesTab();
                 updateHistoryTab();
+                updateMultiFunctionButton();
             }
         });
     }
@@ -75,6 +80,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
+                updateMultiFunctionButton();
                 view.getRepositoryDropdown().getSelectionModel().select(newRepo);
             }
         });
@@ -85,6 +91,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
+                updateMultiFunctionButton();
             }
         });
     }
@@ -99,7 +106,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         }
     }
 
-    public void updateChangedFilesList() {
+    private void updateChangedFilesList() {
         VersionControl versionControl = RepositoryManager.getVersionControl();
         if (versionControl == null) return;
 
@@ -113,22 +120,12 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         }
 
         Commit latestCommit = versionControl.getCurrentCommit();
-        Tree latestTree;
-        if (latestCommit != null) {
-            latestTree = Tree.loadFromDisk(latestCommit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
-        } else {
-            latestTree = null;
-        }
+        Tree latestTree = (latestCommit != null)
+                ? Tree.loadFromDisk(latestCommit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath())
+                : null;
 
         stagedFiles.forEach((filename, stagedBlobId) -> {
-            boolean isChanged = true;
-
-            if (latestTree != null) {
-                String committedBlobId = latestTree.getEntries().get(filename);
-                if (stagedBlobId.equals(committedBlobId)) {
-                    isChanged = false;
-                }
-            }
+            boolean isChanged = latestTree == null || !stagedBlobId.equals(latestTree.getEntries().get(filename));
 
             if (isChanged) {
                 Button fileButton = new Button(filename);
@@ -143,29 +140,54 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         }
     }
 
-    private void showFileDifference(String filename, String blobId) {
-        VersionControl versionControl = RepositoryManager.getVersionControl();
-        if (versionControl == null) return;
-
+    private void updateMultiFunctionButton() {
         Repository currentRepo = RepositoryManager.getCurrentRepository();
-        if (currentRepo == null) return;
-
-        String newContent = FileUtility.loadFromDisk(blobId, currentRepo.getObjectsPath());
-        System.out.println("New content: " + newContent);
-
-        String oldContent = "";
-        Commit latestCommit = versionControl.getCurrentCommit();
-        if (latestCommit != null) {
-            Tree latestTree = Tree.loadFromDisk(latestCommit.getTreeId(), currentRepo.getObjectsPath());
-            String oldBlobId = latestTree.getEntries().get(filename);
-            if (oldBlobId != null) {
-                oldContent = FileUtility.loadFromDisk(oldBlobId, currentRepo.getObjectsPath());
-            }
+        if (currentRepo == null) {
+            view.getMultiFunctionButton().setText("Fetch origin");
+            view.getMultiFunctionButton().setOnAction(e -> System.out.println("No repository selected."));
+            return;
         }
-        System.out.println("Old content: " + oldContent);
 
-        String difference = DiffUtility.getDifference(oldContent, newContent);
-        view.getTextArea().setText(difference);
+        String latestDatabaseCommitId = RepositoryRepository.getLatestCommitId(currentRepo);
+        VersionControl versionControl = RepositoryManager.getVersionControl();
+        if (versionControl == null) {
+            view.getMultiFunctionButton().setText("Fetch origin");
+            view.getMultiFunctionButton().setOnAction(e -> System.out.println("No version control available."));
+            return;
+        }
+        Commit latestLocalCommit = versionControl.getCurrentCommit();
+
+        if (latestLocalCommit == null) {
+            view.getMultiFunctionButton().setText("Fetch origin");
+            view.getMultiFunctionButton().setOnAction(e -> System.out.println("No updates available."));
+            return;
+        }
+
+        Commit latestDatabaseCommit = latestDatabaseCommitId != null
+                ? CommitRepository.load(latestDatabaseCommitId, currentRepo)
+                : null;
+
+        boolean hasPendingCommits = latestDatabaseCommit == null
+                || latestLocalCommit.getTimestamp().isAfter(latestDatabaseCommit.getTimestamp());
+
+        if (hasPendingCommits) {
+            view.getMultiFunctionButton().setText("Push");
+            view.getMultiFunctionButton().setOnAction(e -> {
+                System.out.println("Pushing changes...");
+                RepositoryManager.getVersionControl().push();
+                updateMultiFunctionButton();
+            });
+        } else if (!latestDatabaseCommitId.equals(latestLocalCommit.getId())) {
+            view.getMultiFunctionButton().setText("Pull");
+            view.getMultiFunctionButton().setOnAction(e -> {
+                System.out.println("Pulling changes...");
+                RepositoryManager.getVersionControl().pull();
+                updateMultiFunctionButton();
+            });
+        } else {
+            view.getMultiFunctionButton().setText("Fetch origin");
+            view.getMultiFunctionButton().setOnAction(e -> System.out.println("No updates available."));
+        }
     }
 
     private void handleCommitAction() {
@@ -189,6 +211,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         updateChangedFilesList();
         updateHistoryTab();
+        updateMultiFunctionButton();
     }
 
     private void updateHistoryTab() {
@@ -200,7 +223,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
-        System.out.println("commit id" + currentRepo.getLatestCommitId());
         String commitId = currentRepo.getLatestCommitId();
         if (commitId == null) {
             Label noCommitsLabel = new Label("No commit history.");
@@ -224,6 +246,29 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         }
     }
 
+    private void showFileDifference(String filename, String blobId) {
+        VersionControl versionControl = RepositoryManager.getVersionControl();
+        if (versionControl == null) return;
+
+        Repository currentRepo = RepositoryManager.getCurrentRepository();
+        if (currentRepo == null) return;
+
+        String newContent = FileUtility.loadFromDisk(blobId, currentRepo.getObjectsPath());
+        String oldContent = "";
+
+        Commit latestCommit = versionControl.getCurrentCommit();
+        if (latestCommit != null) {
+            Tree latestTree = Tree.loadFromDisk(latestCommit.getTreeId(), currentRepo.getObjectsPath());
+            String oldBlobId = latestTree.getEntries().get(filename);
+            if (oldBlobId != null) {
+                oldContent = FileUtility.loadFromDisk(oldBlobId, currentRepo.getObjectsPath());
+            }
+        }
+
+        String difference = DiffUtility.getDifference(oldContent, newContent);
+        view.getTextArea().setText(difference);
+    }
+
     private void showCommitDetails(Commit commit) {
         StringBuilder details = new StringBuilder();
         details.append("Commit Details:\n");
@@ -242,14 +287,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void refreshChangesTab() {
-        view.getChangedFilesList().getChildren().clear();
-        VersionControl versionControl = RepositoryManager.getVersionControl();
-        if (versionControl == null) return;
-
-        versionControl.getIndex().getStagedFiles().forEach((filename, blobId) -> {
-            Button fileButton = new Button(filename);
-            fileButton.setOnAction(e -> showFileDifference(filename, blobId));
-            view.getChangedFilesList().getChildren().add(fileButton);
-        });
+        detectAndStageChanges();
+        updateChangedFilesList();
     }
 }

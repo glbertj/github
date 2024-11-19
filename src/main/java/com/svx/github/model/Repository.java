@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 public class Repository {
-    private final UUID id;
     private final String name;
     private String latestCommitId;
     private final UUID ownerId;
@@ -14,20 +13,15 @@ public class Repository {
 
     private static final ObservableList<Repository> repositories = FXCollections.observableArrayList();
 
-    public Repository(UUID id, String name, String latestCommitId, UUID ownerId, Path path) {
-        this.id = id;
+    public Repository(String name, String latestCommitId, UUID ownerId, Path path) {
         this.name = name;
         this.latestCommitId = latestCommitId;
         this.ownerId = ownerId;
         this.path = path;
     }
 
-    public Repository(UUID id, String name, String latestCommitId, UUID ownerId) {
-        this(id, name, latestCommitId, ownerId, null);
-    }
-
-    public UUID getId() {
-        return id;
+    public Repository(String name, String latestCommitId, UUID ownerId) {
+        this(name, latestCommitId, ownerId, null);
     }
 
     public String getName() {

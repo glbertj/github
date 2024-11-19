@@ -80,7 +80,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
-                updateMultiFunctionButton();
+                resetMultiFunctionButton();
                 view.getRepositoryDropdown().getSelectionModel().select(newRepo);
             }
         });
@@ -91,7 +91,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
-                updateMultiFunctionButton();
+                resetMultiFunctionButton();
             }
         });
     }
@@ -140,35 +140,37 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         }
     }
 
+    private void resetMultiFunctionButton() {
+        view.getMultiFunctionButton().setText("Fetch origin");
+        view.getMultiFunctionButton().setOnAction(e -> updateMultiFunctionButton());
+    }
+
     private void updateMultiFunctionButton() {
         Repository currentRepo = RepositoryManager.getCurrentRepository();
         if (currentRepo == null) {
-            view.getMultiFunctionButton().setText("Fetch origin");
-            view.getMultiFunctionButton().setOnAction(e -> System.out.println("No repository selected."));
+            resetMultiFunctionButton();
+            return;
+        }
+
+        VersionControl versionControl = RepositoryManager.getVersionControl();
+        if (versionControl == null) {
+            resetMultiFunctionButton();
+            return;
+        }
+
+        Commit latestLocalCommit = versionControl.getCurrentCommit();
+        if (latestLocalCommit == null) {
+            resetMultiFunctionButton();
             return;
         }
 
         String latestDatabaseCommitId = RepositoryRepository.getLatestCommitId(currentRepo);
-        VersionControl versionControl = RepositoryManager.getVersionControl();
-        if (versionControl == null) {
-            view.getMultiFunctionButton().setText("Fetch origin");
-            view.getMultiFunctionButton().setOnAction(e -> System.out.println("No version control available."));
-            return;
-        }
-        Commit latestLocalCommit = versionControl.getCurrentCommit();
-
-        if (latestLocalCommit == null) {
-            view.getMultiFunctionButton().setText("Fetch origin");
-            view.getMultiFunctionButton().setOnAction(e -> System.out.println("No updates available."));
-            return;
-        }
-
         Commit latestDatabaseCommit = latestDatabaseCommitId != null
                 ? CommitRepository.load(latestDatabaseCommitId, currentRepo)
                 : null;
 
         boolean hasPendingCommits = latestDatabaseCommit == null
-                || latestLocalCommit.getTimestamp().isAfter(latestDatabaseCommit.getTimestamp());
+                || latestLocalCommit.getTimestamp().withNano(0).isAfter(latestDatabaseCommit.getTimestamp().withNano(0));
 
         if (hasPendingCommits) {
             view.getMultiFunctionButton().setText("Push");
@@ -185,8 +187,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 updateMultiFunctionButton();
             });
         } else {
-            view.getMultiFunctionButton().setText("Fetch origin");
-            view.getMultiFunctionButton().setOnAction(e -> System.out.println("No updates available."));
+            resetMultiFunctionButton();
         }
     }
 

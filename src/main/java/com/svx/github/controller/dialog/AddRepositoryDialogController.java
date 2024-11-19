@@ -44,7 +44,7 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
                 Path configFilePath = path.resolve(".git").resolve("config");
                 String repositoryName = loadRepositoryName(configFilePath);
 
-                Repository newRepo = new Repository(UUID.randomUUID(), repositoryName, "", UserSingleton.getCurrentUser().getId(), path);
+                Repository newRepo = new Repository(repositoryName, "", UserSingleton.getCurrentUser().getId(), path);
                 Repository.addRepository(newRepo);
                 RepositoryManager.setCurrentRepository(newRepo);
 

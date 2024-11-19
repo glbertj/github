@@ -67,7 +67,7 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
                 System.out.println("Error setting up .git directory structure: " + ex.getMessage());
             }
 
-            Repository newRepo = new Repository(UUID.randomUUID(), view.getNameField().getText(), "", UserSingleton.getCurrentUser().getId(), path);
+            Repository newRepo = new Repository(view.getNameField().getText(), "", UserSingleton.getCurrentUser().getId(), path);
             Repository.addRepository(newRepo);
             RepositoryManager.setCurrentRepository(newRepo);
 

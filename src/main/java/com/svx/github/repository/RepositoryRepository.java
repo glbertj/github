@@ -13,30 +13,29 @@ import java.util.UUID;
 
 public class RepositoryRepository {
 
-    public static boolean save(Repository repository) {
-        String query = "INSERT INTO repositories (id, owner_id, name, head_commit_id) VALUES (?, ?, ?, ?)";
+    public static void save(Repository repository) {
+        String query = "INSERT INTO repositories (owner_id, name, head_commit_id) VALUES (?, ?, ?) " +
+                "ON DUPLICATE KEY UPDATE head_commit_id = VALUES(head_commit_id)";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, repository.getId().toString());
-            stmt.setString(2, repository.getOwnerId().toString());
-            stmt.setString(3, repository.getName());
-            stmt.setString(4, repository.getLatestCommitId());
+            stmt.setString(1, repository.getOwnerId().toString());
+            stmt.setString(2, repository.getName());
+            stmt.setString(3, repository.getLatestCommitId());
 
             stmt.executeUpdate();
-            return true;
         } catch (SQLException e) {
             System.out.println("Error saving repository to database: " + e.getMessage());
-            return false;
         }
     }
 
     public static String getLatestCommitId(Repository repository) {
-        String query = "SELECT head_commit_id FROM repositories WHERE id = ?";
+        String query = "SELECT head_commit_id FROM repositories WHERE owner_id = ? AND name = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, repository.getId().toString());
+            stmt.setString(1, repository.getOwnerId().toString());
+            stmt.setString(2, repository.getName());
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -49,31 +48,8 @@ public class RepositoryRepository {
         return null;
     }
 
-    public static Repository loadById(UUID repositoryId) {
-        String query = "SELECT id, name, head_commit_id, owner_id FROM repositories WHERE id = ?";
-        try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setString(1, repositoryId.toString());
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                String id = rs.getString("id");
-                String name = rs.getString("name");
-                String headCommitId = rs.getString("head_commit_id");
-                String ownerId = rs.getString("owner_id");
-
-                return new Repository(UUID.fromString(id), name, headCommitId, UUID.fromString(ownerId));
-            }
-        } catch (SQLException e) {
-            System.out.println("Error loading repository by ID: " + e.getMessage());
-        }
-
-        return null;
-    }
-
     public static List<Repository> loadAllUserRepositories(UUID ownerId) {
-        String query = "SELECT id, name, head_commit_id FROM repositories WHERE owner_id = ?";
+        String query = "SELECT name, head_commit_id FROM repositories WHERE owner_id = ?";
         List<Repository> repositories = new ArrayList<>();
 
         try (Connection conn = ConnectionManager.getConnection();
@@ -83,33 +59,16 @@ public class RepositoryRepository {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                UUID id = UUID.fromString(rs.getString("id"));
                 String name = rs.getString("name");
                 String headCommitId = rs.getString("head_commit_id");
 
-                Repository repository = new Repository(id, name, headCommitId, ownerId);
+                Repository repository = new Repository(name, headCommitId, ownerId);
                 repositories.add(repository);
             }
         } catch (SQLException e) {
             System.out.println("Error loading repositories: " + e.getMessage());
         }
+
         return repositories;
-    }
-
-    public static void updateHead(Repository repository, String newHeadCommitId) {
-        String query = "UPDATE repositories SET head_commit_id = ? WHERE id = ?";
-        try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setString(1, newHeadCommitId);
-            stmt.setString(2, repository.getId().toString());
-
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Repository head updated to commit: " + newHeadCommitId);
-            }
-        } catch (SQLException e) {
-            System.out.println("Error updating repository head: " + e.getMessage());
-        }
     }
 }

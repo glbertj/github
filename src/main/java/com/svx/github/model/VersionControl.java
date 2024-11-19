@@ -82,13 +82,6 @@ public class VersionControl {
             return;
         }
 
-        boolean isFirstCommit = RepositoryRepository.loadById(repository.getId()) == null;
-
-        if (isFirstCommit) {
-            RepositoryRepository.save(repository);
-            System.out.println("Repository saved to database as this is the first commit.");
-        }
-
         List<Commit> commitsToPush = getCommitsToPush();
         if (commitsToPush.isEmpty()) {
             System.out.println("No new commits to push.");
@@ -111,7 +104,7 @@ public class VersionControl {
             System.out.println("Commit saved to database: " + commit.getId());
         }
 
-        RepositoryRepository.updateHead(repository, currentCommit.getId());
+        RepositoryRepository.save(repository);
         System.out.println("Push completed. Repository head updated to commit: " + currentCommit.getId());
     }
 

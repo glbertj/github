@@ -9,13 +9,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class SessionManager {
-    private static final String SESSION_FILE = "session.dat";
+    private static final Path SESSION_FILE = Paths.get("C:/gittub/sessions/session.dat");
 
     public static void createSession(User user) {
         try {
+            Files.createDirectories(SESSION_FILE.getParent());
+
             String sessionData = user.getId() + ":" + (System.currentTimeMillis() + 86400000);
             String encryptedData = CryptoUtility.encrypt(sessionData);
-            Files.write(Paths.get(SESSION_FILE), encryptedData.getBytes());
+            Files.write(SESSION_FILE, encryptedData.getBytes());
         } catch (Exception e) {
             System.out.println("Failed to create session: " + e.getMessage());
         }
@@ -23,9 +25,8 @@ public class SessionManager {
 
     public static User validateSession() {
         try {
-            Path path = Paths.get(SESSION_FILE);
-            if (Files.exists(path)) {
-                String encryptedData = new String(Files.readAllBytes(path));
+            if (Files.exists(SESSION_FILE)) {
+                String encryptedData = new String(Files.readAllBytes(SESSION_FILE));
                 String decryptedData = CryptoUtility.decrypt(encryptedData);
 
                 String[] sessionInfo = decryptedData.split(":");
@@ -44,9 +45,10 @@ public class SessionManager {
 
     public static void removeSession() {
         try {
-            Files.deleteIfExists(Paths.get(SESSION_FILE));
+            Files.deleteIfExists(SESSION_FILE);
         } catch (IOException e) {
             System.out.println("Failed to remove session: " + e.getMessage());
         }
     }
 }
+

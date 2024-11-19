@@ -1,6 +1,9 @@
 package com.svx.github.controller;
 
+import com.svx.github.manager.SessionManager;
+import com.svx.github.model.User;
 import com.svx.github.repository.UserRepository;
+import com.svx.github.utility.CryptoUtility;
 import com.svx.github.view.LoginView;
 
 public class LoginController extends Controller<LoginView> {
@@ -19,13 +22,16 @@ public class LoginController extends Controller<LoginView> {
         String username = view.getUsernameField().getText();
         String password = view.getPasswordField().getText();
 
-        boolean loginSuccessful = UserRepository.authenticate(username, password);
-        if (loginSuccessful) {
+        User authenticatedUser = UserRepository.getByUsername(username);
+        if (authenticatedUser != null && CryptoUtility.verifyPassword(password, authenticatedUser.getPassword())) {
+            SessionManager.createSession(authenticatedUser);
+
             appController.navigatePage(new MainLayoutController(appController));
         } else {
             view.getErrorLabel().setText("Wrong credentials");
         }
     }
+
 
     private void handleRegisterNavigation() {
         appController.navigatePage(new RegisterController(appController));

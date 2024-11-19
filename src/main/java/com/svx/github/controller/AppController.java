@@ -92,8 +92,8 @@ public class AppController {
         dialogStage.showAndWait();
     }
 
-    public void showNotification(String message, NotificationBox.NotificationType type, Image icon) {
-        notificationBox.show(message, type, icon);
+    public void showNotification(String message, NotificationBox.NotificationType type, String iconCode) {
+        notificationBox.show(message, type, iconCode);
     }
 
     public void logout() {

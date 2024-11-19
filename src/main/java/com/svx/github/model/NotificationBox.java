@@ -6,28 +6,32 @@ import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 public class NotificationBox extends HBox {
     private final Label messageLabel;
-    private final ImageView iconView;
+    private final FontIcon iconView;
 
     public NotificationBox() {
-        setPadding(new Insets(10));
+        setPadding(new Insets(10, 60, 10, 10));
         setSpacing(10);
         setAlignment(Pos.CENTER_LEFT);
-        setMaxWidth(300);
-        setMaxHeight(100);
+        setMinWidth(300);
+        setMaxWidth(Region.USE_PREF_SIZE);
+        setPrefWidth(Region.USE_COMPUTED_SIZE);
+
+        setMaxHeight(Region.USE_PREF_SIZE);
+        setPrefHeight(Region.USE_COMPUTED_SIZE);
         setStyle("-fx-background-color: #1e1e1e; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 0);");
 
-        iconView = new ImageView();
-        iconView.setFitWidth(24);
-        iconView.setFitHeight(24);
+        iconView = new FontIcon();
+        iconView.setIconSize(20);
+        iconView.setIconColor(Color.WHITE);
 
         messageLabel = new Label();
         messageLabel.setTextFill(Color.WHITE);
@@ -38,7 +42,7 @@ public class NotificationBox extends HBox {
         setVisible(false);
     }
 
-    public void show(String message, NotificationType type, Image icon) {
+    public void show(String message, NotificationType type, String iconCode) {
         clear();
 
         messageLabel.setText(message);
@@ -49,11 +53,8 @@ public class NotificationBox extends HBox {
             case INFO -> setStyle("-fx-background-color: #0366d6; -fx-background-radius: 8;");
         }
 
-        if (icon != null) {
-            iconView.setImage(icon);
-            iconView.setVisible(true);
-        } else {
-            iconView.setVisible(false);
+        if (iconCode != null) {
+            iconView.setIconLiteral(iconCode);
         }
 
         animateShow();

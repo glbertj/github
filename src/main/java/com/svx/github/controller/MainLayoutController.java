@@ -45,7 +45,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getLogoutMenu().setOnAction(e -> {
             if (RepositoryManager.getCurrentRepository() != null) {
                 RepositoryManager.setCurrentRepository(null);
-                
+
             }
             appController.logout();
         });
@@ -148,18 +148,14 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         Map<String, String> cumulativeTree = new HashMap<>();
 
-        try {
-            Commit currentCommit = commit;
-            while (currentCommit != null) {
-                Tree currentTree = Tree.loadFromDisk(currentCommit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
-                cumulativeTree.putAll(currentTree.getEntries());
+        Commit currentCommit = commit;
+        while (currentCommit != null) {
+            Tree currentTree = Tree.loadFromDisk(currentCommit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
+            cumulativeTree.putAll(currentTree.getEntries());
 
-                // Move to the parent commit
-                String parentId = currentCommit.getParentId();
-                currentCommit = (parentId != null) ? Commit.loadFromDisk(parentId, RepositoryManager.getCurrentRepository().getObjectsPath()) : null;
-            }
-        } catch (IOException e) {
-            System.out.println("Error loading cumulative tree: " + e.getMessage());
+            // Move to the parent commit
+            String parentId = currentCommit.getParentId();
+            currentCommit = (parentId != null) ? Commit.loadFromDisk(parentId, RepositoryManager.getCurrentRepository().getObjectsPath()) : null;
         }
 
         return cumulativeTree;
@@ -257,18 +253,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         }
 
         while (commitId != null && !commitId.isBlank()) {
-            try {
-                Commit commit = Commit.loadFromDisk(commitId, currentRepo.getObjectsPath());
+            Commit commit = Commit.loadFromDisk(commitId, currentRepo.getObjectsPath());
 
-                Button commitButton = new Button(commit.getMessage() + " - " + commit.getTimestamp());
-                commitButton.setOnAction(e -> showCommitDetails(commit));
-                view.getHistoryList().getChildren().add(commitButton);
+            Button commitButton = new Button(commit.getMessage() + " - " + commit.getTimestamp());
+            commitButton.setOnAction(e -> showCommitDetails(commit));
+            view.getHistoryList().getChildren().add(commitButton);
 
-                commitId = commit.getParentId();
-            } catch (IOException e) {
-                System.out.println("Error loading commit from disk: " + e.getMessage());
-                break;
-            }
+            commitId = commit.getParentId();
         }
     }
 

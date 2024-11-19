@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public class CommitRepository {
 
-    public static boolean save(Commit commit) {
+    public static void save(Commit commit) {
         String query = "INSERT INTO commits (id, tree_id, parent_commit_id, message, timestamp) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -20,10 +20,8 @@ public class CommitRepository {
             stmt.setTimestamp(5, Timestamp.valueOf(commit.getTimestamp()));
 
             stmt.executeUpdate();
-            return true;
         } catch (SQLException e) {
             System.out.println("Error saving commit to database: " + e.getMessage());
-            return false;
         }
     }
 

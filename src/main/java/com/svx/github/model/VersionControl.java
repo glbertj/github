@@ -118,14 +118,9 @@ public class VersionControl {
             }
             commitsToPush.add(commitToPush);
 
-            try {
-                commitToPush = commitToPush.getParentId() != null
-                        ? Commit.loadFromDisk(commitToPush.getParentId(), repository.getObjectsPath())
-                        : null;
-            } catch (IOException e) {
-                System.out.println("Error loading parent commit: " + e.getMessage());
-                break;
-            }
+            commitToPush = commitToPush.getParentId() != null
+                    ? Commit.loadFromDisk(commitToPush.getParentId(), repository.getObjectsPath())
+                    : null;
         }
 
         Collections.reverse(commitsToPush);
@@ -198,12 +193,5 @@ public class VersionControl {
         } catch (IOException e) {
             System.out.println("Error restoring files from commit: " + e.getMessage());
         }
-    }
-
-    private boolean isCommitPresentLocally(String commitId) {
-        Path commitPath = repository.getObjectsPath()
-                .resolve(commitId.substring(0, 2))
-                .resolve(commitId.substring(2));
-        return Files.exists(commitPath);
     }
 }

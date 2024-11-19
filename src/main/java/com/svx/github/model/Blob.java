@@ -25,11 +25,6 @@ public class Blob {
         return content;
     }
 
-    public static Blob loadFromDisk(String id, Repository repository) throws IOException {
-        String content = FileUtility.loadFromDisk(id, repository.getObjectsPath());
-        return new Blob(content, repository);
-    }
-
     public static String computeBlobId(Path filePath) throws IOException {
         String content = Files.readString(filePath);
         return HashUtility.computeSHA1(content);

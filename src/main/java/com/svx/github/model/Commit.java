@@ -61,7 +61,7 @@ public class Commit {
         return timestamp;
     }
 
-    public static Commit loadFromDisk(String id, Path objectsPath) throws IOException {
+    public static Commit loadFromDisk(String id, Path objectsPath) {
         String content = FileUtility.loadFromDisk(id, objectsPath);
 
         String treeId = null, parentId = null, message = null;

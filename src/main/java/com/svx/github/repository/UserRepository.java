@@ -37,12 +37,6 @@ public class UserRepository {
         return null;
     }
 
-    public static boolean authenticate(String username, String password) {
-        User user = getByUsername(username);
-        UserSingleton.setCurrentUser(user);
-        return user != null && CryptoUtility.verifyPassword(password, user.getPassword());
-    }
-
     public static boolean registerUser(User user) {
         try (Connection conn = ConnectionManager.getConnection()) {
             String query = "INSERT INTO users (id, username, email, password) VALUES (?, ?, ?, ?)";

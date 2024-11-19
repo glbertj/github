@@ -3,7 +3,6 @@ package com.svx.github.model;
 import com.svx.github.utility.FileUtility;
 import com.svx.github.utility.HashUtility;
 import com.svx.github.utility.JsonUtility;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 

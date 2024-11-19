@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 public class BlobRepository {
 
-    public static boolean save(Blob blob) {
+    public static void save(Blob blob) {
         String query = "INSERT INTO blobs (id, content) VALUES (?, ?)";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -22,10 +22,8 @@ public class BlobRepository {
             stmt.setString(1, blob.getId()); // SHA1 ID
             stmt.setBytes(2, compressedContent);
             stmt.executeUpdate();
-            return true;
         } catch (SQLException | IOException e) {
             System.out.println("Error saving blob to database: " + e.getMessage());
-            return false;
         }
     }
 

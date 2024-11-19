@@ -3,7 +3,6 @@ package com.svx.github.controller.dialog;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
 import com.svx.github.repository.RepositoryRepository;
-import com.svx.github.utility.FileUtility;
 import com.svx.github.view.dialog.CloneRepositoryDialogView;
 import javafx.stage.DirectoryChooser;
 import javafx.util.StringConverter;
@@ -14,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 
 public class CloneRepositoryDialogController extends DialogController<CloneRepositoryDialogView> {
 
@@ -89,7 +87,7 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
             Files.createDirectories(destinationPath);
 
             // Create the .git structure
-            createGitStructure(destinationPath, selectedRepo);
+            createGitStructure(destinationPath);
 
             // Clone the repository and pull all commits
             Repository clonedRepo = new Repository(
@@ -112,7 +110,7 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
         }
     }
 
-    private void createGitStructure(Path destinationPath, Repository selectedRepo) throws IOException {
+    private void createGitStructure(Path destinationPath) throws IOException {
         Path gitDir = destinationPath.resolve(".git");
         Path objectsDir = gitDir.resolve("objects");
         Path refsDir = gitDir.resolve("refs").resolve("heads");

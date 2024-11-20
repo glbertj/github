@@ -69,16 +69,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void setSidebarActions() {
-        view.getChangesButton().setOnAction(e -> {
-            view.switchToChangesTab();
-//            view.getTextArea().clear();
-        });
-
-        view.getHistoryButton().setOnAction(e -> {
-            view.switchToHistoryTab();
-//            view.getTextArea().clear();
-        });
-
         view.getCommitButton().setOnAction(e -> handleCommitAction());
     }
 

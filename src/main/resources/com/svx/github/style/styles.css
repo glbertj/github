@@ -40,10 +40,6 @@ Button {
     -fx-border-color: transparent;
 }
 
-Button:focused {
-    -fx-border-color: white;
-}
-
 .primary-button {
     -fx-background-color: #0864d4;
     -fx-text-fill: white;
@@ -54,7 +50,7 @@ Button:focused {
 }
 
 .primary-button:hover {
-    -fx-background-color: #3078d9; /* Lighter shade when hovered */
+    -fx-background-color: #3078d9;
 }
 
 .primary-button:pressed {

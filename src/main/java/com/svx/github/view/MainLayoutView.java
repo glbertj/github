@@ -34,6 +34,7 @@ public class MainLayoutView extends View<BorderPane> {
     private BorderPane defaultSidebar;
     private Button changesButton;
     private Button historyButton;
+    private boolean showingHistoryTab = false;
     private VBox changesTab;
     private VBox changedFilesList;
     private Button commitButton;
@@ -195,30 +196,10 @@ public class MainLayoutView extends View<BorderPane> {
     private void initializeSideBar() {
         sideBar = new BorderPane();
 
-        initializeDefaultSideBar();
         initializeRepositorySidebar();
+        initializeDefaultSideBar();
 
         sideBar.setCenter(defaultSidebar);
-    }
-
-    private void initializeDefaultSideBar() {
-        defaultSidebar = new BorderPane();
-        defaultSidebar.getStyleClass().add("sidebar");
-
-        changesButton = createSidebarButton("Changes");
-        changesButton.getStyleClass().add("active");
-        historyButton = createSidebarButton("History");
-
-        HBox sideBarHeader = new HBox(changesButton, historyButton);
-        sideBarHeader.setSpacing(5);
-        sideBarHeader.getStyleClass().add("sidebar-header");
-
-        defaultSidebar.setTop(sideBarHeader);
-
-        initializeChangesTab();
-        initializeHistoryTab();
-
-        switchToChangesTab();
     }
 
     private void initializeRepositorySidebar() {
@@ -234,38 +215,26 @@ public class MainLayoutView extends View<BorderPane> {
         repositorySidebar.getChildren().addAll(repositoryLabel, repositoryList);
     }
 
-    public void switchSideBar() {
-        if (showingRepositorySidebar) {
-            sideBar.setCenter(defaultSidebar);
-            repositoryToggleButton.getStyleClass().remove("active");
-            repositoryIsShowingIcon.setIconLiteral("fas-angle-down");
-        } else {
-            sideBar.setCenter(repositorySidebar);
-            repositoryToggleButton.getStyleClass().add("active");
-            repositoryIsShowingIcon.setIconLiteral("fas-angle-up");
-        }
+    private void initializeDefaultSideBar() {
+        defaultSidebar = new BorderPane();
+        defaultSidebar.getStyleClass().add("sidebar");
 
-        showingRepositorySidebar = !showingRepositorySidebar;
-    }
+        changesButton = new Button("Changes");
+        changesButton.getStyleClass().add("changes");
+        changesButton.getStyleClass().add("active");
+        changesButton.setOnAction(e -> handleTabSwitch());
 
-    private Button createSidebarButton(String text) {
-        Button button = new Button(text);
-        button.getStyleClass().add("button");
-        button.setOnAction(e -> handleTabSwitch(button));
-        return button;
-    }
+        historyButton = new Button("History");
+        historyButton.setOnAction(e -> handleTabSwitch());
 
-    private void handleTabSwitch(Button activeButton) {
-        changesButton.getStyleClass().remove("active");
-        historyButton.getStyleClass().remove("active");
+        HBox sideBarHeader = new HBox(changesButton, historyButton);
+        sideBarHeader.getStyleClass().add("sidebar-header");
 
-        activeButton.getStyleClass().add("active");
+        initializeChangesTab();
+        initializeHistoryTab();
 
-        if (activeButton == changesButton) {
-            switchToChangesTab();
-        } else if (activeButton == historyButton) {
-            switchToHistoryTab();
-        }
+        defaultSidebar.setTop(sideBarHeader);
+        defaultSidebar.setCenter(changesTab);
     }
 
     private void initializeChangesTab() {
@@ -296,6 +265,34 @@ public class MainLayoutView extends View<BorderPane> {
         historyTab.getChildren().addAll(historyLabel, historyList);
     }
 
+    public void switchSideBar() {
+        if (showingRepositorySidebar) {
+            sideBar.setCenter(defaultSidebar);
+            repositoryToggleButton.getStyleClass().remove("active");
+            repositoryIsShowingIcon.setIconLiteral("fas-angle-down");
+        } else {
+            sideBar.setCenter(repositorySidebar);
+            repositoryToggleButton.getStyleClass().add("active");
+            repositoryIsShowingIcon.setIconLiteral("fas-angle-up");
+        }
+
+        showingRepositorySidebar = !showingRepositorySidebar;
+    }
+
+    private void handleTabSwitch() {
+        if (showingHistoryTab) {
+            defaultSidebar.setCenter(changesTab);
+            changesButton.getStyleClass().add("active");
+            historyButton.getStyleClass().remove("active");
+        } else {
+            defaultSidebar.setCenter(historyTab);
+            changesButton.getStyleClass().remove("active");
+            historyButton.getStyleClass().add("active");
+        }
+
+        showingHistoryTab = !showingHistoryTab;
+    }
+
     private void createTextArea() {
         textArea = new TextArea("Halo");
         textArea.getStyleClass().add("text-area");
@@ -306,13 +303,6 @@ public class MainLayoutView extends View<BorderPane> {
 
     public enum OriginType {
         FETCH, PUSH, PULL
-    }
-
-    public void switchToChangesTab() {
-        defaultSidebar.setCenter(changesTab);
-    }
-    public void switchToHistoryTab() {
-        defaultSidebar.setCenter(historyTab);
     }
 
     public MenuItem getCreateRepositoryMenu() { return createRepositoryMenu; }

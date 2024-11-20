@@ -5,3 +5,7 @@
     -fx-alignment: center;
     -fx-padding: 0 0 20 0;
 }
+
+Button:focused {
+    -fx-border-color: white;
+}

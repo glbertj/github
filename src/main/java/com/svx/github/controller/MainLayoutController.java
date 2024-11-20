@@ -14,7 +14,6 @@ import com.svx.github.view.MainLayoutView;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +27,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     @Override
     protected void setActions() {
         setMenuActions();
+        setTopBarActions();
         setSidebarActions();
         setListeners();
         updateChangedFilesList();
@@ -53,44 +53,50 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getExitMenu().setOnAction(e -> appController.exitApp());
     }
 
+    private void setTopBarActions() {
+        view.getRepositoryToggleButton().setOnMouseClicked(e -> {
+            view.switchSideBar();
+        });
+
+//        view.getRepositoryDropdown().valueProperty().addListener((observable, oldRepo, newRepo) -> {
+//            if (newRepo != null) {
+//                RepositoryManager.setCurrentRepository(newRepo);
+//                refreshChangesTab();
+//                updateHistoryTab();
+//                updateMultiFunctionButton();
+//            }
+//        });
+    }
+
     private void setSidebarActions() {
         view.getChangesButton().setOnAction(e -> {
-            view.showChangesTab();
-            view.getTextArea().clear();
+            view.switchToChangesTab();
+//            view.getTextArea().clear();
         });
 
         view.getHistoryButton().setOnAction(e -> {
-            view.showHistoryTab();
-            view.getTextArea().clear();
+            view.switchToHistoryTab();
+//            view.getTextArea().clear();
         });
 
         view.getCommitButton().setOnAction(e -> handleCommitAction());
-
-        view.getRepositoryDropdown().valueProperty().addListener((observable, oldRepo, newRepo) -> {
-            if (newRepo != null) {
-                RepositoryManager.setCurrentRepository(newRepo);
-                refreshChangesTab();
-                updateHistoryTab();
-                updateMultiFunctionButton();
-            }
-        });
     }
 
     private void setListeners() {
         RepositoryManager.currentRepositoryProperty().addListener((observable, oldRepo, newRepo) -> {
             if (newRepo != null) {
-                view.getTextArea().clear();
+//                view.getTextArea().clear();
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
                 resetMultiFunctionButton();
-                view.getRepositoryDropdown().getSelectionModel().select(newRepo);
+//                view.getRepositoryDropdown().getSelectionModel().select(newRepo);
             }
         });
 
         appController.getFocusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                view.getTextArea().clear();
+//                view.getTextArea().clear();
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
@@ -162,8 +168,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void resetMultiFunctionButton() {
-        view.getMultiFunctionButton().setText("Fetch origin");
-        view.getMultiFunctionButton().setOnAction(e -> updateMultiFunctionButton());
+        view.switchOriginButton(MainLayoutView.OriginType.FETCH);
+        view.getOriginButton().setOnMouseClicked(e -> updateMultiFunctionButton());
     }
 
     private void updateMultiFunctionButton() {
@@ -194,15 +200,15 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 || latestLocalCommit.getTimestamp().withNano(0).isAfter(latestDatabaseCommit.getTimestamp().withNano(0));
 
         if (hasPendingCommits) {
-            view.getMultiFunctionButton().setText("Push");
-            view.getMultiFunctionButton().setOnAction(e -> {
+            view.switchOriginButton(MainLayoutView.OriginType.PUSH);
+            view.getOriginButton().setOnMouseClicked(e -> {
                 System.out.println("Pushing changes...");
                 RepositoryManager.getVersionControl().push();
                 updateMultiFunctionButton();
             });
         } else if (!latestDatabaseCommitId.equals(latestLocalCommit.getId())) {
-            view.getMultiFunctionButton().setText("Pull");
-            view.getMultiFunctionButton().setOnAction(e -> {
+            view.switchOriginButton(MainLayoutView.OriginType.PULL);
+            view.getOriginButton().setOnMouseClicked(e -> {
                 System.out.println("Pulling changes...");
                 RepositoryManager.getVersionControl().pull();
                 updateMultiFunctionButton();

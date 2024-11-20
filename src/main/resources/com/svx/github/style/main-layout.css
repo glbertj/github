@@ -1,6 +1,8 @@
+/* Menu */
 .menu-bar {
-    -fx-background-color: #243024;
-    -fx-border-width: 0;
+    -fx-background-color: #24292e;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: black;
 }
 
 .menu {
@@ -8,62 +10,85 @@
     -fx-text-fill: #e1e4e8;
     -fx-border-color: transparent;
     -fx-border-width: 0;
+    -fx-padding: 6 12;
 }
 
-/* Ensure the menu text is always visible */
 .menu .label {
-    -fx-text-fill: #e1e4e8; /* Light gray text for menu labels */
+    -fx-text-fill: #e1e4e8;
 }
 
-/* Menu Hover State */
 .menu:hover {
-    -fx-background-color: #2f363d; /* Hover background */
+    -fx-background-color: #2f363d;
 }
 
-/* Menu Items */
 .menu-item {
-    -fx-background-color: #2f363d; /* Default menu item background */
-    -fx-text-fill: #e1e4e8; /* Light gray text */
-    -fx-padding: 5 10; /* Adjust padding for better spacing */
-    -fx-border-color: transparent; /* Remove borders */
-    -fx-border-width: 0; /* Ensure no borders */
+    -fx-background-color: #2f363d;
+    -fx-text-fill: #e1e4e8;
+    -fx-padding: 5 10;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
 }
 
-/* Menu Item Hover State */
 .menu-item:hover {
-    -fx-background-color: #0366d6; /* Blue hover background */
-    -fx-text-fill: #ffffff; /* White text */
+    -fx-background-color: #0366d6;
+    -fx-text-fill: #ffffff;
 }
 
 .context-menu {
-    -fx-background-color: #24292e; /* Matches the menu bar background */
-    -fx-border-color: transparent; /* Remove any border lines */
+    -fx-background-color: #24292e;
+    -fx-border-color: transparent;
     -fx-border-width: 0;
     -fx-background-insets: 0;
-    -fx-padding: 0; /* Eliminate extra space */
+    -fx-padding: 0;
     -fx-background-radius: 0;
 }
 
-.context-menu .separator {
-    -fx-border-color: #586069;
-    -fx-border-width: 0 0 1 0; /* Only apply to the bottom border */
+/* Top Bar */
+.top-bar-button {
+    -fx-alignment: center-left;
+    -fx-background-color: #24292e;
+    -fx-border-color: black;
+    -fx-border-width: 0 1 1 0;
+    -fx-pref-width: 250px;
+    -fx-padding: 5px 12px 5px 12px;
 }
 
-.separator-menu-item {
-    -fx-background-color: transparent; /* Removes the default background */
-    -fx-padding: 0.5em 0; /* Adjust padding for spacing */
+.top-bar-button.repository-toggle-button.active {
+    -fx-background-color: #24292e;
+    -fx-border-width: 0;
 }
 
-.dark-overlay {
-    -fx-background-color: rgba(0, 0, 0, 0.5);
-    -fx-cursor: default;
+.top-bar-button:hover {
+    -fx-background-color: #2f363d;
+    -fx-cursor: hand;
 }
 
+.top-bar-icon {
+    -fx-fill: #e1e4e8;
+    -fx-font-size: 16px;
+}
+
+.top-bar-primary-label {
+    -fx-text-fill: #e1e4e8;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.top-bar-secondary-label {
+    -fx-text-fill: #959da5;
+    -fx-font-size: 12px;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-pref-width: 250;
+}
 
 .sidebar-header {
     -fx-background-color: #2c2c2c;
     -fx-padding: 10;
     -fx-spacing: 10;
+    -fx-pref-width: 250px;
     -fx-border-color: #444;
     -fx-border-width: 0 0 1 0;
 }
@@ -105,20 +130,6 @@
     -fx-border-radius: 5;
 }
 
-.file-item {
-    -fx-background-color: #24292e;
-    -fx-padding: 8;
-    -fx-border-color: #444;
-    -fx-border-width: 1;
-    -fx-border-radius: 5;
-    -fx-text-fill: #e1e4e8;
-}
-
-.file-item:hover {
-    -fx-background-color: #2c2c2c;
-    -fx-border-color: #5a5a5a;
-}
-
 .commit-area {
     -fx-padding: 10;
     -fx-spacing: 10;
@@ -135,4 +146,13 @@
 
 .commit-area .button:hover {
     -fx-background-color: #005bb5;
+}
+
+
+.text-area {
+    -fx-background-color: #24292e;
+    -fx-text-fill: black;
+    -fx-border-color: #444;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
 }

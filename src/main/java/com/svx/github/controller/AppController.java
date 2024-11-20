@@ -101,6 +101,7 @@ public class AppController {
         navigatePage(new LoginController(this));
         SessionManager.removeSession();
         UserSingleton.clearCurrentUser();
+        showNotification("Logged out.", NotificationBox.NotificationType.ERROR, "fas-sign-out-alt");
     }
 
     public void exitApp() {

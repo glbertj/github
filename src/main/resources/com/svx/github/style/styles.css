@@ -30,6 +30,10 @@ Label {
     -fx-margin: 5px;
 }
 
+.secondary-text Label {
+    -fx-text-fill: #959da5;
+}
+
 Button {
     -fx-border-insets: 2px;
     -fx-border-width: 2px;

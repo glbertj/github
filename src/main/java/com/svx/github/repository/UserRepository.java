@@ -2,8 +2,7 @@ package com.svx.github.repository;
 
 import com.svx.github.manager.ConnectionManager;
 import com.svx.github.model.User;
-import com.svx.github.model.UserSingleton;
-import com.svx.github.utility.CryptoUtility;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,9 +16,14 @@ public class UserRepository {
         return getUser(query, id);
     }
 
-    public static User getByUsername(String username) {
+    public static User getByUsername(String input) {
         String query = "SELECT * FROM users WHERE username = ?";
-        return getUser(query, username);
+        return getUser(query, input);
+    }
+
+    public static User getByEmail(String input) {
+        String query = "SELECT * FROM users WHERE email = ?";
+        return getUser(query, input);
     }
 
     private static User getUser(String query, String parameter) {

@@ -30,8 +30,20 @@ Label {
     -fx-margin: 5px;
 }
 
-.secondary-text Label {
+.primary-text {
+    -fx-text-fill: #e1e4e8;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.secondary-text {
     -fx-text-fill: #959da5;
+    -fx-font-size: 12px;
+}
+
+.icon {
+    -fx-fill: #e1e4e8;
+    -fx-font-size: 16px;
 }
 
 Button {

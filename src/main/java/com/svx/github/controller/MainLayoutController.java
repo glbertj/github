@@ -11,8 +11,10 @@ import com.svx.github.repository.RepositoryRepository;
 import com.svx.github.utility.DiffUtility;
 import com.svx.github.utility.FileUtility;
 import com.svx.github.view.MainLayoutView;
+import javafx.collections.ListChangeListener;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,11 +39,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
     private void setMenuActions() {
         view.getCreateRepositoryMenu().setOnAction(e -> appController.openDialog(new CreateRepositoryDialogController()));
-
         view.getAddRepositoryMenu().setOnAction(e -> appController.openDialog(new AddRepositoryDialogController()));
-
         view.getCloneRepositoryMenu().setOnAction(e -> appController.openDialog(new CloneRepositoryDialogController()));
-
         view.getLogoutMenu().setOnAction(e -> {
             if (RepositoryManager.getCurrentRepository() != null) {
                 RepositoryManager.setCurrentRepository(null);
@@ -49,23 +48,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             }
             appController.logout();
         });
-
         view.getExitMenu().setOnAction(e -> appController.exitApp());
+
+
     }
 
     private void setTopBarActions() {
-        view.getRepositoryToggleButton().setOnMouseClicked(e -> {
-            view.switchSideBar();
-        });
-
-//        view.getRepositoryDropdown().valueProperty().addListener((observable, oldRepo, newRepo) -> {
-//            if (newRepo != null) {
-//                RepositoryManager.setCurrentRepository(newRepo);
-//                refreshChangesTab();
-//                updateHistoryTab();
-//                updateMultiFunctionButton();
-//            }
-//        });
+        view.getRepositoryToggleButton().setOnMouseClicked(e -> view.switchSideBar());
     }
 
     private void setSidebarActions() {
@@ -75,22 +64,53 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     private void setListeners() {
         RepositoryManager.currentRepositoryProperty().addListener((observable, oldRepo, newRepo) -> {
             if (newRepo != null) {
-//                view.getTextArea().clear();
+                view.getTextArea().clear();
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
                 resetMultiFunctionButton();
-//                view.getRepositoryDropdown().getSelectionModel().select(newRepo);
             }
         });
 
         appController.getFocusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-//                view.getTextArea().clear();
+                view.getTextArea().clear();
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
                 resetMultiFunctionButton();
+            }
+        });
+
+        Repository.getRepositories().addListener((ListChangeListener<? super Repository>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (Repository repo : change.getAddedSubList()) {
+                        boolean alreadyExists = view.getRepositoryList().getChildren().stream().anyMatch(node -> {
+                            if (node instanceof HBox buttonContent) {
+                                Label label = (Label) buttonContent.getChildren().get(1);
+                                return label.getText().equals(repo.getName())
+                                        && buttonContent.getUserData() instanceof Repository
+                                        && ((Repository) buttonContent.getUserData()).getOwnerId().equals(repo.getOwnerId());
+                            }
+                            return false;
+                        });
+                        if (!alreadyExists) {
+                            view.getRepositoryList().getChildren().add(view.createRepositoryButton(repo));
+                        }
+                    }
+                }
+                if (change.wasRemoved()) {
+                    for (Repository repo : change.getRemoved()) {
+                        view.getRepositoryList().getChildren().removeIf(node -> {
+                            if (node instanceof HBox buttonContent) {
+                                Label label = (Label) buttonContent.getChildren().get(1);
+                                return label.getText().equals(repo.getName());
+                            }
+                            return false;
+                        });
+                    }
+                }
             }
         });
     }
@@ -149,7 +169,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             Tree currentTree = Tree.loadFromDisk(currentCommit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
             cumulativeTree.putAll(currentTree.getEntries());
 
-            // Move to the parent commit
             String parentId = currentCommit.getParentId();
             currentCommit = (parentId != null) ? Commit.loadFromDisk(parentId, RepositoryManager.getCurrentRepository().getObjectsPath()) : null;
         }
@@ -297,10 +316,5 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         }
 
         view.getTextArea().setText(details.toString());
-    }
-
-    private void refreshChangesTab() {
-        detectAndStageChanges();
-        updateChangedFilesList();
     }
 }

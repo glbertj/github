@@ -1,12 +1,14 @@
 package com.svx.github.view;
 
 import com.svx.github.manager.RepositoryManager;
+import com.svx.github.model.Repository;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class MainLayoutView extends View<BorderPane> {
     // Top Bar Components
@@ -29,6 +31,7 @@ public class MainLayoutView extends View<BorderPane> {
 
     // Sidebar (Repository)
     private VBox repositorySidebar;
+    private VBox repositoryList;
 
     // Sidebar (Default)
     private BorderPane defaultSidebar;
@@ -81,13 +84,13 @@ public class MainLayoutView extends View<BorderPane> {
 
     private HBox createRepositoryToggleButton() {
         FontIcon iconView = new FontIcon("fas-laptop-code");
-        iconView.getStyleClass().add("top-bar-icon");
+        iconView.getStyleClass().add("icon");
 
         Label currentRepoLabel = new Label("Current Repository");
-        currentRepoLabel.getStyleClass().add("top-bar-primary-label");
+        currentRepoLabel.getStyleClass().add("primary-text");
 
         Label selectedRepoName = new Label("No repository selected");
-        selectedRepoName.getStyleClass().add("top-bar-secondary-label");
+        selectedRepoName.getStyleClass().add("secondary-text");
 
         VBox textContent = new VBox(currentRepoLabel, selectedRepoName);
         textContent.setSpacing(2);
@@ -98,7 +101,7 @@ public class MainLayoutView extends View<BorderPane> {
         leftContent.setAlignment(Pos.CENTER_LEFT);
 
         repositoryIsShowingIcon = new FontIcon("fas-angle-down");
-        repositoryIsShowingIcon.getStyleClass().add("top-bar-icon");
+        repositoryIsShowingIcon.getStyleClass().add("icon");
 
         HBox buttonContent = new HBox(leftContent, repositoryIsShowingIcon);
         buttonContent.setSpacing(10);
@@ -129,12 +132,12 @@ public class MainLayoutView extends View<BorderPane> {
 
     private void switchOriginButton(String originAction, String iconCode, String lastFetched) {
         FontIcon fetchIcon = new FontIcon(iconCode);
-        fetchIcon.getStyleClass().add("top-bar-icon");
+        fetchIcon.getStyleClass().add("icon");
 
         Label fetchLabel = new Label(originAction);
-        fetchLabel.getStyleClass().add("top-bar-primary-label");
+        fetchLabel.getStyleClass().add("primary-text");
         Label lastFetchedLabel = new Label(lastFetched);
-        lastFetchedLabel.getStyleClass().add("top-bar-secondary-label");
+        lastFetchedLabel.getStyleClass().add("secondary-text");
 
         VBox textContent = new VBox(fetchLabel, lastFetchedLabel);
         textContent.setSpacing(2);
@@ -143,7 +146,6 @@ public class MainLayoutView extends View<BorderPane> {
         originButton = new HBox(fetchIcon, textContent);
         originButton.getStyleClass().add("top-bar-button");
         originButton.setSpacing(10);
-
     }
 
     private void initializeMenu() {
@@ -206,13 +208,25 @@ public class MainLayoutView extends View<BorderPane> {
         repositorySidebar = new VBox();
         repositorySidebar.getStyleClass().add("sidebar");
 
-        Label repositoryLabel = new Label("Repositories");
-        repositoryLabel.getStyleClass().add("sidebar-label");
+        TextField searchField = new TextField();
+        searchField.setPromptText("Search repositories...");
+        searchField.setPrefWidth(230);
+        Button addRepositoryButton = new Button("Add");
 
-        VBox repositoryList = new VBox();
+        HBox repositoryHeader = new HBox(searchField, addRepositoryButton);
+        repositoryHeader.getStyleClass().addAll("sidebar-header", "repository-sidebar");
+        repositoryHeader.setSpacing(8);
+        repositoryHeader.setAlignment(Pos.CENTER_LEFT);
+
+        Label repositoryLabel = new Label("Recent Repositories");
+        repositoryLabel.getStyleClass().add("primary-text");
+
+        repositoryList = new VBox();
         repositoryList.setSpacing(5);
+        repositoryList.getStyleClass().add("repository-list");
+        repositoryList.getChildren().addFirst(repositoryLabel);
 
-        repositorySidebar.getChildren().addAll(repositoryLabel, repositoryList);
+        repositorySidebar.getChildren().addAll(repositoryHeader, repositoryList);
     }
 
     private void initializeDefaultSideBar() {
@@ -265,6 +279,21 @@ public class MainLayoutView extends View<BorderPane> {
         historyTab.getChildren().addAll(historyLabel, historyList);
     }
 
+    public HBox createRepositoryButton(Repository repository) {
+        FontIcon iconView = new FontIcon("fab-git-alt");
+        iconView.getStyleClass().add("icon");
+
+        Label repositoryLabel = new Label(repository.getName());
+        repositoryLabel.getStyleClass().add("primary-text");
+
+        HBox buttonContent = new HBox(iconView, repositoryLabel);
+        buttonContent.setUserData(repository);
+        buttonContent.getStyleClass().add("repository-list-button");
+        buttonContent.setOnMouseClicked(e -> RepositoryManager.setCurrentRepository(repository));
+
+        return buttonContent;
+    }
+
     public void switchSideBar() {
         if (showingRepositorySidebar) {
             sideBar.setCenter(defaultSidebar);
@@ -311,9 +340,8 @@ public class MainLayoutView extends View<BorderPane> {
     public MenuItem getLogoutMenu() { return logoutMenu; }
     public MenuItem getExitMenu() { return exitMenu; }
     public HBox getRepositoryToggleButton() { return repositoryToggleButton; }
+    public VBox getRepositoryList() { return repositoryList; }
     public HBox getOriginButton() { return originButton; }
-    public Button getChangesButton() { return changesButton; }
-    public Button getHistoryButton() { return historyButton; }
     public Button getCommitButton() { return commitButton; }
     public VBox getChangedFilesList() { return changedFilesList; }
     public VBox getHistoryList() { return historyList; }

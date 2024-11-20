@@ -19,8 +19,8 @@ public class LoginView extends AuthView {
     public void initializeView() {
         setupRoot();
 
-        usernameField = createTextField("Enter your username");
-        root.add(new Label("Username:"), 0, 1);
+        usernameField = createTextField("yora");
+        root.add(new Label("Username / Email:"), 0, 1);
         root.add(usernameField, 1, 1);
 
         passwordField = createPasswordField();

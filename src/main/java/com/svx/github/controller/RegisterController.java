@@ -29,6 +29,11 @@ public class RegisterController extends Controller<RegisterView> {
             return;
         }
 
+        if (!username.matches("^[a-zA-Z0-9_]+$")) {
+            appController.showNotification("Username must only contain letters, numbers, and underscores.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+            return;
+        }
+
         if (!email.matches("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")) {
             appController.showNotification("Invalid email format.", NotificationBox.NotificationType.ERROR, "far-envelope");
             return;
@@ -45,7 +50,7 @@ public class RegisterController extends Controller<RegisterView> {
             appController.showNotification("Successfully registered.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             appController.navigatePage(new LoginController(appController));
         } else {
-            appController.showNotification("Registration failed. Email may already be in use.", NotificationBox.NotificationType.ERROR, "fas-copy");
+            appController.showNotification("Registration failed. Username or email may already be in use.", NotificationBox.NotificationType.ERROR, "fas-copy");
         }
     }
 

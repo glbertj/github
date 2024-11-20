@@ -29,7 +29,7 @@ public class LoginController extends Controller<LoginView> {
             return;
         }
 
-        User authenticatedUser = UserRepository.getByUsername(username);
+        User authenticatedUser = username.contains("@") ? UserRepository.getByEmail(username) : UserRepository.getByUsername(username);
         if (authenticatedUser != null && CryptoUtility.verifyPassword(password, authenticatedUser.getPassword())) {
             SessionManager.createSession(authenticatedUser);
             UserSingleton.setCurrentUser(authenticatedUser);

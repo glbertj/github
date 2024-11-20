@@ -36,18 +36,21 @@ public abstract class AuthView extends View<GridPane> {
     protected TextField createTextField(String placeholder) {
         TextField textField = new TextField();
         textField.setPromptText(placeholder);
+        textField.getStyleClass().add("text-field");
         return textField;
     }
 
     protected PasswordField createPasswordField() {
         PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText("Enter your password");
+        passwordField.setPromptText("emas_5_gram");
+        passwordField.getStyleClass().add("password-field");
         return passwordField;
     }
 
     protected Button createButton(String text) {
         Button button = createAnimatedButton(text);
         button.getStyleClass().add("auth-button");
+        button.getStyleClass().add("primary-button");
         return button;
     }
 }

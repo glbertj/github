@@ -1,23 +1,76 @@
-.label, .text-field .text, .password-field .text {
-    -fx-text-fill: #e1e4e8; /* Light gray text */
+.root-pane {
+    -fx-background-color: #24292e;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.5, 0, 0);
 }
 
-/* Input Fields Placeholder */
+.text-field, .password-field {
+    -fx-background-color: #1d2125;
+    -fx-text-fill: #e1e4e8;
+    -fx-border-color: #717b85;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 5px;
+    -fx-margin: 5px;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #0366d6;
+}
+
 .text-field .text:empty, .password-field .text:empty {
-    -fx-fill: #888; /* Subtle gray for placeholder text */
+    -fx-fill: #1d2125;
 }
 
-/* Button Text */
-.auth-button {
-    -fx-text-fill: white; /* Bright text for buttons */
+Label {
+    -fx-text-fill: #e1e4e8;
+    -fx-font-size: 14px;
+    -fx-margin: 5px;
 }
 
-/* Error Message Text */
-#error-label {
-    -fx-text-fill: #d73a49; /* Bright red for error messages */
+Button {
+    -fx-border-insets: 2px;
+    -fx-border-width: 2px;
+    -fx-border-color: transparent;
 }
 
-/* Success Message Text */
-#error-label.success {
-    -fx-text-fill: #28a745; /* Bright green for success messages */
+Button:focused {
+    -fx-border-color: white;
+}
+
+.primary-button {
+    -fx-background-color: #0864d4;
+    -fx-text-fill: white;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 3px 80px;
+    -fx-font-weight: bold;
+}
+
+.primary-button:hover {
+    -fx-background-color: #3078d9; /* Lighter shade when hovered */
+}
+
+.primary-button:pressed {
+    -fx-background-color: #0648a3;
+    -fx-border-color: none;
+}
+
+.secondary-button {
+    -fx-background-color: #202424;
+    -fx-text-fill: white;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 5px 10px;
+    -fx-font-weight: bold;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #303535;
+}
+
+.secondary-button:pressed {
+    -fx-background-color: #1a1c1c;
 }

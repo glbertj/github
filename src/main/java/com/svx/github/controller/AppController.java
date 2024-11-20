@@ -37,7 +37,7 @@ public class AppController {
         this.primaryStage = primaryStage;
 
         rootPane = new StackPane();
-        rootPane.setStyle("-fx-background-color: #1e1e1e;");
+        rootPane.getStyleClass().add("root-pane");
         Scene primaryScene = new Scene(rootPane, 1000, 700);
         primaryStage.setScene(primaryScene);
 

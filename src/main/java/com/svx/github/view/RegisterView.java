@@ -20,11 +20,11 @@ public class RegisterView extends AuthView {
     public void initializeView() {
         setupRoot();
 
-        usernameField = createTextField("Enter your username");
+        usernameField = createTextField("yora");
         root.add(new Label("Username:"), 0, 1);
         root.add(usernameField, 1, 1);
 
-        emailField = createTextField("Enter your email");
+        emailField = createTextField("yora@gmail.com");
         root.add(new Label("Email:"), 0, 2);
         root.add(emailField, 1, 2);
 

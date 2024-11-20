@@ -2,25 +2,15 @@ package com.svx.github.view;
 
 import com.svx.github.model.Repository;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.util.StringConverter;
 import java.util.Objects;
 
 public class MainLayoutView extends View<BorderPane> {
-    // Global //
-    public void showInfoMessage(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Info");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    // Top bar //
-    private final VBox topBarContainer;
+    // Top Bar Components
+    private final VBox topBarContainer = new VBox();
+    private ComboBox<Repository> repositoryDropdown;
+    private Button multiFunctionButton;
 
     // Menu
     private MenuItem createRepositoryMenu;
@@ -29,42 +19,27 @@ public class MainLayoutView extends View<BorderPane> {
     private MenuItem logoutMenu;
     private MenuItem exitMenu;
 
-    // Top bar buttons
-    private ComboBox<Repository> repositoryDropdown;
-    private Button multiFunctionButton;
-
-    // Sidebar //
-    private final BorderPane sideBar;
-
-    // Sidebar header
+    // Sidebar Components
+    private final BorderPane sideBar = new BorderPane();
     private Button changesButton;
     private Button historyButton;
-
-    // changes tab
     private VBox changesTab;
     private VBox changedFilesList;
     private Button commitButton;
-
-    // history tab
     private VBox historyTab;
     private VBox historyList;
 
-    // Main Content //
-    private final StackPane mainContent;
+    // Main Content
+    private final StackPane mainContent = new StackPane();
     private TextArea textArea;
-
-    public MainLayoutView() {
-        super();
-        topBarContainer = new VBox();
-        sideBar = new BorderPane();
-        mainContent = new StackPane();
-    }
 
     @Override
     public void initializeView() {
         root = new BorderPane();
 
-        styleReference = Objects.requireNonNull(getClass().getResource("/com/svx/github/style/main-layout.css")).toExternalForm();
+        styleReference = Objects.requireNonNull(
+                getClass().getResource("/com/svx/github/style/main-layout.css")
+        ).toExternalForm();
 
         initializeTopBar();
         initializeSideBar();
@@ -76,34 +51,34 @@ public class MainLayoutView extends View<BorderPane> {
     }
 
     private void initializeTopBar() {
-        topBarContainer.getStyleClass().add("top-bar-container");
-        topBarContainer.setPrefHeight(60);
-
         MenuBar menuBar = new MenuBar();
-
         Menu fileMenu = new Menu("File");
-
-        menuBar.getMenus().add(fileMenu);
 
         createRepositoryMenu = new MenuItem("New Repository...");
         addRepositoryMenu = new MenuItem("Add Local Repository...");
         cloneRepositoryMenu = new MenuItem("Clone Repository...");
         logoutMenu = new MenuItem("Logout");
         exitMenu = new MenuItem("Exit");
+        fileMenu.getItems().addAll(
+                createRepositoryMenu, new SeparatorMenuItem(),
+                addRepositoryMenu, new SeparatorMenuItem(),
+                cloneRepositoryMenu, new SeparatorMenuItem(),
+                logoutMenu, exitMenu
+        );
 
-        fileMenu.getItems().addAll(createRepositoryMenu, new SeparatorMenuItem(), addRepositoryMenu,
-                new SeparatorMenuItem(), cloneRepositoryMenu, new SeparatorMenuItem(),logoutMenu, exitMenu);
+        menuBar.getMenus().add(fileMenu);
 
-        HBox topBar = new HBox();
+        repositoryDropdown = createRepositoryDropdown();
+        multiFunctionButton = createAnimatedButton("Push Origin");
 
-        repositoryDropdown = getRepositoryComboBox();
-        multiFunctionButton = new Button("Fetch Origin");
+        HBox topBar = new HBox(repositoryDropdown, multiFunctionButton);
+        topBar.setSpacing(10);
+        topBar.getStyleClass().add("top-bar-container");
 
-        topBar.getChildren().addAll(repositoryDropdown, multiFunctionButton);
         topBarContainer.getChildren().addAll(menuBar, topBar);
     }
 
-    private static ComboBox<Repository> getRepositoryComboBox() {
+    private static ComboBox<Repository> createRepositoryDropdown() {
         ComboBox<Repository> dropdown = new ComboBox<>(Repository.getRepositories());
         dropdown.setConverter(new StringConverter<>() {
             @Override
@@ -116,17 +91,21 @@ public class MainLayoutView extends View<BorderPane> {
                 return null;
             }
         });
-
+        dropdown.setPromptText("Select a Repository");
         dropdown.setPrefWidth(200);
+        dropdown.getStyleClass().add("combo-box");
         return dropdown;
     }
 
     private void initializeSideBar() {
-        changesButton = new Button("Changes");
-        historyButton = new Button("History");
+        changesButton = createSidebarButton("Changes");
+        changesButton.getStyleClass().add("active");
+        historyButton = createSidebarButton("History");
 
-        HBox sideBarHeader = new HBox();
-        sideBarHeader.getChildren().addAll(changesButton, historyButton);
+        HBox sideBarHeader = new HBox(changesButton, historyButton);
+        sideBarHeader.setSpacing(5);
+        sideBarHeader.getStyleClass().add("sidebar-header");
+
         sideBar.setTop(sideBarHeader);
 
         initializeChangesTab();
@@ -135,37 +114,63 @@ public class MainLayoutView extends View<BorderPane> {
         showChangesTab();
     }
 
+    private Button createSidebarButton(String text) {
+        Button button = new Button(text);
+        button.getStyleClass().add("button");
+        button.setOnAction(e -> handleTabSwitch(button));
+        return button;
+    }
+
+    private void handleTabSwitch(Button activeButton) {
+        changesButton.getStyleClass().remove("active");
+        historyButton.getStyleClass().remove("active");
+
+        activeButton.getStyleClass().add("active");
+
+        if (activeButton == changesButton) {
+            showChangesTab();
+        } else if (activeButton == historyButton) {
+            showHistoryTab();
+        }
+    }
+
     private void initializeChangesTab() {
         changesTab = new VBox();
+        changesTab.getStyleClass().add("tab-content");
+
         Label changesLabel = new Label("Changes");
+        changesLabel.getStyleClass().add("tab-label");
 
         changedFilesList = new VBox();
         changedFilesList.setSpacing(5);
 
-        commitButton = new Button("Commit");
+        commitButton = createAnimatedButton("Commit");
+        commitButton.getStyleClass().add("commit-button");
 
         changesTab.getChildren().addAll(changesLabel, changedFilesList, commitButton);
     }
 
+
     private void initializeHistoryTab() {
         historyTab = new VBox();
+        historyTab.getStyleClass().add("tab-content");
 
         Label historyLabel = new Label("History");
+        historyLabel.getStyleClass().add("tab-label");
 
         historyList = new VBox();
 
-        historyTab.getChildren().addAll(
-                historyLabel,
-                historyList);
+        historyTab.getChildren().addAll(historyLabel, historyList);
     }
 
     private void initializeMainContent() {
         textArea = new TextArea();
+        textArea.getStyleClass().add("text-area");
+        textArea.setWrapText(true);
 
         mainContent.getChildren().add(textArea);
     }
 
-    // Change sidebar tab
     public void showChangesTab() {
         sideBar.setCenter(changesTab);
     }
@@ -174,61 +179,17 @@ public class MainLayoutView extends View<BorderPane> {
         sideBar.setCenter(historyTab);
     }
 
-    // Menu
-    public MenuItem getCreateRepositoryMenu() {
-        return createRepositoryMenu;
-    }
-
-    public MenuItem getAddRepositoryMenu() {
-        return addRepositoryMenu;
-    }
-
-    public MenuItem getCloneRepositoryMenu() {
-        return cloneRepositoryMenu;
-    }
-
-    public MenuItem getLogoutMenu() {
-        return logoutMenu;
-    }
-
-    public MenuItem getExitMenu() {
-        return exitMenu;
-    }
-
-    // Top bar
-    public ComboBox<Repository> getRepositoryDropdown() {
-        return repositoryDropdown;
-    }
-
-    public Button getMultiFunctionButton() {
-        return multiFunctionButton;
-    }
-
-    // Sidebar header
-    public Button getChangesButton() {
-        return changesButton;
-    }
-
-    public Button getHistoryButton() {
-        return historyButton;
-    }
-
-    // Changes tab
-    public Button getCommitButton() {
-        return commitButton;
-    }
-
-    public VBox getChangedFilesList() {
-        return changedFilesList;
-    }
-
-    // History tab
-    public VBox getHistoryList() {
-        return historyList;
-    }
-
-    // Main content
-    public TextArea getTextArea() {
-        return textArea;
-    }
+    public MenuItem getCreateRepositoryMenu() { return createRepositoryMenu; }
+    public MenuItem getAddRepositoryMenu() { return addRepositoryMenu; }
+    public MenuItem getCloneRepositoryMenu() { return cloneRepositoryMenu; }
+    public MenuItem getLogoutMenu() { return logoutMenu; }
+    public MenuItem getExitMenu() { return exitMenu; }
+    public ComboBox<Repository> getRepositoryDropdown() { return repositoryDropdown; }
+    public Button getMultiFunctionButton() { return multiFunctionButton; }
+    public Button getChangesButton() { return changesButton; }
+    public Button getHistoryButton() { return historyButton; }
+    public Button getCommitButton() { return commitButton; }
+    public VBox getChangedFilesList() { return changedFilesList; }
+    public VBox getHistoryList() { return historyList; }
+    public TextArea getTextArea() { return textArea; }
 }

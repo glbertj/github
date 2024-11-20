@@ -42,7 +42,7 @@ public abstract class AuthView extends View<GridPane> {
 
     protected PasswordField createPasswordField() {
         PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText("emas_5_gram");
+        passwordField.setPromptText("limagram");
         passwordField.getStyleClass().add("password-field");
         return passwordField;
     }

@@ -13,6 +13,7 @@ public class MainLayoutView extends View<BorderPane> {
     private Button multiFunctionButton;
 
     // Menu
+    private MenuBar menuBar;
     private MenuItem createRepositoryMenu;
     private MenuItem addRepositoryMenu;
     private MenuItem cloneRepositoryMenu;
@@ -51,22 +52,7 @@ public class MainLayoutView extends View<BorderPane> {
     }
 
     private void initializeTopBar() {
-        MenuBar menuBar = new MenuBar();
-        Menu fileMenu = new Menu("File");
-
-        createRepositoryMenu = new MenuItem("New Repository...");
-        addRepositoryMenu = new MenuItem("Add Local Repository...");
-        cloneRepositoryMenu = new MenuItem("Clone Repository...");
-        logoutMenu = new MenuItem("Logout");
-        exitMenu = new MenuItem("Exit");
-        fileMenu.getItems().addAll(
-                createRepositoryMenu, new SeparatorMenuItem(),
-                addRepositoryMenu, new SeparatorMenuItem(),
-                cloneRepositoryMenu, new SeparatorMenuItem(),
-                logoutMenu, exitMenu
-        );
-
-        menuBar.getMenus().add(fileMenu);
+        initializeMenu();
 
         repositoryDropdown = createRepositoryDropdown();
         multiFunctionButton = createAnimatedButton("Push Origin");
@@ -76,6 +62,27 @@ public class MainLayoutView extends View<BorderPane> {
         topBar.getStyleClass().add("top-bar-container");
 
         topBarContainer.getChildren().addAll(menuBar, topBar);
+    }
+
+    private void initializeMenu() {
+        menuBar = new MenuBar();
+        menuBar.getStyleClass().add("menu-bar");
+
+        Menu fileMenu = new Menu("File");
+        createRepositoryMenu = new MenuItem("New Repository...");
+        addRepositoryMenu = new MenuItem("Add Local Repository...");
+        cloneRepositoryMenu = new MenuItem("Clone Repository...");
+        logoutMenu = new MenuItem("Logout");
+        exitMenu = new MenuItem("Exit");
+
+        fileMenu.getItems().addAll(
+                createRepositoryMenu, new SeparatorMenuItem(),
+                addRepositoryMenu, new SeparatorMenuItem(),
+                cloneRepositoryMenu, new SeparatorMenuItem(),
+                logoutMenu, exitMenu
+        );
+
+        menuBar.getMenus().add(fileMenu);
     }
 
     private static ComboBox<Repository> createRepositoryDropdown() {

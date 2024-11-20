@@ -39,11 +39,12 @@ public class AppController {
         rootPane = new StackPane();
         rootPane.getStyleClass().add("root-pane");
         Scene primaryScene = new Scene(rootPane, 1000, 700);
-        primaryStage.setScene(primaryScene);
+        this.primaryStage.setScene(primaryScene);
 
-        primaryStage.setTitle("GiThub");
-        primaryStage.setMinWidth(1000);
-        primaryStage.setMinHeight(700);
+        this.primaryStage.setTitle("GiThub");
+        this.primaryStage.setMinWidth(1000);
+        this.primaryStage.setMinHeight(700);
+        this.primaryStage.setMaximized(true);
 
         notificationBox = new NotificationBox();
         rootPane.getChildren().add(notificationBox);

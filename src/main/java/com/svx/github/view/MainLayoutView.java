@@ -2,6 +2,7 @@ package com.svx.github.view;
 
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.Repository;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -42,7 +43,7 @@ public class MainLayoutView extends View<BorderPane> {
     private VBox changesTab;
     private VBox changedFilesList;
     private VBox commitSection;
-    private TextField commitTitleTextField;
+    private TextField commitSummaryTextField;
     private TextArea commitDescriptionTextArea;
     private Button commitButton;
 
@@ -277,16 +278,22 @@ public class MainLayoutView extends View<BorderPane> {
         changesTab.setSpacing(5);
         changesTab.getChildren().addAll(changesLabel, changedFilesList);
 
-        commitTitleTextField = new TextField();
-        commitTitleTextField.setPromptText("Summary (required)");
+        commitSummaryTextField = new TextField();
+        commitSummaryTextField.setPromptText("Summary (required)");
         commitDescriptionTextArea = new TextArea();
         commitDescriptionTextArea.setPromptText("Description");
         commitDescriptionTextArea.getStyleClass().add("commit-description-text-area");
         commitButton = new Button("Commit to master");
         commitButton.setMaxWidth(Double.MAX_VALUE);
+        commitButton.disableProperty().bind(
+                Bindings.createBooleanBinding(
+                        () -> commitSummaryTextField.getText().trim().isEmpty(),
+                        commitSummaryTextField.textProperty()
+                )
+        );
 
         commitSection = new VBox();
-        commitSection.getChildren().addAll(commitTitleTextField, commitDescriptionTextArea, commitButton);
+        commitSection.getChildren().addAll(commitSummaryTextField, commitDescriptionTextArea, commitButton);
         commitSection.getStyleClass().addAll("commit-section");
     }
 
@@ -380,7 +387,7 @@ public class MainLayoutView extends View<BorderPane> {
     public HBox getRepositoryToggleButton() { return repositoryToggleButton; }
     public VBox getRepositoryList() { return repositoryList; }
     public HBox getOriginButton() { return originButton; }
-    public TextField getCommitTitleTextField() { return commitTitleTextField; }
+    public TextField getCommitSummaryTextField() { return commitSummaryTextField; }
     public TextArea getCommitDescriptionTextArea() { return commitDescriptionTextArea; }
     public Button getCommitButton() { return commitButton; }
     public VBox getChangedFilesList() { return changedFilesList; }

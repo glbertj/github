@@ -8,7 +8,6 @@ import javafx.scene.layout.*;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Objects;
-import java.util.UUID;
 
 public class MainLayoutView extends View<BorderPane> {
     // Top Bar Components
@@ -47,6 +46,7 @@ public class MainLayoutView extends View<BorderPane> {
     // Main Content
     private final StackPane mainContent = new StackPane();
     private TextArea textArea;
+    private Pane mainContentOverlay;
 
     // Methods //////////////////////////////////////////////////////////////////////////////////////
     @Override
@@ -59,7 +59,7 @@ public class MainLayoutView extends View<BorderPane> {
 
         initializeTopBar();
         initializeSideBar();
-        createTextArea();
+        initializeMainContent();
 
         root.setTop(topBarContainer);
         root.setLeft(sideBar);
@@ -87,10 +87,10 @@ public class MainLayoutView extends View<BorderPane> {
         iconView.getStyleClass().add("icon");
 
         Label currentRepoLabel = new Label("Current Repository");
-        currentRepoLabel.getStyleClass().add("primary-text");
+        currentRepoLabel.getStyleClass().add("secondary-text");
 
         Label selectedRepoName = new Label("No repository selected");
-        selectedRepoName.getStyleClass().add("secondary-text");
+        selectedRepoName.getStyleClass().add("primary-text");
 
         VBox textContent = new VBox(currentRepoLabel, selectedRepoName);
         textContent.setSpacing(2);
@@ -207,6 +207,7 @@ public class MainLayoutView extends View<BorderPane> {
     private void initializeRepositorySidebar() {
         repositorySidebar = new VBox();
         repositorySidebar.getStyleClass().add("sidebar");
+        repositorySidebar.getStyleClass().add("repository-sidebar");
 
         TextField searchField = new TextField();
         searchField.setPromptText("Search repositories...");
@@ -232,6 +233,7 @@ public class MainLayoutView extends View<BorderPane> {
     private void initializeDefaultSideBar() {
         defaultSidebar = new BorderPane();
         defaultSidebar.getStyleClass().add("sidebar");
+        defaultSidebar.getStyleClass().add("default-sidebar");
 
         changesButton = new Button("Changes");
         changesButton.getStyleClass().add("changes");
@@ -289,7 +291,10 @@ public class MainLayoutView extends View<BorderPane> {
         HBox buttonContent = new HBox(iconView, repositoryLabel);
         buttonContent.setUserData(repository);
         buttonContent.getStyleClass().add("repository-list-button");
-        buttonContent.setOnMouseClicked(e -> RepositoryManager.setCurrentRepository(repository));
+        buttonContent.setOnMouseClicked(e -> {
+            RepositoryManager.setCurrentRepository(repository);
+            switchSideBar();
+        });
 
         return buttonContent;
     }
@@ -299,10 +304,12 @@ public class MainLayoutView extends View<BorderPane> {
             sideBar.setCenter(defaultSidebar);
             repositoryToggleButton.getStyleClass().remove("active");
             repositoryIsShowingIcon.setIconLiteral("fas-angle-down");
+            mainContentOverlay.setVisible(false);
         } else {
             sideBar.setCenter(repositorySidebar);
             repositoryToggleButton.getStyleClass().add("active");
             repositoryIsShowingIcon.setIconLiteral("fas-angle-up");
+            mainContentOverlay.setVisible(true);
         }
 
         showingRepositorySidebar = !showingRepositorySidebar;
@@ -322,12 +329,21 @@ public class MainLayoutView extends View<BorderPane> {
         showingHistoryTab = !showingHistoryTab;
     }
 
-    private void createTextArea() {
-        textArea = new TextArea("Halo");
-        textArea.getStyleClass().add("text-area");
+    private void initializeMainContent() {
+        mainContent.getStyleClass().add("main-content");
+
+        textArea = new TextArea();
+        textArea.setEditable(true);
         textArea.setWrapText(true);
+        textArea.setFocusTraversable(false);
+
+        mainContentOverlay = new Pane();
+        mainContentOverlay.getStyleClass().add("overlay");
+        mainContentOverlay.setMouseTransparent(true);
+        mainContentOverlay.setVisible(false);
 
         mainContent.getChildren().add(textArea);
+        mainContent.getChildren().add(mainContentOverlay);
     }
 
     public enum OriginType {

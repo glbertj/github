@@ -76,7 +76,8 @@
 .sidebar-header {
     -fx-background-color: #2c2c2c;
     -fx-pref-width: 250px;
-    -fx-border-width: 0;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: black;
 }
 
 .sidebar-header .button {
@@ -89,6 +90,8 @@
     -fx-padding: 4 0;
     -fx-border-width: 0;
     -fx-border-insets: 0;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
 }
 
 .sidebar-header .button:hover {
@@ -100,7 +103,12 @@
     -fx-border-width: 0 0 3 0;
 }
 
+/* Repository Sidebar */
 .sidebar.repository-sidebar {
+    -fx-border-width: 0;
+}
+
+.sidebar-header.repository-sidebar {
     -fx-border-width: 0;
 }
 
@@ -143,16 +151,29 @@
     -fx-background-color: #0366d6;
 }
 
+/* Default Sidebar */
 .default-sidebar {
     -fx-background-color: #24292e;
     -fx-border-width: 2 1 0 0;
     -fx-border-color: black;
 }
 
-.tab-content {
-    -fx-background-color: #24292e;
-    -fx-border-width: 1 0 0 0;
-    -fx-border-color: black;
+.commit-description-text-area {
+    -fx-background-color: #1d2125;
+    -fx-control-inner-background: #1d2125;
+    -fx-text-fill: #e1e4e8;
+    -fx-border-color: #717b85;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 6px;
+    -fx-padding: 0px;
+    -fx-margin: 0px;
+    -fx-pref-height: 100;
+    -fx-prompt-text-fill: #b2b2b2;
+}
+
+.commit-description-text-area:focused {
+    -fx-border-color: #0366d6;
 }
 
 .commit-section {
@@ -166,15 +187,19 @@
 .commit-section .button {
     -fx-background-color: #0366d6;
     -fx-text-fill: white;
-    -fx-padding: 10 20;
-    -fx-border-radius: 5;
     -fx-font-weight: bold;
+    -fx-border-radius: 30;
+}
+
+.commit-section .button:disabled {
+    -fx-background-color: #135196;
 }
 
 .commit-section .button:hover {
     -fx-background-color: #005bb5;
 }
 
+/* Main Content */
 .main-content {
     -fx-border-color: black;
     -fx-border-width: 2 0 0 0;

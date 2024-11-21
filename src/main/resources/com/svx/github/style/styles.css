@@ -5,29 +5,30 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.5, 0, 0);
 }
 
-.text-field, .password-field .custom-text-area {
+.text-field, .password-field {
     -fx-background-color: #1d2125;
     -fx-text-fill: #e1e4e8;
     -fx-border-color: #717b85;
     -fx-border-width: 1px;
-    -fx-border-radius: 4px;
-    -fx-background-radius: 4px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
     -fx-padding: 5px;
     -fx-margin: 5px;
+    -fx-prompt-text-fill: #b2b2b2;
 }
 
-.text-field:focused, .password-field:focused .custom-text-area {
+.text-field:focused, .password-field:focused {
     -fx-border-color: #0366d6;
-}
-
-.text-field .text:empty, .password-field .text:empty .custom-text-area .custom-text-area:empty {
-    -fx-fill: #1d2125;
 }
 
 Label {
     -fx-text-fill: #e1e4e8;
     -fx-font-size: 14px;
     -fx-margin: 5px;
+}
+
+.bold Label {
+    -fx-font-weight: bold;
 }
 
 .primary-text {
@@ -50,13 +51,13 @@ Button {
     -fx-border-insets: 2px;
     -fx-border-width: 2px;
     -fx-border-color: transparent;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
 }
 
 .primary-button {
     -fx-background-color: #0864d4;
     -fx-text-fill: white;
-    -fx-border-radius: 4px;
-    -fx-background-radius: 4px;
     -fx-padding: 3px 80px;
     -fx-font-weight: bold;
 }
@@ -73,8 +74,6 @@ Button {
 .secondary-button {
     -fx-background-color: #202424;
     -fx-text-fill: white;
-    -fx-border-radius: 4px;
-    -fx-background-radius: 4px;
     -fx-padding: 5px 10px;
     -fx-font-weight: bold;
 }

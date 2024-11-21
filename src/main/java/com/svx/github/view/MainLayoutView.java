@@ -243,11 +243,13 @@ public class MainLayoutView extends View<BorderPane> {
         defaultSidebar.getStyleClass().add("default-sidebar");
 
         changesButton = new Button("Changes");
-        changesButton.getStyleClass().add("changes");
         changesButton.getStyleClass().add("active");
+        changesButton.setFocusTraversable(false);
         changesButton.setOnAction(e -> handleTabSwitch());
 
         historyButton = new Button("History");
+        historyButton.setOnAction(e -> handleTabSwitch());
+        historyButton.setFocusTraversable(false);
         historyButton.setOnAction(e -> handleTabSwitch());
 
         HBox sideBarHeader = new HBox(changesButton, historyButton);
@@ -262,8 +264,8 @@ public class MainLayoutView extends View<BorderPane> {
     }
 
     private void initializeChangesTab() {
-        VBox topSection = new VBox();
-        topSection.getStyleClass().add("tab-content");
+        changesTab = new VBox();
+        changesTab.getStyleClass().add("tab-content");
 
         Label changesLabel = new Label("Changes");
         changesLabel.getStyleClass().add("tab-label");
@@ -271,15 +273,17 @@ public class MainLayoutView extends View<BorderPane> {
         changedFilesList = new VBox();
         changedFilesList.setSpacing(5);
 
-        topSection = new VBox();
-        topSection.setSpacing(5);
-        topSection.getChildren().addAll(changesLabel, changedFilesList);
+        changesTab = new VBox();
+        changesTab.setSpacing(5);
+        changesTab.getChildren().addAll(changesLabel, changedFilesList);
 
         commitTitleTextField = new TextField();
+        commitTitleTextField.setPromptText("Summary (required)");
         commitDescriptionTextArea = new TextArea();
-        commitDescriptionTextArea.getStyleClass().add("custom-text-area");
-        commitButton = new Button();
-        commitButton.getStyleClass().add("commit-button");
+        commitDescriptionTextArea.setPromptText("Description");
+        commitDescriptionTextArea.getStyleClass().add("commit-description-text-area");
+        commitButton = new Button("Commit to master");
+        commitButton.setMaxWidth(Double.MAX_VALUE);
 
         commitSection = new VBox();
         commitSection.getChildren().addAll(commitTitleTextField, commitDescriptionTextArea, commitButton);
@@ -288,7 +292,6 @@ public class MainLayoutView extends View<BorderPane> {
 
     private void initializeHistoryTab() {
         historyTab = new VBox();
-        historyTab.getStyleClass().add("tab-content");
 
         Label historyLabel = new Label("History");
         historyLabel.getStyleClass().add("tab-label");
@@ -377,6 +380,8 @@ public class MainLayoutView extends View<BorderPane> {
     public HBox getRepositoryToggleButton() { return repositoryToggleButton; }
     public VBox getRepositoryList() { return repositoryList; }
     public HBox getOriginButton() { return originButton; }
+    public TextField getCommitTitleTextField() { return commitTitleTextField; }
+    public TextArea getCommitDescriptionTextArea() { return commitDescriptionTextArea; }
     public Button getCommitButton() { return commitButton; }
     public VBox getChangedFilesList() { return changedFilesList; }
     public VBox getHistoryList() { return historyList; }

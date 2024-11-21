@@ -1,5 +1,6 @@
 package com.svx.github.controller.dialog;
 
+import com.svx.github.controller.AppController;
 import com.svx.github.view.dialog.DialogView;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -7,9 +8,11 @@ import java.util.Objects;
 
 public abstract class DialogController<T extends DialogView<? extends Parent>> {
     protected final T view;
+    protected final AppController appController;
 
-    public DialogController(T view) {
+    public DialogController(T view, AppController appController) {
         this.view = view;
+        this.appController = appController;
         view.initializeView();
         setActions();
     }

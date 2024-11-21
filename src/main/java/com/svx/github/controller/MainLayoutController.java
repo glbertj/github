@@ -2,7 +2,6 @@ package com.svx.github.controller;
 
 import com.svx.github.controller.dialog.AddRepositoryDialogController;
 import com.svx.github.controller.dialog.CloneRepositoryDialogController;
-import com.svx.github.controller.dialog.CommitMessageDialogController;
 import com.svx.github.controller.dialog.CreateRepositoryDialogController;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
@@ -15,7 +14,7 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,9 +37,9 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void setMenuActions() {
-        view.getCreateRepositoryMenu().setOnAction(e -> appController.openDialog(new CreateRepositoryDialogController()));
-        view.getAddRepositoryMenu().setOnAction(e -> appController.openDialog(new AddRepositoryDialogController()));
-        view.getCloneRepositoryMenu().setOnAction(e -> appController.openDialog(new CloneRepositoryDialogController()));
+        view.getCreateRepositoryMenu().setOnAction(e -> appController.openDialog(new CreateRepositoryDialogController(appController)));
+        view.getAddRepositoryMenu().setOnAction(e -> appController.openDialog(new AddRepositoryDialogController(appController)));
+        view.getCloneRepositoryMenu().setOnAction(e -> appController.openDialog(new CloneRepositoryDialogController(appController)));
         view.getLogoutMenu().setOnAction(e -> {
             if (RepositoryManager.getCurrentRepository() != null) {
                 RepositoryManager.setCurrentRepository(null);
@@ -49,12 +48,11 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             appController.logout();
         });
         view.getExitMenu().setOnAction(e -> appController.exitApp());
-
-
     }
 
     private void setTopBarActions() {
         view.getRepositoryToggleButton().setOnMouseClicked(e -> view.switchSideBar());
+        view.getOriginButton().setOnMouseClicked(e -> updateMultiFunctionButton());
     }
 
     private void setSidebarActions() {
@@ -121,7 +119,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         if (versionControl != null && currentRepo != null) {
             versionControl.getIndex().detectAndStageChanges(currentRepo);
-            System.out.println("Changes detected and staged for repository: " + currentRepo.getName());
         }
     }
 
@@ -178,24 +175,30 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
     private void resetMultiFunctionButton() {
         view.switchOriginButton(MainLayoutView.OriginType.FETCH);
-        view.getOriginButton().setOnMouseClicked(e -> updateMultiFunctionButton());
+        view.getOriginButton().setOnMouseClicked(e -> {
+            updateMultiFunctionButton();
+        });
     }
 
     private void updateMultiFunctionButton() {
         Repository currentRepo = RepositoryManager.getCurrentRepository();
         if (currentRepo == null) {
+            System.out.println("hai");
+            appController.showNotification("No repository selected.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
             resetMultiFunctionButton();
             return;
         }
 
         VersionControl versionControl = RepositoryManager.getVersionControl();
         if (versionControl == null) {
+            appController.showNotification("No version control system found.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
             resetMultiFunctionButton();
             return;
         }
 
         Commit latestLocalCommit = versionControl.getCurrentCommit();
         if (latestLocalCommit == null) {
+            appController.showNotification("You are up to date with the upstream branch.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             resetMultiFunctionButton();
             return;
         }
@@ -209,20 +212,28 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 || latestLocalCommit.getTimestamp().withNano(0).isAfter(latestDatabaseCommit.getTimestamp().withNano(0));
 
         if (hasPendingCommits) {
+            appController.showNotification("Successfully fetched from origin. You have pending commits to push.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             view.switchOriginButton(MainLayoutView.OriginType.PUSH);
             view.getOriginButton().setOnMouseClicked(e -> {
-                System.out.println("Pushing changes...");
                 RepositoryManager.getVersionControl().push();
                 updateMultiFunctionButton();
+                appController.showNotification("Changes pushed successfully.", NotificationBox.NotificationType.SUCCESS, "fas-arrow-up");
             });
         } else if (!latestDatabaseCommitId.equals(latestLocalCommit.getId())) {
+            appController.showNotification("Successfully fetched from origin. You are behind the upstream branch.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             view.switchOriginButton(MainLayoutView.OriginType.PULL);
             view.getOriginButton().setOnMouseClicked(e -> {
                 System.out.println("Pulling changes...");
-                RepositoryManager.getVersionControl().pull();
+                try {
+                    RepositoryManager.getVersionControl().pull();
+                } catch (IOException ex) {
+                    appController.showNotification("Failed to pull changes from the database.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+                }
                 updateMultiFunctionButton();
+                appController.showNotification("Changes pushed successfully.", NotificationBox.NotificationType.SUCCESS, "fas-arrow-down");
             });
         } else {
+            appController.showNotification("You are up to date with the upstream branch.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             resetMultiFunctionButton();
         }
     }
@@ -230,18 +241,11 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     private void handleCommitAction() {
         Repository currentRepo = RepositoryManager.getCurrentRepository();
         if (currentRepo == null) {
-            System.out.println("No repository selected.");
+            appController.showNotification("No repository selected.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
             return;
         }
 
-        CommitMessageDialogController dialogController = new CommitMessageDialogController();
-        appController.openDialog(dialogController);
-
-        String commitMessage = dialogController.getView().getMessageTextArea().getText();
-        if (commitMessage == null || commitMessage.isEmpty()) {
-            System.out.println("Commit canceled or message was empty.");
-            return;
-        }
+        String commitMessage = view.getCommitSummaryTextField() + "\n\n" + view.getCommitDescriptionTextArea();
 
         VersionControl versionControl = RepositoryManager.getVersionControl();
         versionControl.commitChanges(commitMessage);

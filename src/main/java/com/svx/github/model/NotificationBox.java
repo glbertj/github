@@ -50,7 +50,7 @@ public class NotificationBox extends HBox {
         switch (type) {
             case SUCCESS -> setStyle("-fx-background-color: #28a745; -fx-background-radius: 8;");
             case ERROR -> setStyle("-fx-background-color: #d73a49; -fx-background-radius: 8;");
-            case INFO -> setStyle("-fx-background-color: #0366d6; -fx-background-radius: 8;");
+            case INFO -> setStyle("-fx-background-color: #2b3137; -fx-background-radius: 8;");
         }
 
         if (iconCode != null) {

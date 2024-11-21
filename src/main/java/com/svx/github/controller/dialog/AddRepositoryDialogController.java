@@ -1,7 +1,9 @@
 package com.svx.github.controller.dialog;
 
+import com.svx.github.controller.AppController;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.Debounce;
+import com.svx.github.model.NotificationBox;
 import com.svx.github.model.Repository;
 import com.svx.github.model.UserSingleton;
 import com.svx.github.utility.GitUtility;
@@ -16,8 +18,8 @@ import java.nio.file.Paths;
 public class AddRepositoryDialogController extends DialogController<AddRepositoryDialogView> {
     private Debounce debounce;
 
-    public AddRepositoryDialogController() {
-        super(new AddRepositoryDialogView());
+    public AddRepositoryDialogController(AppController appController) {
+        super(new AddRepositoryDialogView(), appController);
         setActions();
         initializeDebounce();
     }
@@ -38,21 +40,15 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
 
         view.getConfirmButton().setOnAction(e -> {
             Path path = Paths.get(view.getPathField().getText().trim());
+            Path configFilePath = path.resolve(".git").resolve("config");
+            String repositoryName = loadRepositoryName(configFilePath);
 
-            if (GitUtility.hasRepository(path)) {
-                Path configFilePath = path.resolve(".git").resolve("config");
-                String repositoryName = loadRepositoryName(configFilePath);
+            Repository newRepo = new Repository(repositoryName, "", UserSingleton.getCurrentUser().getId(), path);
+            Repository.addRepository(newRepo);
+            RepositoryManager.setCurrentRepository(newRepo);
 
-                Repository newRepo = new Repository(repositoryName, "", UserSingleton.getCurrentUser().getId(), path);
-                Repository.addRepository(newRepo);
-                RepositoryManager.setCurrentRepository(newRepo);
-
-                System.out.println("Repository added successfully: " + repositoryName);
-
-                hideDialog();
-            } else {
-                view.getErrorLabel().setText("The selected directory is not a valid Git repository.");
-            }
+            appController.showNotification("Repository added successfully", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
+            hideDialog();
         });
     }
 
@@ -72,7 +68,7 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error reading config file: " + e.getMessage());
+            appController.showNotification("Error reading config file", NotificationBox.NotificationType.ERROR, "fas-check-circle");
         }
         return "Unnamed Repository";
     }
@@ -82,7 +78,7 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
             Path path = Paths.get(view.getPathField().getText().trim());
 
             if (!GitUtility.hasRepository(path)) {
-                view.getErrorLabel().setText("Not a repository");
+                view.getErrorLabel().setText("Not a valid repository folder.");
                 view.getConfirmButton().setDisable(true);
             } else {
                 view.getErrorLabel().setText("");

@@ -19,7 +19,7 @@ public class SessionManager {
             String encryptedData = CryptoUtility.encrypt(sessionData);
             Files.write(SESSION_FILE, encryptedData.getBytes());
         } catch (Exception e) {
-            System.out.println("Failed to create session: " + e.getMessage());
+            System.err.println("Failed to create session: " + e.getMessage());
         }
     }
 
@@ -38,7 +38,7 @@ public class SessionManager {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Failed to validate session: " + e.getMessage());
+            System.err.println("Failed to validate session: " + e.getMessage());
         }
         return null;
     }
@@ -47,7 +47,7 @@ public class SessionManager {
         try {
             Files.deleteIfExists(SESSION_FILE);
         } catch (IOException e) {
-            System.out.println("Failed to remove session: " + e.getMessage());
+            System.err.println("Failed to remove session: " + e.getMessage());
         }
     }
 }

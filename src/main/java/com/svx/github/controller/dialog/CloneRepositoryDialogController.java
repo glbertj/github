@@ -1,5 +1,6 @@
 package com.svx.github.controller.dialog;
 
+import com.svx.github.controller.AppController;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
 import com.svx.github.repository.RepositoryRepository;
@@ -16,8 +17,8 @@ import java.util.List;
 
 public class CloneRepositoryDialogController extends DialogController<CloneRepositoryDialogView> {
 
-    public CloneRepositoryDialogController() {
-        super(new CloneRepositoryDialogView());
+    public CloneRepositoryDialogController(AppController appController) {
+        super(new CloneRepositoryDialogView(), appController);
         populateRepositoryDropdown();
         setActions();
     }
@@ -74,22 +75,20 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
         Path destinationPath = Paths.get(view.getPathField().getText().trim());
 
         if (selectedRepo == null) {
-            view.getErrorLabel().setText("No repository selected to clone.");
+            appController.showNotification("No repository selected to clone.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
             return;
         }
 
         if (Files.exists(destinationPath.resolve(".git"))) {
-            view.getErrorLabel().setText("The destination already contains a Git repository.");
+            appController.showNotification("The destination already contains a Git repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
             return;
         }
 
         try {
             Files.createDirectories(destinationPath);
 
-            // Create the .git structure
             createGitStructure(destinationPath);
 
-            // Clone the repository and pull all commits
             Repository clonedRepo = new Repository(
                     selectedRepo.getName(),
                     selectedRepo.getLatestCommitId(),
@@ -98,15 +97,15 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
             );
 
             VersionControl versionControl = new VersionControl(clonedRepo);
-            versionControl.pull(); // Ensures the full commit history and files are restored
+            versionControl.pull();
 
             Repository.addRepository(clonedRepo);
             RepositoryManager.setCurrentRepository(clonedRepo);
 
-            System.out.println("Repository cloned successfully.");
+            appController.showNotification("Repository cloned successfully", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             hideDialog();
         } catch (IOException ex) {
-            view.getErrorLabel().setText("Error cloning repository: " + ex.getMessage());
+            appController.showNotification("Error cloning repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
         }
     }
 

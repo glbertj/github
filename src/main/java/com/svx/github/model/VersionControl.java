@@ -127,7 +127,7 @@ public class VersionControl {
         return commitsToPush;
     }
 
-    public void pull() {
+    public void pull() throws IOException {
         String latestDatabaseCommitId = RepositoryRepository.getLatestCommitId(repository);
 
         if (latestDatabaseCommitId == null) {
@@ -137,61 +137,51 @@ public class VersionControl {
 
         Path objectsPath = repository.getObjectsPath();
 
-        try {
-            Commit commitToPull = CommitRepository.load(latestDatabaseCommitId, repository);
-            while (commitToPull != null) {
-                commitToPull.saveToDisk(objectsPath);
+        Commit commitToPull = CommitRepository.load(latestDatabaseCommitId, repository);
+        while (commitToPull != null) {
+            commitToPull.saveToDisk(objectsPath);
 
-                Tree treeToPull = TreeRepository.load(commitToPull.getTreeId(), repository);
-                if (treeToPull != null) {
-                    treeToPull.saveToDisk(objectsPath);
+            Tree treeToPull = TreeRepository.load(commitToPull.getTreeId(), repository);
+            if (treeToPull != null) {
+                treeToPull.saveToDisk(objectsPath);
 
-                    for (String blobId : treeToPull.getEntries().values()) {
-                        if (!Files.exists(objectsPath.resolve(blobId.substring(0, 2)).resolve(blobId.substring(2)))) {
-                            Blob blobToPull = BlobRepository.load(blobId, repository);
-                            if (blobToPull != null) {
-                                FileUtility.saveToDisk(blobToPull.getId(), blobToPull.getContent(), objectsPath);
-                            }
+                for (String blobId : treeToPull.getEntries().values()) {
+                    if (!Files.exists(objectsPath.resolve(blobId.substring(0, 2)).resolve(blobId.substring(2)))) {
+                        Blob blobToPull = BlobRepository.load(blobId, repository);
+                        if (blobToPull != null) {
+                            FileUtility.saveToDisk(blobToPull.getId(), blobToPull.getContent(), objectsPath);
                         }
                     }
                 }
-
-                restoreFilesFromCommit(commitToPull, repository);
-
-                String parentId = commitToPull.getParentId();
-                commitToPull = (parentId != null) ? CommitRepository.load(parentId, repository) : null;
             }
 
-            Path headFilePath = repository.getGitPath().resolve("refs").resolve("heads").resolve("master");
-            Files.createDirectories(headFilePath.getParent());
-            Files.writeString(headFilePath, latestDatabaseCommitId);
+            restoreFilesFromCommit(commitToPull, repository);
 
-            repository.setLatestCommitId(latestDatabaseCommitId);
-            RepositoryManager.setCurrentRepository(repository);
-
-            System.out.println("Pull completed successfully.");
-        } catch (IOException e) {
-            System.out.println("Error during pull operation: " + e.getMessage());
+            String parentId = commitToPull.getParentId();
+            commitToPull = (parentId != null) ? CommitRepository.load(parentId, repository) : null;
         }
+
+        Path headFilePath = repository.getGitPath().resolve("refs").resolve("heads").resolve("master");
+        Files.createDirectories(headFilePath.getParent());
+        Files.writeString(headFilePath, latestDatabaseCommitId);
+
+        repository.setLatestCommitId(latestDatabaseCommitId);
+        RepositoryManager.setCurrentRepository(repository);
+
+        System.out.println("Pull completed successfully.");
     }
 
-    private void restoreFilesFromCommit(Commit commit, Repository repository) {
-        try {
-            Tree tree = Tree.loadFromDisk(commit.getTreeId(), repository.getObjectsPath());
-            for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
-                String filename = entry.getKey();
-                String blobId = entry.getValue();
+    private void restoreFilesFromCommit(Commit commit, Repository repository) throws IOException {
+        Tree tree = Tree.loadFromDisk(commit.getTreeId(), repository.getObjectsPath());
+        for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
+            String filename = entry.getKey();
+            String blobId = entry.getValue();
 
-                String blobContent = FileUtility.loadFromDisk(blobId, repository.getObjectsPath());
+            String blobContent = FileUtility.loadFromDisk(blobId, repository.getObjectsPath());
 
-                Path filePath = repository.getPath().resolve(filename);
-                Files.createDirectories(filePath.getParent());
-                Files.writeString(filePath, blobContent);
-
-                System.out.println("Restored file: " + filename);
-            }
-        } catch (IOException e) {
-            System.out.println("Error restoring files from commit: " + e.getMessage());
+            Path filePath = repository.getPath().resolve(filename);
+            Files.createDirectories(filePath.getParent());
+            Files.writeString(filePath, blobContent);
         }
     }
 }

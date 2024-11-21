@@ -33,7 +33,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         setListeners();
         updateChangedFilesList();
         updateHistoryTab();
-        updateMultiFunctionButton();
     }
 
     private void setMenuActions() {

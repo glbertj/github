@@ -155,13 +155,15 @@
     -fx-border-color: black;
 }
 
-.commit-area {
+.commit-section {
     -fx-padding: 10;
     -fx-spacing: 10;
-    -fx-background-color: #24292e;
+    -fx-background-color: #2b3137;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: black;
 }
 
-.commit-area .button {
+.commit-section .button {
     -fx-background-color: #0366d6;
     -fx-text-fill: white;
     -fx-padding: 10 20;
@@ -169,7 +171,7 @@
     -fx-font-weight: bold;
 }
 
-.commit-area .button:hover {
+.commit-section .button:hover {
     -fx-background-color: #005bb5;
 }
 
@@ -181,7 +183,7 @@
     -fx-background-color: #24292e;
 }
 
-.text-area {
+.main-content .text-area {
     -fx-control-inner-background: #24292e;
     -fx-background-color: #24292e;
     -fx-text-fill: white;
@@ -190,7 +192,7 @@
     -fx-faint-focus-color: transparent;
 }
 
-.text-area .viewport {
+.main-content .text-area .viewport {
     -fx-background-color: #24292e;
 }
 

@@ -5,7 +5,7 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.5, 0, 0);
 }
 
-.text-field, .password-field {
+.text-field, .password-field .custom-text-area {
     -fx-background-color: #1d2125;
     -fx-text-fill: #e1e4e8;
     -fx-border-color: #717b85;
@@ -16,11 +16,11 @@
     -fx-margin: 5px;
 }
 
-.text-field:focused, .password-field:focused {
+.text-field:focused, .password-field:focused .custom-text-area {
     -fx-border-color: #0366d6;
 }
 
-.text-field .text:empty, .password-field .text:empty {
+.text-field .text:empty, .password-field .text:empty .custom-text-area .custom-text-area:empty {
     -fx-fill: #1d2125;
 }
 

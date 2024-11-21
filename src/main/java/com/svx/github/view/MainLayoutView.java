@@ -34,12 +34,19 @@ public class MainLayoutView extends View<BorderPane> {
 
     // Sidebar (Default)
     private BorderPane defaultSidebar;
+    private boolean showingHistoryTab = false;
     private Button changesButton;
     private Button historyButton;
-    private boolean showingHistoryTab = false;
+
+    // Sidebar (Changes)
     private VBox changesTab;
     private VBox changedFilesList;
+    private VBox commitSection;
+    private TextField commitTitleTextField;
+    private TextArea commitDescriptionTextArea;
     private Button commitButton;
+
+    // Sidebar (History)
     private VBox historyTab;
     private VBox historyList;
 
@@ -251,11 +258,12 @@ public class MainLayoutView extends View<BorderPane> {
 
         defaultSidebar.setTop(sideBarHeader);
         defaultSidebar.setCenter(changesTab);
+        defaultSidebar.setBottom(commitSection);
     }
 
     private void initializeChangesTab() {
-        changesTab = new VBox();
-        changesTab.getStyleClass().add("tab-content");
+        VBox topSection = new VBox();
+        topSection.getStyleClass().add("tab-content");
 
         Label changesLabel = new Label("Changes");
         changesLabel.getStyleClass().add("tab-label");
@@ -263,10 +271,19 @@ public class MainLayoutView extends View<BorderPane> {
         changedFilesList = new VBox();
         changedFilesList.setSpacing(5);
 
-        commitButton = createAnimatedButton("Commit");
+        topSection = new VBox();
+        topSection.setSpacing(5);
+        topSection.getChildren().addAll(changesLabel, changedFilesList);
+
+        commitTitleTextField = new TextField();
+        commitDescriptionTextArea = new TextArea();
+        commitDescriptionTextArea.getStyleClass().add("custom-text-area");
+        commitButton = new Button();
         commitButton.getStyleClass().add("commit-button");
 
-        changesTab.getChildren().addAll(changesLabel, changedFilesList, commitButton);
+        commitSection = new VBox();
+        commitSection.getChildren().addAll(commitTitleTextField, commitDescriptionTextArea, commitButton);
+        commitSection.getStyleClass().addAll("commit-section");
     }
 
     private void initializeHistoryTab() {
@@ -318,10 +335,12 @@ public class MainLayoutView extends View<BorderPane> {
     private void handleTabSwitch() {
         if (showingHistoryTab) {
             defaultSidebar.setCenter(changesTab);
+            defaultSidebar.setBottom(commitSection);
             changesButton.getStyleClass().add("active");
             historyButton.getStyleClass().remove("active");
         } else {
             defaultSidebar.setCenter(historyTab);
+            defaultSidebar.setBottom(null);
             changesButton.getStyleClass().remove("active");
             historyButton.getStyleClass().add("active");
         }

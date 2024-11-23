@@ -82,3 +82,7 @@ Button {
 .secondary-button:pressed {
     -fx-background-color: #1a1c1c;
 }
+
+.error-label {
+    -fx-text-fill: #d73a49;
+}

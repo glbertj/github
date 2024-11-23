@@ -13,20 +13,16 @@ public class AddRepositoryDialogView extends DialogView<VBox> {
 
     @Override
     public void initializeView() {
-        // Main container
         root = new VBox(10);
         root.getStyleClass().add("dialog-root");
 
-        // Title bar
         HBox titleBar = createTitleBar("Add Local Repository");
 
-        // Path input section
         pathField = new TextField();
         pathField.setPromptText("Enter repository path...");
         chooseDirectoryButton = new Button("Choose");
         chooseDirectoryButton.getStyleClass().add("secondary-button");
 
-        // Buttons at the bottom
         confirmButton = new Button("Add");
         confirmButton.getStyleClass().add("primary-button");
         confirmButton.getStyleClass().add("bottom-button");
@@ -38,7 +34,7 @@ public class AddRepositoryDialogView extends DialogView<VBox> {
         buttons.setAlignment(Pos.CENTER_RIGHT);
 
         errorLabel = new Label();
-        errorLabel.setStyle("-fx-text-fill: red;");
+        errorLabel.getStyleClass().add("error-label");
 
         root.getChildren().addAll(
                 titleBar,

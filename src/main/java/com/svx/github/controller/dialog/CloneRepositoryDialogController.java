@@ -5,9 +5,7 @@ import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
 import com.svx.github.repository.RepositoryRepository;
 import com.svx.github.view.dialog.CloneRepositoryDialogView;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
+import javafx.beans.binding.Bindings;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
@@ -61,8 +59,14 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
         buttonContent.setUserData(repository);
         buttonContent.getStyleClass().add("repository-list-button");
         buttonContent.setOnMouseClicked(e -> {
+            view.getRepositoryList().getChildren().forEach(node -> {
+                if (node instanceof HBox hbox) {
+                    hbox.getStyleClass().remove("active");
+                }
+            });
+
+            buttonContent.getStyleClass().add("active");
             selectedRepo = repository;
-            hideDialog();
         });
 
         return buttonContent;
@@ -80,54 +84,52 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
             }
         });
 
-        view.getPathField().textProperty().addListener((observable, oldValue, newValue) -> validateInputs());
-
         view.getConfirmButton().setOnAction(e -> cloneRepository());
-    }
 
-    private void validateInputs() {
-        boolean valid = !view.getPathField().getText().trim().isEmpty() && selectedRepo != null;
-        view.getConfirmButton().setDisable(!valid);
+        view.getConfirmButton().disableProperty().bind(
+                Bindings.createBooleanBinding(
+                        () -> selectedRepo == null || view.getPathField().getText() == null || view.getPathField().getText().isBlank(),
+                        view.getPathField().textProperty()
+                )
+        );
     }
 
     private void cloneRepository() {
         Path destinationPath = Paths.get(view.getPathField().getText().trim());
 
-        System.out.println(selectedRepo.getName());
+        if (selectedRepo == null) {
+            appController.showNotification("No repository selected to clone.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+            return;
+        }
 
-//        if (selectedRepo == null) {
-//            appController.showNotification("No repository selected to clone.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
-//            return;
-//        }
-//
-//        if (Files.exists(destinationPath.resolve(".git"))) {
-//            appController.showNotification("The destination already contains a Git repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
-//            return;
-//        }
-//
-//        try {
-//            Files.createDirectories(destinationPath);
-//
-//            createGitStructure(destinationPath);
-//
-//            Repository clonedRepo = new Repository(
-//                    selectedRepo.getName(),
-//                    selectedRepo.getLatestCommitId(),
-//                    UserSingleton.getCurrentUser().getId(),
-//                    destinationPath
-//            );
-//
-//            VersionControl versionControl = new VersionControl(clonedRepo);
-//            versionControl.pull();
-//
-//            Repository.addRepository(clonedRepo);
-//            RepositoryManager.setCurrentRepository(clonedRepo);
-//
-//            appController.showNotification("Repository cloned successfully", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
-//            hideDialog();
-//        } catch (IOException ex) {
-//            appController.showNotification("Error cloning repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
-//        }
+        if (Files.exists(destinationPath.resolve(".git"))) {
+            appController.showNotification("The destination already contains a Git repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+            return;
+        }
+
+        try {
+            Files.createDirectories(destinationPath);
+
+            createGitStructure(destinationPath);
+
+            Repository clonedRepo = new Repository(
+                    selectedRepo.getName(),
+                    selectedRepo.getLatestCommitId(),
+                    UserSingleton.getCurrentUser().getId(),
+                    destinationPath
+            );
+
+            VersionControl versionControl = new VersionControl(clonedRepo);
+            versionControl.pull();
+
+            Repository.addRepository(clonedRepo);
+            RepositoryManager.setCurrentRepository(clonedRepo);
+
+            appController.showNotification("Repository cloned successfully", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
+            hideDialog();
+        } catch (IOException ex) {
+            appController.showNotification("Error cloning repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+        }
     }
 
     private void createGitStructure(Path destinationPath) throws IOException {

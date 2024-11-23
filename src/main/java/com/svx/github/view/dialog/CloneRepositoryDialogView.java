@@ -44,6 +44,7 @@ public class CloneRepositoryDialogView extends DialogView<VBox> {
         confirmButton.getStyleClass().add("primary-button");
         confirmButton.getStyleClass().add("bottom-button");
         confirmButton.setDisable(true);
+
         cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("secondary-button");
         cancelButton.getStyleClass().add("bottom-button");

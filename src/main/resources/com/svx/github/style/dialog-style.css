@@ -1,7 +1,13 @@
 .dialog-root {
     -fx-background-color: #24292e;
-    -fx-padding: 20;
+    -fx-padding: 0;
     -fx-background-radius: 8;
+}
+
+.title-bar {
+    -fx-padding: 16;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: black;
 }
 
 .dialog-title {
@@ -21,6 +27,14 @@
     -fx-pref-width: 300;
 }
 
+.dialog-section-title {
+    -fx-padding: 0 12;
+}
+
+.dialog-bottom-section {
+    -fx-padding: 0 12 12 12;
+}
+
 .button {
     -fx-border-width: 1;
     -fx-border-color: #717b85;
@@ -32,5 +46,35 @@
 
 .bottom-button {
     -fx-padding: 3 20;
-    -fx-pref-width: 80;
+    -fx-pref-width: 100;
+}
+
+.repository-list {
+    -fx-spacing: 0;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-pref-height: 150;
+    -fx-padding: 0;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: black;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+    -fx-spacing: 0;
+}
+
+.scroll-bar {
+    -fx-opacity: 0;
+}
+
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-pref-height: 0;
+}
+
+.repository-list-button {
+    -fx-padding: 6 12;
 }

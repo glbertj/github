@@ -27,10 +27,6 @@ Label {
     -fx-margin: 5px;
 }
 
-.bold Label {
-    -fx-font-weight: bold;
-}
-
 .primary-text {
     -fx-text-fill: #e1e4e8;
     -fx-font-size: 12px;
@@ -42,6 +38,10 @@ Label {
     -fx-font-size: 12px;
 }
 
+.bold {
+    -fx-font-weight: bold;
+}
+
 .icon {
     -fx-fill: #e1e4e8;
     -fx-font-size: 16px;
@@ -49,6 +49,7 @@ Label {
 
 .repository-list .label {
     -fx-padding: 0 6;
+    -fx-font-weight: normal;
 }
 
 .repository-list-button {
@@ -66,7 +67,7 @@ Label {
     -fx-background-color: #2f363d;
 }
 
-.repository-list-button:pressed {
+.repository-list-button:pressed, .active, .repository-list-button:hover.active {
     -fx-background-color: #0366d6;
 }
 

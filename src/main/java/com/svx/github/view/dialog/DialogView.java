@@ -30,10 +30,11 @@ public abstract class DialogView<T extends Parent> {
 
     protected HBox createTitleBar(String title) {
         HBox titleBar = new HBox();
+        titleBar.getStyleClass().add("title-bar");
         titleBar.setAlignment(Pos.CENTER_LEFT);
 
         Label titleLabel = new Label(title);
-        titleLabel.getStyleClass().addAll("primary-text", "dialog-title");
+        titleLabel.getStyleClass().addAll("primary-text", "dialog-title", "bold");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 

@@ -37,6 +37,13 @@ public class RepositoryManager {
         }
     }
 
+    public static void removeRepository() {
+        Repository repository = currentRepository.get();
+        versionControlMap.remove(repository);
+        Repository.removeRepository(repository);
+        currentRepository.set(null);
+    }
+
     public static ObjectProperty<Repository> currentRepositoryProperty() {
         return currentRepository;
     }

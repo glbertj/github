@@ -63,4 +63,8 @@ public class Repository {
     public static void addRepository(Repository repository) {
         repositories.add(repository);
     }
+
+    public static void removeRepository(Repository repository) {
+        repositories.remove(repository);
+    }
 }

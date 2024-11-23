@@ -25,9 +25,6 @@ public class MainLayoutView extends View<BorderPane> {
     private MenuItem logoutMenu;
     private MenuItem exitMenu;
     private MenuItem toggleFullScreenMenuItem;
-    private MenuItem pushMenuItem;
-    private MenuItem pullMenuItem;
-    private MenuItem fetchMenuItem;
     private MenuItem removeRepositoryMenuItem;
     private MenuItem showInExplorerMenuItem;
 
@@ -218,14 +215,10 @@ public class MainLayoutView extends View<BorderPane> {
         );
 
         Menu repositoryMenu = new Menu("Repository");
-        pushMenuItem = new MenuItem("Push");
-        pullMenuItem = new MenuItem("Pull");
-        fetchMenuItem = new MenuItem("Fetch");
         removeRepositoryMenuItem = new MenuItem("Remove Repository");
         showInExplorerMenuItem = new MenuItem("Show in Explorer");
 
         repositoryMenu.getItems().addAll(
-                pushMenuItem, pullMenuItem, fetchMenuItem, new SeparatorMenuItem(),
                 removeRepositoryMenuItem, new SeparatorMenuItem(),
                 showInExplorerMenuItem
         );
@@ -419,9 +412,6 @@ public class MainLayoutView extends View<BorderPane> {
     public MenuItem getLogoutMenu() { return logoutMenu; }
     public MenuItem getExitMenu() { return exitMenu; }
     public MenuItem getToggleFullScreenMenuItem() { return toggleFullScreenMenuItem; }
-    public MenuItem getPushMenuItem() { return pushMenuItem; }
-    public MenuItem getPullMenuItem() { return pullMenuItem; }
-    public MenuItem getFetchMenuItem() { return fetchMenuItem; }
     public MenuItem getRemoveRepositoryMenuItem() { return removeRepositoryMenuItem; }
     public MenuItem getShowInExplorerMenuItem() { return showInExplorerMenuItem; }
     public HBox getRepositoryToggleButton() { return repositoryToggleButton; }

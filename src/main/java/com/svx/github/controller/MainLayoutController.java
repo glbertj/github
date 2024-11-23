@@ -50,11 +50,9 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getExitMenu().setOnAction(e -> appController.exitApp());
 
         view.getToggleFullScreenMenuItem().setOnAction(e -> appController.toggleFullScreen());
-
         view.getRemoveRepositoryMenuItem().setOnAction(e -> {
             if (RepositoryManager.getCurrentRepository() != null) {
                 RepositoryManager.removeRepository();
-
                 appController.showNotification("Repository removed successfully.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             } else {
                 appController.showNotification("No repository selected.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
@@ -200,9 +198,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
     private void resetMultiFunctionButton() {
         view.switchOriginButton(MainLayoutView.OriginType.FETCH);
-        view.getOriginButton().setOnMouseClicked(e -> {
-            updateMultiFunctionButton();
-        });
+        view.getOriginButton().setOnMouseClicked(e -> updateMultiFunctionButton());
     }
 
     private void updateMultiFunctionButton() {

@@ -1,0 +1,36 @@
+.dialog-root {
+    -fx-background-color: #24292e;
+    -fx-padding: 20;
+    -fx-background-radius: 8;
+}
+
+.dialog-title {
+    -fx-font-size: 16;
+}
+
+.close-icon {
+    -fx-fill: #959da5;
+    -fx-font-size: 16;
+}
+
+.close-icon:hover {
+    -fx-fill: #f6f8fa;
+}
+
+.text-field {
+    -fx-pref-width: 300;
+}
+
+.button {
+    -fx-border-width: 1;
+    -fx-border-color: #717b85;
+}
+
+.button:hover {
+    -fx-border-color: #cdd1d6;
+}
+
+.bottom-button {
+    -fx-padding: 3 20;
+    -fx-pref-width: 80;
+}

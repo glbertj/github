@@ -24,6 +24,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.util.Objects;
@@ -32,6 +33,7 @@ public class AppController {
     private final Stage primaryStage;
     private final StackPane rootPane;
     private final NotificationBox notificationBox;
+    private final Pane darkenOverlay;
 
     public AppController(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -40,14 +42,18 @@ public class AppController {
         rootPane.getStyleClass().add("root-pane");
         Scene primaryScene = new Scene(rootPane, 1000, 700);
         this.primaryStage.setScene(primaryScene);
-
         this.primaryStage.setTitle("GiThub");
         this.primaryStage.setMinWidth(1000);
         this.primaryStage.setMinHeight(700);
         this.primaryStage.setMaximized(true);
 
+        darkenOverlay = new Pane();
+        darkenOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        darkenOverlay.setVisible(true);
+        darkenOverlay.setMouseTransparent(false);
+
         notificationBox = new NotificationBox();
-        rootPane.getChildren().add(notificationBox);
+        rootPane.getChildren().addAll(notificationBox);
         StackPane.setAlignment(notificationBox, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(notificationBox, new Insets(0, 20, 20, 0));
     }
@@ -57,6 +63,7 @@ public class AppController {
         if (currentUser != null) {
             UserSingleton.setCurrentUser(currentUser);
             navigatePage(new MainLayoutController(this));
+            showNotification("Valid session found!", NotificationBox.NotificationType.SUCCESS, "fas-sign-in-alt");
         } else {
             navigatePage(new LoginController(this));
         }
@@ -82,14 +89,16 @@ public class AppController {
         rootPane.getChildren().addFirst(newRoot);
     }
 
-
     public <T extends Parent> void openDialog(DialogController<? extends DialogView<T>> dialogController) {
         dialogController.getView().setDialogStage(new Stage());
         Stage dialogStage = dialogController.getView().getDialogStage();
 
+        showOverlay();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
-        dialogStage.setScene(dialogController.getScene());
         dialogStage.initOwner(primaryStage);
+        dialogStage.initStyle(StageStyle.UNDECORATED);
+        dialogStage.initStyle(StageStyle.TRANSPARENT);
+        dialogStage.setScene(dialogController.getScene());
         dialogStage.showAndWait();
     }
 
@@ -97,11 +106,19 @@ public class AppController {
         notificationBox.show(message, type, iconCode);
     }
 
+    public void showOverlay() {
+        rootPane.getChildren().addLast(darkenOverlay);
+    }
+
+    public void hideOverlay() {
+        rootPane.getChildren().removeLast();
+    }
+
     public void logout() {
         navigatePage(new LoginController(this));
         SessionManager.removeSession();
         UserSingleton.clearCurrentUser();
-        showNotification("Logged out.", NotificationBox.NotificationType.ERROR, "fas-sign-out-alt");
+        showNotification("Logged out.", NotificationBox.NotificationType.SUCCESS, "fas-sign-out-alt");
     }
 
     public void exitApp() {

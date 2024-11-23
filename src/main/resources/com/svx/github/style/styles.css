@@ -48,7 +48,6 @@ Label {
 }
 
 Button {
-    -fx-border-insets: 2px;
     -fx-border-width: 2px;
     -fx-border-color: transparent;
     -fx-border-radius: 6;
@@ -58,7 +57,6 @@ Button {
 .primary-button {
     -fx-background-color: #0864d4;
     -fx-text-fill: white;
-    -fx-padding: 3px 80px;
     -fx-font-weight: bold;
 }
 
@@ -74,7 +72,6 @@ Button {
 .secondary-button {
     -fx-background-color: #202424;
     -fx-text-fill: white;
-    -fx-padding: 5px 10px;
     -fx-font-weight: bold;
 }
 

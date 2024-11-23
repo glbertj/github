@@ -9,3 +9,11 @@
 Button:focused {
     -fx-border-color: white;
 }
+
+.primary-button {
+    -fx-padding: 3px 80px;
+}
+
+.secondary-button {
+    -fx-padding: 5px 10px;
+}

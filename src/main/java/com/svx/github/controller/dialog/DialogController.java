@@ -4,6 +4,8 @@ import com.svx.github.controller.AppController;
 import com.svx.github.view.dialog.DialogView;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
+
 import java.util.Objects;
 
 public abstract class DialogController<T extends DialogView<? extends Parent>> {
@@ -19,16 +21,25 @@ public abstract class DialogController<T extends DialogView<? extends Parent>> {
 
     public void setActions() {
         view.getCancelButton().setOnAction(e -> hideDialog());
+        view.getCloseIcon().setOnMouseClicked(e -> {
+            view.getDialogStage().close();
+            appController.hideOverlay();
+        });
+
+        view.getCancelButton().setOnAction(e -> {
+            view.getDialogStage().close();
+            appController.hideOverlay();
+        });
     }
 
     public Scene getScene() {
-        Scene scene = new Scene(view.getRoot(), 400, 480);
+        Scene scene = new Scene(view.getRoot());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/svx/github/style/styles.css")).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/svx/github/style/dialog-style.css")).toExternalForm());
+        scene.setFill(Color.TRANSPARENT);
 
         if (view.getStyleReference() != null) {
             scene.getStylesheets().add(view.getStyleReference());
-        } else {
-            System.out.println("No style reference found for " + view.getClass().getSimpleName());
         }
 
         return scene;

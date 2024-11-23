@@ -65,7 +65,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
-                resetMultiFunctionButton();
             }
         });
 
@@ -75,7 +74,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
-                resetMultiFunctionButton();
             }
         });
 

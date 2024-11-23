@@ -4,6 +4,7 @@ import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.Repository;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -150,9 +151,27 @@ public class MainLayoutView extends View<BorderPane> {
         textContent.setSpacing(2);
         textContent.setAlignment(Pos.CENTER_LEFT);
 
-        originButton = new HBox(fetchIcon, textContent);
-        originButton.getStyleClass().add("top-bar-button");
-        originButton.setSpacing(10);
+        if (originButton == null) {
+            originButton = new HBox(fetchIcon, textContent);
+            originButton.getStyleClass().add("top-bar-button");
+            originButton.setSpacing(10);
+        } else {
+            HBox newOriginButton = new HBox(fetchIcon, textContent);
+            newOriginButton.getStyleClass().add("top-bar-button");
+            newOriginButton.setSpacing(10);
+
+
+
+            Parent parent = originButton.getParent();
+            if (parent instanceof Pane pane) {
+                int index = pane.getChildren().indexOf(originButton);
+                if (index >= 0) {
+                    pane.getChildren().set(index, newOriginButton);
+                }
+            }
+
+            originButton = newOriginButton;
+        }
     }
 
     private void initializeMenu() {

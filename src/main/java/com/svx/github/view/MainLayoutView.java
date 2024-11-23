@@ -78,7 +78,7 @@ public class MainLayoutView extends View<BorderPane> {
         root.setCenter(mainContent);
     }
 
-    // Top Bar Methods
+    // Top Bar
     private void initializeTopBar() {
         initializeMenu();
 
@@ -226,7 +226,7 @@ public class MainLayoutView extends View<BorderPane> {
         menuBar.getMenus().addAll(fileMenu, viewMenu, repositoryMenu);
     }
 
-    // Side Bar Methods
+    // Side Bar
     private void initializeSideBar() {
         sideBar = new BorderPane();
 
@@ -329,24 +329,6 @@ public class MainLayoutView extends View<BorderPane> {
         historyList = new VBox();
 
         historyTab.getChildren().addAll(historyLabel, historyList);
-    }
-
-    public HBox createRepositoryButton(Repository repository) {
-        FontIcon iconView = new FontIcon("fab-git-alt");
-        iconView.getStyleClass().add("icon");
-
-        Label repositoryLabel = new Label(repository.getName());
-        repositoryLabel.getStyleClass().add("primary-text");
-
-        HBox buttonContent = new HBox(iconView, repositoryLabel);
-        buttonContent.setUserData(repository);
-        buttonContent.getStyleClass().add("repository-list-button");
-        buttonContent.setOnMouseClicked(e -> {
-            RepositoryManager.setCurrentRepository(repository);
-            switchSideBar();
-        });
-
-        return buttonContent;
     }
 
     public void switchSideBar() {

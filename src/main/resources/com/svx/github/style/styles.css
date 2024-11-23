@@ -52,22 +52,22 @@ Label {
     -fx-font-weight: normal;
 }
 
-.repository-list-button {
+.list-button {
     -fx-padding: 12 6;
     -fx-background-color: #24292e;
     -fx-alignment: center-left;
 }
 
-.repository-list-button .icon {
+.list-button .icon {
     -fx-font-size: 24px;
     -fx-fill-color: #22282c;
 }
 
-.repository-list-button:hover {
+.list-button:hover {
     -fx-background-color: #2f363d;
 }
 
-.repository-list-button:pressed, .active, .repository-list-button:hover.active {
+.list-button:pressed, .active, .list-button:hover.active {
     -fx-background-color: #0366d6;
 }
 

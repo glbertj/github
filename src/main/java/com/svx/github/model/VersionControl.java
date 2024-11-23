@@ -167,8 +167,6 @@ public class VersionControl {
 
         repository.setLatestCommitId(latestDatabaseCommitId);
         RepositoryManager.setCurrentRepository(repository);
-
-        System.out.println("Pull completed successfully.");
     }
 
     private void restoreFilesFromCommit(Commit commit, Repository repository) throws IOException {

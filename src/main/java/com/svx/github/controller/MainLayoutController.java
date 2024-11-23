@@ -7,6 +7,7 @@ import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
 import com.svx.github.repository.CommitRepository;
 import com.svx.github.repository.RepositoryRepository;
+import com.svx.github.utility.ComponentUtility;
 import com.svx.github.utility.DesktopUtility;
 import com.svx.github.utility.DiffUtility;
 import com.svx.github.utility.FileUtility;
@@ -120,18 +121,18 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         Repository.getRepositories().addListener((ListChangeListener<? super Repository>) change -> {
             while (change.next()) {
                 if (change.wasAdded()) {
-                    for (Repository repo : change.getAddedSubList()) {
+                    for (Repository repository : change.getAddedSubList()) {
                         boolean alreadyExists = view.getRepositoryList().getChildren().stream().anyMatch(node -> {
                             if (node instanceof HBox buttonContent) {
                                 Label label = (Label) buttonContent.getChildren().get(1);
-                                return label.getText().equals(repo.getName())
+                                return label.getText().equals(repository.getName())
                                         && buttonContent.getUserData() instanceof Repository
-                                        && ((Repository) buttonContent.getUserData()).getOwnerId().equals(repo.getOwnerId());
+                                        && ((Repository) buttonContent.getUserData()).getOwnerId().equals(repository.getOwnerId());
                             }
                             return false;
                         });
                         if (!alreadyExists) {
-                            view.getRepositoryList().getChildren().add(view.createRepositoryButton(repo));
+                            view.getRepositoryList().getChildren().add(ComponentUtility.createListButton(repository, view, ComponentUtility.listButtonType.REPOSITORY));
                         }
                     }
                 }
@@ -218,7 +219,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     private void updateMultiFunctionButton() {
         Repository currentRepo = RepositoryManager.getCurrentRepository();
         if (currentRepo == null) {
-            System.out.println("hai");
             appController.showNotification("No repository selected.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
             resetMultiFunctionButton();
             return;

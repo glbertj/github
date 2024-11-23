@@ -54,7 +54,7 @@
 }
 
 .scroll-pane {
-    -fx-background-color: transparent;
+    -fx-background-color: #24292e;
     -fx-pref-height: 150;
     -fx-padding: 0;
     -fx-border-width: 0 0 1 0;

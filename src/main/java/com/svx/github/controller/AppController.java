@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -123,6 +124,12 @@ public class AppController {
 
     public void exitApp() {
         primaryStage.close();
+    }
+
+    public void toggleFullScreen() {
+        primaryStage.setFullScreenExitHint("");
+        primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+        primaryStage.setFullScreen(!primaryStage.isFullScreen());
     }
 
     public ReadOnlyBooleanProperty getFocusedProperty() {

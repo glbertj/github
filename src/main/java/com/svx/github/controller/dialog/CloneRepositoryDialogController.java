@@ -4,13 +4,15 @@ import com.svx.github.controller.AppController;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
 import com.svx.github.repository.RepositoryRepository;
+import com.svx.github.utility.ComponentUtility;
 import com.svx.github.view.dialog.CloneRepositoryDialogView;
 import javafx.beans.binding.Bindings;
-import javafx.scene.control.Label;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
-import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,53 +25,8 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
 
     public CloneRepositoryDialogController(AppController appController) {
         super(new CloneRepositoryDialogView(), appController);
-        populateRepositoryList();
         setActions();
-    }
-
-    private void populateRepositoryList() {
-        List<Repository> repositories = RepositoryRepository.loadAllUserRepositories();
-
-        repositories.forEach(repo -> {
-            if (repositoryExistsInList(repo)) {
-                view.getRepositoryList().getChildren().add(createRepositoryButton(repo));
-            }
-        });
-    }
-
-    private boolean repositoryExistsInList(Repository repo) {
-        return view.getRepositoryList().getChildren().stream()
-                .noneMatch(node -> {
-                    if (node instanceof HBox buttonContent) {
-                        Repository existingRepo = (Repository) buttonContent.getUserData();
-                        return existingRepo != null && existingRepo.equals(repo);
-                    }
-                    return false;
-                });
-    }
-
-    public HBox createRepositoryButton(Repository repository) {
-        FontIcon iconView = new FontIcon("fab-git-alt");
-        iconView.getStyleClass().add("icon");
-
-        Label repositoryLabel = new Label(repository.getName());
-        repositoryLabel.getStyleClass().add("primary-text");
-
-        HBox buttonContent = new HBox(iconView, repositoryLabel);
-        buttonContent.setUserData(repository);
-        buttonContent.getStyleClass().add("repository-list-button");
-        buttonContent.setOnMouseClicked(e -> {
-            view.getRepositoryList().getChildren().forEach(node -> {
-                if (node instanceof HBox hbox) {
-                    hbox.getStyleClass().remove("active");
-                }
-            });
-
-            buttonContent.getStyleClass().add("active");
-            selectedRepo = repository;
-        });
-
-        return buttonContent;
+        populateRepositoryList();
     }
 
     @Override
@@ -94,6 +51,39 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
         );
     }
 
+    private void populateRepositoryList() {
+        List<Repository> repositories = RepositoryRepository.loadAllUserRepositories();
+
+        repositories.forEach(repo -> {
+            if (repositoryExistsInList(repo)) {
+                view.getRepositoryList().getChildren().add(createRepositoryButton(repo));
+            }
+        });
+    }
+
+    private boolean repositoryExistsInList(Repository repo) {
+        return view.getRepositoryList().getChildren().stream()
+                .noneMatch(node -> {
+                    if (node instanceof HBox buttonContent) {
+                        Repository existingRepo = (Repository) buttonContent.getUserData();
+                        return existingRepo != null && existingRepo.equals(repo);
+                    }
+                    return false;
+                });
+    }
+
+    public HBox createRepositoryButton(Repository repository) {
+        HBox button = ComponentUtility.createListButton(repository, view, ComponentUtility.listButtonType.CLONE_REPOSITORY_DIALOG);
+        if (button == null) return null;
+
+        button.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+            selectedRepo = repository;
+            System.out.println("A");
+        });
+
+        return button;
+    }
+
     private void cloneRepository() {
         Path destinationPath = Paths.get(view.getPathField().getText().trim());
 
@@ -110,14 +100,32 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
         try {
             Files.createDirectories(destinationPath);
 
-            createGitStructure(destinationPath);
-
             Repository clonedRepo = new Repository(
                     selectedRepo.getName(),
                     selectedRepo.getLatestCommitId(),
                     UserSingleton.getCurrentUser().getId(),
                     destinationPath
             );
+
+            try {
+                Path gitDir = destinationPath.resolve(".git");
+                Path objectsDir = gitDir.resolve("objects");
+                Path configFile = gitDir.resolve("config");
+                Path refsDir = gitDir.resolve("refs").resolve("heads");
+
+                Files.createDirectories(objectsDir);
+                Files.createDirectories(refsDir);
+
+                try (BufferedWriter writer = Files.newBufferedWriter(configFile)) {
+                    writer.write("[repository]\n");
+                    writer.write("name = " + clonedRepo.getName() + "\n");
+                }
+
+                Files.setAttribute(gitDir, "dos:hidden", true);
+            } catch (IOException ex) {
+                appController.showNotification("Error setting up .git directory structure.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+                return;
+            }
 
             VersionControl versionControl = new VersionControl(clonedRepo);
             versionControl.pull();
@@ -130,18 +138,6 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
         } catch (IOException ex) {
             appController.showNotification("Error cloning repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
         }
-    }
-
-    private void createGitStructure(Path destinationPath) throws IOException {
-        Path gitDir = destinationPath.resolve(".git");
-        Path objectsDir = gitDir.resolve("objects");
-        Path refsDir = gitDir.resolve("refs").resolve("heads");
-        Path headFile = gitDir.resolve("HEAD");
-
-        Files.createDirectories(objectsDir);
-        Files.createDirectories(refsDir);
-
-        Files.writeString(headFile, "ref: refs/heads/master\n");
     }
 }
 

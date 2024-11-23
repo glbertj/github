@@ -2,6 +2,7 @@ package com.svx.github.repository;
 
 import com.svx.github.manager.ConnectionManager;
 import com.svx.github.model.Repository;
+import com.svx.github.model.UserSingleton;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -48,21 +49,25 @@ public class RepositoryRepository {
         return null;
     }
 
-    public static List<Repository> loadAllUserRepositories(UUID ownerId) {
+    public static List<Repository> loadAllUserRepositories() {
+        if (UserSingleton.getCurrentUser() == null) {
+            return new ArrayList<>();
+        }
+
         String query = "SELECT name, head_commit_id FROM repositories WHERE owner_id = ?";
         List<Repository> repositories = new ArrayList<>();
 
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, ownerId.toString());
+            stmt.setString(1, UserSingleton.getCurrentUser().getId().toString());
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 String name = rs.getString("name");
                 String headCommitId = rs.getString("head_commit_id");
 
-                Repository repository = new Repository(name, headCommitId, ownerId);
+                Repository repository = new Repository(name, headCommitId, UserSingleton.getCurrentUser().getId());
                 repositories.add(repository);
             }
         } catch (SQLException e) {

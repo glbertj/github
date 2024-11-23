@@ -128,29 +128,6 @@
     -fx-border-color: #cdd1d6;
 }
 
-.repository-list .label {
-    -fx-padding: 0 6;
-}
-
-.repository-list-button {
-    -fx-padding: 12 6;
-    -fx-background-color: #22282c;
-    -fx-alignment: center-left;
-}
-
-.repository-list-button .icon {
-    -fx-font-size: 24px;
-    -fx-fill-color: #22282c;
-}
-
-.repository-list-button:hover {
-    -fx-background-color: #2f363d;
-}
-
-.repository-list-button:pressed {
-    -fx-background-color: #0366d6;
-}
-
 /* Default Sidebar */
 .default-sidebar {
     -fx-background-color: #24292e;

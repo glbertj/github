@@ -8,6 +8,7 @@ import com.svx.github.model.Repository;
 import com.svx.github.model.UserSingleton;
 import com.svx.github.utility.GitUtility;
 import com.svx.github.view.dialog.CreateRepositoryDialogView;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Duration;
 import java.io.BufferedWriter;

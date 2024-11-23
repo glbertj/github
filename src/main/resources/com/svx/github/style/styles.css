@@ -47,6 +47,29 @@ Label {
     -fx-font-size: 16px;
 }
 
+.repository-list .label {
+    -fx-padding: 0 6;
+}
+
+.repository-list-button {
+    -fx-padding: 12 6;
+    -fx-background-color: #22282c;
+    -fx-alignment: center-left;
+}
+
+.repository-list-button .icon {
+    -fx-font-size: 24px;
+    -fx-fill-color: #22282c;
+}
+
+.repository-list-button:hover {
+    -fx-background-color: #2f363d;
+}
+
+.repository-list-button:pressed {
+    -fx-background-color: #0366d6;
+}
+
 Button {
     -fx-border-width: 2px;
     -fx-border-color: transparent;

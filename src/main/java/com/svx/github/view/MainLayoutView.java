@@ -27,6 +27,7 @@ public class MainLayoutView extends View<BorderPane> {
     private MenuItem toggleFullScreenMenuItem;
     private MenuItem removeRepositoryMenuItem;
     private MenuItem showInExplorerMenuItem;
+    private MenuItem showInVsCodeMenuItem;
 
     // Sidebar
     private BorderPane sideBar;
@@ -163,8 +164,6 @@ public class MainLayoutView extends View<BorderPane> {
             newOriginButton.getStyleClass().add("top-bar-button");
             newOriginButton.setSpacing(10);
 
-
-
             Parent parent = originButton.getParent();
             if (parent instanceof Pane pane) {
                 int index = pane.getChildren().indexOf(originButton);
@@ -217,10 +216,11 @@ public class MainLayoutView extends View<BorderPane> {
         Menu repositoryMenu = new Menu("Repository");
         removeRepositoryMenuItem = new MenuItem("Remove Repository");
         showInExplorerMenuItem = new MenuItem("Show in Explorer");
+        showInVsCodeMenuItem = new MenuItem("Show in VS Code");
 
         repositoryMenu.getItems().addAll(
                 removeRepositoryMenuItem, new SeparatorMenuItem(),
-                showInExplorerMenuItem
+                showInExplorerMenuItem, showInVsCodeMenuItem
         );
 
         menuBar.getMenus().addAll(fileMenu, viewMenu, repositoryMenu);
@@ -414,6 +414,7 @@ public class MainLayoutView extends View<BorderPane> {
     public MenuItem getToggleFullScreenMenuItem() { return toggleFullScreenMenuItem; }
     public MenuItem getRemoveRepositoryMenuItem() { return removeRepositoryMenuItem; }
     public MenuItem getShowInExplorerMenuItem() { return showInExplorerMenuItem; }
+    public MenuItem getShowInVsCodeMenuItem() { return showInVsCodeMenuItem; }
     public HBox getRepositoryToggleButton() { return repositoryToggleButton; }
     public VBox getRepositoryList() { return repositoryList; }
     public HBox getOriginButton() { return originButton; }

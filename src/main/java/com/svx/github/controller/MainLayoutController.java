@@ -73,6 +73,20 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 appController.showNotification("No repository selected.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
             }
         });
+
+        view.getShowInVsCodeMenuItem().setOnAction(e -> {
+            Repository currentRepo = RepositoryManager.getCurrentRepository();
+            if (currentRepo != null) {
+                try {
+                    DesktopUtility.openVSCode(String.valueOf(currentRepo.getPath()));
+                } catch (IOException | InterruptedException ex) {
+                    System.out.println(ex.getMessage());
+                    appController.showNotification("Failed to open Visual Studio Code.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+                }
+            } else {
+                appController.showNotification("No repository selected.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
+            }
+        });
     }
 
     private void setTopBarActions() {

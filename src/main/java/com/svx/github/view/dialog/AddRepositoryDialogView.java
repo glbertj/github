@@ -23,6 +23,9 @@ public class AddRepositoryDialogView extends DialogView<VBox> {
         chooseDirectoryButton = new Button("Choose");
         chooseDirectoryButton.getStyleClass().add("secondary-button");
 
+        Label localPathLabel = new Label("Local path");
+        localPathLabel.getStyleClass().addAll("bold");
+
         confirmButton = new Button("Add");
         confirmButton.getStyleClass().add("primary-button");
         confirmButton.getStyleClass().add("bottom-button");
@@ -36,12 +39,12 @@ public class AddRepositoryDialogView extends DialogView<VBox> {
         errorLabel = new Label();
         errorLabel.getStyleClass().add("error-label");
 
+        VBox bottomSection = new VBox(10, localPathLabel, new HBox(10, pathField, chooseDirectoryButton), errorLabel, buttons);
+        bottomSection.getStyleClass().add("dialog-bottom-section");
+
         root.getChildren().addAll(
                 titleBar,
-                new Label("Local path"),
-                new HBox(10, pathField, chooseDirectoryButton),
-                errorLabel,
-                buttons
+                bottomSection
         );
     }
 

@@ -24,15 +24,20 @@ public class CreateRepositoryDialogView extends DialogView<VBox> {
 
         HBox titleBar = createTitleBar("Create New Repository");
 
+        Label nameLabel = new Label("Name");
+        nameLabel.getStyleClass().addAll("bold");
         nameField = new TextField();
         nameField.setPromptText("Enter repository name...");
+
+        Label pathLabel = new Label("Local path");
+        pathLabel.getStyleClass().addAll("bold");
         pathField = new TextField();
         pathField.setPromptText("Enter repository path...");
 
         chooseDirectoryButton = new Button("Choose");
         chooseDirectoryButton.getStyleClass().add("secondary-button");
 
-        confirmButton = new Button("Create Repository");
+        confirmButton = new Button("Create");
         confirmButton.getStyleClass().add("primary-button");
         confirmButton.getStyleClass().add("bottom-button");
         confirmButton.setDisable(true);
@@ -45,13 +50,12 @@ public class CreateRepositoryDialogView extends DialogView<VBox> {
         errorLabel = new Label("");
         errorLabel.getStyleClass().add("error-label");
 
+        VBox bottomSection = new VBox(10, nameLabel, nameField, pathLabel,new HBox(10, pathField, chooseDirectoryButton), errorLabel, buttons);
+        bottomSection.getStyleClass().add("dialog-bottom-section");
+
         root.getChildren().addAll(
                 titleBar,
-                new Label("Name:"), nameField,
-                new Label("Local Path:"),
-                new HBox(10, pathField, chooseDirectoryButton),
-                errorLabel,
-                buttons
+                bottomSection
         );
     }
 

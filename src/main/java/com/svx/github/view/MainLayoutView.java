@@ -7,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import org.kordamp.ikonli.javafx.FontIcon;
-
 import java.util.Objects;
 
 public class MainLayoutView extends View<BorderPane> {

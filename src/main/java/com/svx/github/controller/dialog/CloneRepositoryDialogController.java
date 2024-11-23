@@ -25,26 +25,7 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
 
     private void populateRepositoryDropdown() {
         List<Repository> repositories = RepositoryRepository.loadAllUserRepositories(UserSingleton.getCurrentUser().getId());
-        view.getRepositoryDropdown().setConverter(new StringConverter<>() {
-            @Override
-            public String toString(Repository repository) {
-                return repository != null ? repository.getName() : "";
-            }
-
-            @Override
-            public Repository fromString(String string) {
-                return view.getRepositoryDropdown().getItems().stream()
-                        .filter(repo -> repo.getName().equals(string))
-                        .findFirst()
-                        .orElse(null);
-            }
-        });
-
-        view.getRepositoryDropdown().getItems().addAll(repositories);
-
-        if (!repositories.isEmpty()) {
-            view.getRepositoryDropdown().getSelectionModel().select(0);
-        }
+        // TODO! populate repository
     }
 
     @Override
@@ -60,18 +41,16 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
         });
 
         view.getPathField().textProperty().addListener((observable, oldValue, newValue) -> validateInputs());
-        view.getRepositoryDropdown().valueProperty().addListener((observable, oldValue, newValue) -> validateInputs());
 
-        view.getConfirmButton().setOnAction(e -> cloneRepository());
+//        view.getConfirmButton().setOnAction(e -> cloneRepository());
     }
 
     private void validateInputs() {
-        boolean valid = !view.getPathField().getText().trim().isEmpty() && view.getRepositoryDropdown().getValue() != null;
-        view.getConfirmButton().setDisable(!valid);
+//        boolean valid = !view.getPathField().getText().trim().isEmpty() && view.getRepositoryList().getValue() != null;
+//        view.getConfirmButton().setDisable(!valid);
     }
 
-    private void cloneRepository() {
-        Repository selectedRepo = view.getRepositoryDropdown().getValue();
+    private void cloneRepository(Repository selectedRepo) {
         Path destinationPath = Paths.get(view.getPathField().getText().trim());
 
         if (selectedRepo == null) {

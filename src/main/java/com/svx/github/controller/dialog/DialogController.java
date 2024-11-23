@@ -22,13 +22,11 @@ public abstract class DialogController<T extends DialogView<? extends Parent>> {
     public void setActions() {
         view.getCancelButton().setOnAction(e -> hideDialog());
         view.getCloseIcon().setOnMouseClicked(e -> {
-            view.getDialogStage().close();
-            appController.hideOverlay();
+            hideDialog();
         });
 
         view.getCancelButton().setOnAction(e -> {
-            view.getDialogStage().close();
-            appController.hideOverlay();
+            hideDialog();
         });
     }
 
@@ -51,6 +49,7 @@ public abstract class DialogController<T extends DialogView<? extends Parent>> {
 
     public void hideDialog() {
         view.getDialogStage().close();
+        appController.hideOverlay();
     }
 }
 

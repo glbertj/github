@@ -9,16 +9,17 @@ import com.svx.github.repository.CommitRepository;
 import com.svx.github.repository.RepositoryRepository;
 import com.svx.github.utility.ComponentUtility;
 import com.svx.github.utility.DesktopUtility;
-import com.svx.github.utility.DiffUtility;
+import com.svx.github.utility.DifferenceUtility;
 import com.svx.github.utility.FileUtility;
 import com.svx.github.view.MainLayoutView;
 import javafx.collections.ListChangeListener;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainLayoutController extends Controller<MainLayoutView> {
 
@@ -168,30 +169,30 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         Map<String, String> stagedFiles = versionControl.getIndex().getStagedFiles();
         if (stagedFiles == null || stagedFiles.isEmpty()) {
-            Label noChangesLabel = new Label("No changed files.");
-            view.getChangedFilesList().getChildren().add(noChangesLabel);
             return;
         }
 
         Commit currentCommit = versionControl.getCurrentCommit();
         Map<String, String> cumulativeTree = loadCumulativeTree(currentCommit);
 
+        AtomicInteger changedFilesCount = new AtomicInteger(0);
         stagedFiles.forEach((filename, stagedBlobId) -> {
             String committedBlobId = cumulativeTree.get(filename);
 
             boolean isChanged = !stagedBlobId.equals(committedBlobId);
 
+            // TODO! FIX LATER
             if (isChanged) {
-                Button fileButton = new Button(filename);
-                fileButton.setOnAction(e -> showFileDifference(filename, stagedBlobId));
-                view.getChangedFilesList().getChildren().add(fileButton);
+                HBox button = ComponentUtility.createListButton(filename, view, ComponentUtility.listButtonType.HISTORY);
+                if (button == null) return;
+
+                button.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> showFileDifference(filename, stagedBlobId));
+                view.getChangedFilesList().getChildren().add(button);
+                changedFilesCount.incrementAndGet();
             }
         });
 
-        if (view.getChangedFilesList().getChildren().isEmpty()) {
-            Label noChangesLabel = new Label("No changed files.");
-            view.getChangedFilesList().getChildren().add(noChangesLabel);
-        }
+        view.getChangesLabel().setText(changedFilesCount.get() + " files changed");
     }
 
     private Map<String, String> loadCumulativeTree(Commit commit) {
@@ -287,37 +288,37 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         updateChangedFilesList();
         updateHistoryTab();
-        updateMultiFunctionButton();
     }
 
     private void updateHistoryTab() {
         view.getHistoryList().getChildren().clear();
         Repository currentRepo = RepositoryManager.getCurrentRepository();
         if (currentRepo == null) {
-            Label noRepoLabel = new Label("No repository selected.");
-            view.getHistoryList().getChildren().add(noRepoLabel);
             return;
         }
 
         String commitId = currentRepo.getLatestCommitId();
         if (commitId == null) {
-            Label noCommitsLabel = new Label("No commit history.");
-            view.getHistoryList().getChildren().add(noCommitsLabel);
             return;
         }
 
+        int commitCount = 0;
         while (commitId != null && !commitId.isBlank()) {
             Commit commit = Commit.loadFromDisk(commitId, currentRepo.getObjectsPath());
 
-            Button commitButton = new Button(commit.getMessage() + " - " + commit.getTimestamp());
-            commitButton.setOnAction(e -> showCommitDetails(commit));
-            view.getHistoryList().getChildren().add(commitButton);
+            HBox button = ComponentUtility.createListButton(commit.getMessage(), view, ComponentUtility.listButtonType.HISTORY);
+            if (button == null) return;
+
+            button.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> showCommitDetails(commit));
+            view.getHistoryList().getChildren().add(button);
 
             commitId = commit.getParentId();
+            commitCount++;
         }
+        view.getHistoryLabel().setText(commitCount + " commits");
     }
 
-    private void showFileDifference(String filename, String blobId) {
+    public void showFileDifference(String filename, String blobId) {
         VersionControl versionControl = RepositoryManager.getVersionControl();
         if (versionControl == null) return;
 
@@ -336,7 +337,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             }
         }
 
-        String difference = DiffUtility.getDifference(oldContent, newContent);
+        String difference = DifferenceUtility.getDifference(oldContent, newContent);
         view.getTextArea().setText(difference);
     }
 

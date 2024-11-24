@@ -9,7 +9,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class CloneRepositoryDialogView extends DialogView<VBox> {
-    private ScrollPane repositoryListContainer;
     private VBox repositoryList;
     private TextField pathField;
     private Button chooseDirectoryButton;
@@ -28,7 +27,7 @@ public class CloneRepositoryDialogView extends DialogView<VBox> {
         repositoryList = new VBox(10);
         repositoryList.getStyleClass().add("repository-list");
 
-        repositoryListContainer = new ScrollPane(repositoryList);
+        ScrollPane repositoryListContainer = new ScrollPane(repositoryList);
         repositoryListContainer.setFitToWidth(true);
         repositoryListContainer.getStyleClass().add("scroll-pane");
 

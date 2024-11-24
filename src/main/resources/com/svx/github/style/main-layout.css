@@ -135,6 +135,16 @@
     -fx-border-color: black;
 }
 
+.tab-label {
+    -fx-background-color: #2b3137;
+    -fx-max-width: 1000;
+    -fx-padding: 2 0;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: black;
+}
+
 .commit-description-text-area {
     -fx-background-color: #1d2125;
     -fx-control-inner-background: #1d2125;

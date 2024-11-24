@@ -3,7 +3,7 @@ package com.svx.github.utility;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiffUtility {
+public class DifferenceUtility {
 
     public static String getDifference(String oldContent, String newContent) {
         String[] oldLines = (oldContent != null) ? oldContent.split("\n") : new String[0];

@@ -1,6 +1,5 @@
 package com.svx.github.utility;
 
-import com.svx.github.controller.MainLayoutController;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.Repository;
 import com.svx.github.view.MainLayoutView;
@@ -53,14 +52,36 @@ public class ComponentUtility {
                 }
             }
             case CHANGES -> {
-                if (item instanceof String && view instanceof MainLayoutController) {
+                if (item instanceof String) {
                     label.setText((String) item);
-
                     button.getChildren().addAll(label);
-                    button.setOnMouseClicked(e -> {
-                        System.out.println("Changes");
-                    });
                 }
+
+                button.setOnMouseClicked(e -> {
+                    ((MainLayoutView) view).getChangedFilesList().getChildren().forEach(node -> {
+                        if (node instanceof HBox hbox) {
+                            hbox.getStyleClass().remove("active");
+                        }
+                    });
+
+                    button.getStyleClass().add("active");
+                });
+            }
+            case HISTORY -> {
+                if (item instanceof String) {
+                    label.setText((String) item);
+                    button.getChildren().addAll(label);
+                }
+
+                button.setOnMouseClicked(e -> {
+                    ((MainLayoutView) view).getHistoryList().getChildren().forEach(node -> {
+                        if (node instanceof HBox hbox) {
+                            hbox.getStyleClass().remove("active");
+                        }
+                    });
+
+                    button.getStyleClass().add("active");
+                });
             }
             default -> {
                 return null;
@@ -74,5 +95,6 @@ public class ComponentUtility {
         REPOSITORY,
         CLONE_REPOSITORY_DIALOG,
         CHANGES,
+        HISTORY,
     }
 }

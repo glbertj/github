@@ -50,10 +50,12 @@ public class MainLayoutView extends View<BorderPane> {
     private TextField commitSummaryTextField;
     private TextArea commitDescriptionTextArea;
     private Button commitButton;
+    private Label changesLabel;
 
     // Sidebar (History)
     private VBox historyTab;
     private VBox historyList;
+    private Label historyLabel;
 
     // Main Content
     private final StackPane mainContent = new StackPane();
@@ -291,14 +293,13 @@ public class MainLayoutView extends View<BorderPane> {
         changesTab = new VBox();
         changesTab.getStyleClass().add("tab-content");
 
-        Label changesLabel = new Label("Changes");
+        changesLabel = new Label("0 changed files");
         changesLabel.getStyleClass().add("tab-label");
 
         changedFilesList = new VBox();
         changedFilesList.setSpacing(5);
 
         changesTab = new VBox();
-        changesTab.setSpacing(5);
         changesTab.getChildren().addAll(changesLabel, changedFilesList);
 
         commitSummaryTextField = new TextField();
@@ -323,7 +324,7 @@ public class MainLayoutView extends View<BorderPane> {
     private void initializeHistoryTab() {
         historyTab = new VBox();
 
-        Label historyLabel = new Label("History");
+        historyLabel = new Label("0 commits");
         historyLabel.getStyleClass().add("tab-label");
 
         historyList = new VBox();
@@ -354,6 +355,12 @@ public class MainLayoutView extends View<BorderPane> {
             changesButton.getStyleClass().add("active");
             historyButton.getStyleClass().remove("active");
             showingHistoryTab = false;
+
+            getHistoryList().getChildren().forEach(node -> {
+                if (node instanceof HBox hbox) {
+                    hbox.getStyleClass().remove("active");
+                }
+            });
         }
     }
 
@@ -364,6 +371,12 @@ public class MainLayoutView extends View<BorderPane> {
             changesButton.getStyleClass().remove("active");
             historyButton.getStyleClass().add("active");
             showingHistoryTab = true;
+
+            getChangedFilesList().getChildren().forEach(node -> {
+                if (node instanceof HBox hbox) {
+                    hbox.getStyleClass().remove("active");
+                }
+            });
         }
     }
 
@@ -403,7 +416,9 @@ public class MainLayoutView extends View<BorderPane> {
     public TextField getCommitSummaryTextField() { return commitSummaryTextField; }
     public TextArea getCommitDescriptionTextArea() { return commitDescriptionTextArea; }
     public Button getCommitButton() { return commitButton; }
+    public Label getChangesLabel() { return changesLabel; }
     public VBox getChangedFilesList() { return changedFilesList; }
+    public Label getHistoryLabel() { return historyLabel; }
     public VBox getHistoryList() { return historyList; }
     public TextArea getTextArea() { return textArea; }
 }

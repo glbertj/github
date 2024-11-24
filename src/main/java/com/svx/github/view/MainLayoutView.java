@@ -384,7 +384,7 @@ public class MainLayoutView extends View<BorderPane> {
         mainContent.getStyleClass().add("main-content");
 
         textArea = new TextArea();
-        textArea.setEditable(true);
+        textArea.setEditable(false);
         textArea.setWrapText(true);
         textArea.setFocusTraversable(false);
 

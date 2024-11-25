@@ -78,7 +78,6 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
 
         button.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             selectedRepo = repository;
-            System.out.println("A");
         });
 
         return button;

@@ -16,8 +16,11 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import org.fxmisc.richtext.InlineCssTextArea;
+
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -181,9 +184,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
             boolean isChanged = !stagedBlobId.equals(committedBlobId);
 
-            // TODO! FIX LATER
             if (isChanged) {
-                HBox button = ComponentUtility.createListButton(filename, view, ComponentUtility.listButtonType.HISTORY);
+                HBox button = ComponentUtility.createListButton(filename, view, ComponentUtility.listButtonType.CHANGES);
                 if (button == null) return;
 
                 button.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> showFileDifference(filename, stagedBlobId));
@@ -337,24 +339,75 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             }
         }
 
-        String difference = DifferenceUtility.getDifference(oldContent, newContent);
-        view.getTextArea().setText(difference);
+        List<LineDifference> differences = DifferenceUtility.getDifference(oldContent, newContent);
+        view.getTextArea().clear();
+        renderDifferences(differences);
+    }
+
+    private void renderDifferences(List<LineDifference> differences) {
+        InlineCssTextArea styledTextArea = view.getTextArea();
+        styledTextArea.clear();
+
+        for (int i = 0; i < differences.size(); i++) {
+            LineDifference line = differences.get(i);
+
+            int start = styledTextArea.getLength();
+            styledTextArea.appendText(line.getContent() + "\n");
+
+            String paragraphStyle;
+            switch (line.getType()) {
+                case ADDED -> paragraphStyle = "-fx-background-color: rgba(17,58,27,1); -fx-fill: white;";
+                case REMOVED -> paragraphStyle = "-fx-background-color: rgba(69,12,15,1); -fx-fill: white;";
+                default -> paragraphStyle = "-fx-background-color: transparent; -fx-fill: white;";
+            }
+            styledTextArea.setParagraphStyle(i, paragraphStyle);
+
+            for (Highlight highlight : line.getHighlights()) {
+                styledTextArea.setStyle(
+                        start + highlight.start(),
+                        start + highlight.end(),
+                        "-fx-fill: white; -fx-background-color: rgba(0, 255, 0, 0.6);"
+                );
+            }
+        }
     }
 
     private void showCommitDetails(Commit commit) {
-        StringBuilder details = new StringBuilder();
-        details.append("Commit Details:\n");
-        details.append("ID: ").append(commit.getId()).append("\n");
-        details.append("Message: ").append(commit.getMessage()).append("\n");
-        details.append("Timestamp: ").append(commit.getTimestamp()).append("\n");
-        details.append("Tree ID: ").append(commit.getTreeId()).append("\n");
+        InlineCssTextArea styledTextArea = view.getTextArea();
+        styledTextArea.clear();
+
+        int start = styledTextArea.getLength();
+        styledTextArea.appendText("Commit Details:\n");
+        styledTextArea.setStyle(start, styledTextArea.getLength(), "-fx-font-weight: bold; -fx-fill: white;");
+
+        appendStyledLine(styledTextArea, "ID: ", commit.getId(), "-fx-fill: lightgray;");
+        appendStyledLine(styledTextArea, "Message: ", commit.getMessage(), "-fx-fill: lightgreen;");
+        appendStyledLine(styledTextArea, "Timestamp: ", commit.getTimestamp().toString(), "-fx-fill: lightblue;");
+        appendStyledLine(styledTextArea, "Tree ID: ", commit.getTreeId() + "\n", "-fx-fill: lightcoral;");
 
         Tree tree = Tree.loadFromDisk(commit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
-        details.append("\nTree Entries:\n");
-        for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
-            details.append("  ").append(entry.getKey()).append(" -> ").append(entry.getValue()).append("\n");
-        }
+        styledTextArea.appendText("Tree Entries:\n");
+        styledTextArea.setStyle(styledTextArea.getLength() - 13, styledTextArea.getLength(), "-fx-font-weight: bold; -fx-fill: white;");
 
-        view.getTextArea().setText(details.toString());
+        for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
+            appendStyledLine(
+                    styledTextArea,
+                    "  " + entry.getKey(),
+                    " -> " + entry.getValue(),
+                    "-fx-fill: lightgray;"
+            );
+        }
+    }
+
+    private void appendStyledLine(InlineCssTextArea textArea, String label, String value, String valueStyle) {
+        int labelStart = textArea.getLength();
+        textArea.appendText(label);
+
+        textArea.setStyle(labelStart, textArea.getLength(), "-fx-font-weight: bold; -fx-fill: white;");
+
+        int valueStart = textArea.getLength();
+        textArea.appendText(value + "\n");
+
+        textArea.setStyle(valueStart, textArea.getLength(), valueStyle);
     }
 }

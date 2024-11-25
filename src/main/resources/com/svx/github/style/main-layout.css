@@ -85,7 +85,7 @@
     -fx-text-fill: #e1e4e8;
     -fx-font-weight: bold;
     -fx-font-size: 12px;
-    -fx-pref-width: 125;
+    -fx-pref-width: 124;
     -fx-alignment: center;
     -fx-padding: 4 0;
     -fx-border-width: 0;
@@ -196,14 +196,10 @@
 }
 
 .main-content .text-area {
-    -fx-control-inner-background: #24292e;
     -fx-background-color: #24292e;
-    -fx-text-fill: white;
-    -fx-border-radius: 0;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
-
 .main-content .text-area .viewport {
     -fx-background-color: #24292e;
 }

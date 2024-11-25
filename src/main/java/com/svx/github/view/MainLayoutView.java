@@ -1,12 +1,12 @@
 package com.svx.github.view;
 
 import com.svx.github.manager.RepositoryManager;
-import com.svx.github.model.Repository;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import org.fxmisc.richtext.InlineCssTextArea;
 import org.kordamp.ikonli.javafx.FontIcon;
 import java.util.Objects;
 
@@ -59,7 +59,7 @@ public class MainLayoutView extends View<BorderPane> {
 
     // Main Content
     private final StackPane mainContent = new StackPane();
-    private TextArea textArea;
+    private InlineCssTextArea textArea;
     private Pane mainContentOverlay;
 
     // Methods //////////////////////////////////////////////////////////////////////////////////////
@@ -297,7 +297,6 @@ public class MainLayoutView extends View<BorderPane> {
         changesLabel.getStyleClass().add("tab-label");
 
         changedFilesList = new VBox();
-        changedFilesList.setSpacing(5);
 
         changesTab = new VBox();
         changesTab.getChildren().addAll(changesLabel, changedFilesList);
@@ -382,8 +381,9 @@ public class MainLayoutView extends View<BorderPane> {
 
     private void initializeMainContent() {
         mainContent.getStyleClass().add("main-content");
-
-        textArea = new TextArea();
+        textArea = new InlineCssTextArea();
+        textArea.getStyleClass().add("text-area");
+        textArea.setStyle(0, textArea.getLength(), "-fx-fill: white;");
         textArea.setEditable(false);
         textArea.setWrapText(true);
         textArea.setFocusTraversable(false);
@@ -393,8 +393,7 @@ public class MainLayoutView extends View<BorderPane> {
         mainContentOverlay.setMouseTransparent(true);
         mainContentOverlay.setVisible(false);
 
-        mainContent.getChildren().add(textArea);
-        mainContent.getChildren().add(mainContentOverlay);
+        mainContent.getChildren().addAll(textArea, mainContentOverlay);
     }
 
     public enum OriginType {
@@ -420,5 +419,5 @@ public class MainLayoutView extends View<BorderPane> {
     public VBox getChangedFilesList() { return changedFilesList; }
     public Label getHistoryLabel() { return historyLabel; }
     public VBox getHistoryList() { return historyList; }
-    public TextArea getTextArea() { return textArea; }
+    public InlineCssTextArea getTextArea() { return textArea; }
 }

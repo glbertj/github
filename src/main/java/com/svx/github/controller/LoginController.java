@@ -8,6 +8,8 @@ import com.svx.github.repository.UserRepository;
 import com.svx.github.utility.CryptoUtility;
 import com.svx.github.view.LoginView;
 
+import java.sql.SQLException;
+
 public class LoginController extends Controller<LoginView> {
 
     public LoginController(AppController appController) {
@@ -29,7 +31,12 @@ public class LoginController extends Controller<LoginView> {
             return;
         }
 
-        User authenticatedUser = username.contains("@") ? UserRepository.getByEmail(username) : UserRepository.getByUsername(username);
+        User authenticatedUser = null;
+        try {
+            authenticatedUser = username.contains("@") ? UserRepository.getByEmail(username) : UserRepository.getByUsername(username);
+        } catch (SQLException e) {
+            appController.showNotification("An error occurred while trying to log in.", NotificationBox.NotificationType.ERROR, "fas-lock");
+        }
         if (authenticatedUser != null && CryptoUtility.verifyPassword(password, authenticatedUser.getPassword())) {
             SessionManager.createSession(authenticatedUser);
             UserSingleton.setCurrentUser(authenticatedUser);

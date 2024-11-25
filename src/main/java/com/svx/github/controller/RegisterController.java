@@ -5,6 +5,8 @@ import com.svx.github.model.User;
 import com.svx.github.repository.UserRepository;
 import com.svx.github.utility.CryptoUtility;
 import com.svx.github.view.RegisterView;
+
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class RegisterController extends Controller<RegisterView> {
@@ -45,7 +47,12 @@ public class RegisterController extends Controller<RegisterView> {
         }
 
         User newUser = new User(UUID.randomUUID(), username, email, CryptoUtility.hashPassword(password));
-        boolean registerSuccessful = UserRepository.registerUser(newUser);
+        boolean registerSuccessful = false;
+        try {
+            registerSuccessful = UserRepository.registerUser(newUser);
+        } catch (SQLException e) {
+            appController.showNotification("Registration failed. Please try again.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
+        }
         if (registerSuccessful) {
             appController.showNotification("Successfully registered.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             appController.navigatePage(new LoginController(appController));

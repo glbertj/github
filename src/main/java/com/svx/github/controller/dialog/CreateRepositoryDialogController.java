@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 
 public class CreateRepositoryDialogController extends DialogController<CreateRepositoryDialogView> {
     private Debounce debounce;
@@ -68,7 +69,11 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
 
             Repository newRepo = new Repository(view.getNameField().getText(), "", UserSingleton.getCurrentUser().getId(), path);
             Repository.addRepository(newRepo);
-            RepositoryManager.setCurrentRepository(newRepo);
+            try {
+                RepositoryManager.setCurrentRepository(newRepo);
+            } catch (IOException | SQLException ex) {
+                appController.showNotification("Error loading repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+            }
 
             hideDialog();
             appController.showNotification("Repository created successfully.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");

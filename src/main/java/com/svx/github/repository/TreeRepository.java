@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class TreeRepository {
 
-    public static void save(Tree tree) {
+    public static void save(Tree tree) throws SQLException {
         String query = "INSERT INTO trees (id, entries) VALUES (?, ?)";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -23,11 +23,11 @@ public class TreeRepository {
             stmt.setString(2, serializedEntries);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error saving tree to database: " + e.getMessage());
+            throw new SQLException();
         }
     }
 
-    public static Tree load(String treeId, Repository repository) {
+    public static Tree load(String treeId) throws SQLException {
         String query = "SELECT entries FROM trees WHERE id = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -41,7 +41,7 @@ public class TreeRepository {
                 return new Tree(entries);
             }
         } catch (SQLException e) {
-            System.out.println("Error loading tree from database: " + e.getMessage());
+            throw new SQLException();
         }
         return null;
     }

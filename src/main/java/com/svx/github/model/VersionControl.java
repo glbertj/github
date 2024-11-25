@@ -10,6 +10,7 @@ import com.svx.github.utility.FileUtility;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +21,7 @@ public class VersionControl {
     private final Index index;
     private Commit currentCommit;
 
-    public VersionControl(Repository repository) {
+    public VersionControl(Repository repository) throws IOException, SQLException {
         this.repository = repository;
         this.index = new Index();
         this.index.loadFromIndexFile(repository);
@@ -39,16 +40,15 @@ public class VersionControl {
         this.currentCommit = commit;
     }
 
-    private void loadCurrentCommit() {
+    private void loadCurrentCommit() throws SQLException {
         String headCommitId = repository.getLatestCommitId();
         if (headCommitId != null) {
             this.currentCommit = CommitRepository.load(headCommitId, repository);
         }
     }
 
-    public void commitChanges(String message) {
+    public void commitChanges(String message) throws IOException {
         if (index.getStagedFiles().isEmpty()) {
-            System.out.println("No files staged for commit.");
             return;
         }
 
@@ -63,28 +63,21 @@ public class VersionControl {
         repository.setLatestCommitId(newCommit.getId());
 
         index.clear();
-        System.out.println("Commit created locally with ID: " + newCommit.getId());
     }
 
-    private void updateHeadFile(String commitId) {
+    private void updateHeadFile(String commitId) throws IOException {
         Path headFilePath = repository.getGitPath().resolve("refs").resolve("heads").resolve("master");
-        try {
-            Files.createDirectories(headFilePath.getParent());
-            Files.writeString(headFilePath, commitId);
-        } catch (IOException e) {
-            System.out.println("Error updating HEAD file: " + e.getMessage());
-        }
+        Files.createDirectories(headFilePath.getParent());
+        Files.writeString(headFilePath, commitId);
     }
 
-    public void push() {
+    public void push() throws Exception {
         if (currentCommit == null) {
-            System.out.println("No commits to push.");
             return;
         }
 
         List<Commit> commitsToPush = getCommitsToPush();
         if (commitsToPush.isEmpty()) {
-            System.out.println("No new commits to push.");
             return;
         }
 
@@ -97,18 +90,15 @@ public class VersionControl {
                     String blobContent = FileUtility.loadFromDisk(blobId, repository.getObjectsPath());
                     Blob blob = new Blob(blobContent, repository);
                     BlobRepository.save(blob);
-                    System.out.println("Blob saved to database: " + blob.getId());
                 }
             }
             CommitRepository.save(commit);
-            System.out.println("Commit saved to database: " + commit.getId());
         }
 
         RepositoryRepository.save(repository);
-        System.out.println("Push completed. Repository head updated to commit: " + currentCommit.getId());
     }
 
-    private List<Commit> getCommitsToPush() {
+    private List<Commit> getCommitsToPush() throws SQLException {
         List<Commit> commitsToPush = new ArrayList<>();
         Commit commitToPush = currentCommit;
 
@@ -127,11 +117,10 @@ public class VersionControl {
         return commitsToPush;
     }
 
-    public void pull() throws IOException {
+    public void pull() throws Exception {
         String latestDatabaseCommitId = RepositoryRepository.getLatestCommitId(repository);
 
         if (latestDatabaseCommitId == null) {
-            System.out.println("No commits found in the database for this repository.");
             return;
         }
 
@@ -141,7 +130,7 @@ public class VersionControl {
         while (commitToPull != null) {
             commitToPull.saveToDisk(objectsPath);
 
-            Tree treeToPull = TreeRepository.load(commitToPull.getTreeId(), repository);
+            Tree treeToPull = TreeRepository.load(commitToPull.getTreeId());
             if (treeToPull != null) {
                 treeToPull.saveToDisk(objectsPath);
 

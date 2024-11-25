@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.List;
 
 public class CloneRepositoryDialogController extends DialogController<CloneRepositoryDialogView> {
@@ -52,7 +53,12 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
     }
 
     private void populateRepositoryList() {
-        List<Repository> repositories = RepositoryRepository.loadAllUserRepositories();
+        List<Repository> repositories = null;
+        try {
+            repositories = RepositoryRepository.loadAllUserRepositories();
+        } catch (SQLException e) {
+            appController.showNotification("Error loading repositories.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+        }
 
         repositories.forEach(repo -> {
             if (repositoryExistsInList(repo)) {
@@ -127,14 +133,19 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
             }
 
             VersionControl versionControl = new VersionControl(clonedRepo);
-            versionControl.pull();
+            try {
+                versionControl.pull();
+            } catch (Exception e) {
+                appController.showNotification("Error cloning repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+                return;
+            }
 
             Repository.addRepository(clonedRepo);
             RepositoryManager.setCurrentRepository(clonedRepo);
 
             appController.showNotification("Repository cloned successfully", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             hideDialog();
-        } catch (IOException ex) {
+        } catch (IOException | SQLException ex) {
             appController.showNotification("Error cloning repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
         }
     }

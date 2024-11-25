@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public class RepositoryManager {
     private static final ObjectProperty<Repository> currentRepository = new SimpleObjectProperty<>();
     private static final Map<Repository, VersionControl> versionControlMap = new HashMap<>();
 
-    public static void setCurrentRepository(Repository repository) {
+    public static void setCurrentRepository(Repository repository) throws IOException, SQLException {
         currentRepository.set(repository);
 
         if (!versionControlMap.containsKey(repository)) {
@@ -25,11 +26,11 @@ public class RepositoryManager {
             if (Files.exists(headFilePath)) {
                 try {
                     String headCommitId = Files.readString(headFilePath).trim();
-                    repository.setLatestCommitId(headCommitId); // Update repository's latest commit ID
+                    repository.setLatestCommitId(headCommitId);
                     Commit headCommit = Commit.loadFromDisk(headCommitId, repository.getObjectsPath());
                     versionControl.setCurrentCommit(headCommit);
                 } catch (IOException e) {
-                    System.out.println("Error reading HEAD file: " + e.getMessage());
+                    throw new IOException();
                 }
             }
 

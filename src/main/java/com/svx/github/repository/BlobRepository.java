@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 public class BlobRepository {
 
-    public static void save(Blob blob) {
+    public static void save(Blob blob) throws Exception {
         String query = "INSERT INTO blobs (id, content) VALUES (?, ?)";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -23,11 +23,11 @@ public class BlobRepository {
             stmt.setBytes(2, compressedContent);
             stmt.executeUpdate();
         } catch (SQLException | IOException e) {
-            System.out.println("Error saving blob to database: " + e.getMessage());
+            throw new Exception();
         }
     }
 
-    public static Blob load(String blobId, Repository repository) {
+    public static Blob load(String blobId, Repository repository) throws Exception {
         String query = "SELECT content FROM blobs WHERE id = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -41,7 +41,7 @@ public class BlobRepository {
                 return new Blob(content, repository);
             }
         } catch (SQLException | IOException e) {
-            System.out.println("Error loading blob from database: " + e.getMessage());
+            throw new Exception();
         }
         return null;
     }

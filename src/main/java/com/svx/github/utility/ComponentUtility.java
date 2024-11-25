@@ -8,6 +8,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.io.IOException;
+import java.sql.SQLException;
+
 public class ComponentUtility {
 
     public static HBox createListButton(Object item, Object view, listButtonType type) {
@@ -29,7 +32,11 @@ public class ComponentUtility {
 
                     button.getChildren().addAll(icon, label);
                     button.setOnMouseClicked(e -> {
-                        RepositoryManager.setCurrentRepository((Repository) item);
+                        try {
+                            RepositoryManager.setCurrentRepository((Repository) item);
+                        } catch (IOException | SQLException ex) {
+                            throw new RuntimeException(ex);
+                        }
                         ((MainLayoutView) view).switchSideBar();
                     });
                 }

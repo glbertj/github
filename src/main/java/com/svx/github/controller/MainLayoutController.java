@@ -19,6 +19,7 @@ import javafx.scene.layout.HBox;
 import org.fxmisc.richtext.InlineCssTextArea;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,11 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getCloneRepositoryMenu().setOnAction(e -> appController.openDialog(new CloneRepositoryDialogController(appController)));
         view.getLogoutMenu().setOnAction(e -> {
             if (RepositoryManager.getCurrentRepository() != null) {
-                RepositoryManager.setCurrentRepository(null);
+                try {
+                    RepositoryManager.setCurrentRepository(null);
+                } catch (IOException | SQLException ex) {
+                    appController.showNotification("Failed to logout.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+                }
 
             }
             appController.logout();
@@ -85,7 +90,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 try {
                     DesktopUtility.openVSCode(String.valueOf(currentRepo.getPath()));
                 } catch (IOException | InterruptedException ex) {
-                    System.out.println(ex.getMessage());
                     appController.showNotification("Failed to open Visual Studio Code.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
                 }
             } else {
@@ -160,7 +164,11 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         Repository currentRepo = RepositoryManager.getCurrentRepository();
 
         if (versionControl != null && currentRepo != null) {
-            versionControl.getIndex().detectAndStageChanges(currentRepo);
+            try {
+                versionControl.getIndex().detectAndStageChanges(currentRepo);
+            } catch (IOException e) {
+                appController.showNotification("Failed to detect and stage changes.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+            }
         }
     }
 
@@ -241,10 +249,18 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
-        String latestDatabaseCommitId = RepositoryRepository.getLatestCommitId(currentRepo);
-        Commit latestDatabaseCommit = latestDatabaseCommitId != null
-                ? CommitRepository.load(latestDatabaseCommitId, currentRepo)
-                : null;
+        String latestDatabaseCommitId = null;
+        Commit latestDatabaseCommit = null;
+        try {
+            latestDatabaseCommitId = RepositoryRepository.getLatestCommitId(currentRepo);
+            latestDatabaseCommit = latestDatabaseCommitId != null
+                    ? CommitRepository.load(latestDatabaseCommitId, currentRepo)
+                    : null;
+        } catch (SQLException e) {
+            appController.showNotification("Failed to fetch latest commit from the database.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+            resetMultiFunctionButton();
+            return;
+        }
 
         boolean hasPendingCommits = latestDatabaseCommit == null
                 || latestLocalCommit.getTimestamp().withNano(0).isAfter(latestDatabaseCommit.getTimestamp().withNano(0));
@@ -253,7 +269,11 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             appController.showNotification("Successfully fetched from origin. You have pending commits to push.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             view.switchOriginButton(MainLayoutView.OriginType.PUSH);
             view.getOriginButton().setOnMouseClicked(e -> {
-                RepositoryManager.getVersionControl().push();
+                try {
+                    RepositoryManager.getVersionControl().push();
+                } catch (Exception ex) {
+                    appController.showNotification("Failed to push changes to the database.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+                }
                 updateMultiFunctionButton();
                 appController.showNotification("Changes pushed successfully.", NotificationBox.NotificationType.SUCCESS, "fas-arrow-up");
             });
@@ -261,10 +281,9 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             appController.showNotification("Successfully fetched from origin. You are behind the upstream branch.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             view.switchOriginButton(MainLayoutView.OriginType.PULL);
             view.getOriginButton().setOnMouseClicked(e -> {
-                System.out.println("Pulling changes...");
                 try {
                     RepositoryManager.getVersionControl().pull();
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     appController.showNotification("Failed to pull changes from the database.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
                 }
                 updateMultiFunctionButton();
@@ -283,11 +302,17 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
-        String commitMessage = view.getCommitSummaryTextField() + "\n\n" + view.getCommitDescriptionTextArea();
+        String commitMessage = view.getCommitSummaryTextField().getText() + "\n\n" + view.getCommitDescriptionTextArea();
 
         VersionControl versionControl = RepositoryManager.getVersionControl();
-        versionControl.commitChanges(commitMessage);
+        try {
+            versionControl.commitChanges(commitMessage);
+        } catch (IOException e) {
+            appController.showNotification("Failed to commit changes.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+            return;
+        }
 
+        view.getChangesLabel().setText("0 files changed");
         updateChangedFilesList();
         updateHistoryTab();
     }

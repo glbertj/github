@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class RepositoryRepository {
 
-    public static void save(Repository repository) {
+    public static void save(Repository repository) throws SQLException {
         String query = "INSERT INTO repositories (owner_id, name, head_commit_id) VALUES (?, ?, ?) " +
                 "ON DUPLICATE KEY UPDATE head_commit_id = VALUES(head_commit_id)";
         try (Connection conn = ConnectionManager.getConnection();
@@ -26,11 +26,11 @@ public class RepositoryRepository {
 
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error saving repository to database: " + e.getMessage());
+            throw new SQLException();
         }
     }
 
-    public static String getLatestCommitId(Repository repository) {
+    public static String getLatestCommitId(Repository repository) throws SQLException {
         String query = "SELECT head_commit_id FROM repositories WHERE owner_id = ? AND name = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -43,13 +43,13 @@ public class RepositoryRepository {
                 return rs.getString("head_commit_id");
             }
         } catch (SQLException e) {
-            System.out.println("Error fetching latest commit ID: " + e.getMessage());
+            throw new SQLException();
         }
 
         return null;
     }
 
-    public static List<Repository> loadAllUserRepositories() {
+    public static List<Repository> loadAllUserRepositories() throws SQLException {
         if (UserSingleton.getCurrentUser() == null) {
             return new ArrayList<>();
         }
@@ -71,7 +71,7 @@ public class RepositoryRepository {
                 repositories.add(repository);
             }
         } catch (SQLException e) {
-            System.out.println("Error loading repositories: " + e.getMessage());
+            throw new SQLException();
         }
 
         return repositories;

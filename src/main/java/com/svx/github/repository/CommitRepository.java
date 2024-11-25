@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public class CommitRepository {
 
-    public static void save(Commit commit) {
+    public static void save(Commit commit) throws SQLException {
         String query = "INSERT INTO commits (id, tree_id, parent_commit_id, message, timestamp) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -21,11 +21,11 @@ public class CommitRepository {
 
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error saving commit to database: " + e.getMessage());
+            throw new SQLException();
         }
     }
 
-    public static Commit load(String commitId, Repository repository) {
+    public static Commit load(String commitId, Repository repository) throws SQLException {
         String query = "SELECT tree_id, parent_commit_id, message, timestamp FROM commits WHERE id = ?";
         try (Connection conn = ConnectionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -42,7 +42,7 @@ public class CommitRepository {
                 return new Commit(commitId, treeId, parentId, message, timestamp);
             }
         } catch (SQLException e) {
-            System.out.println("Error loading commit from database: " + e.getMessage());
+            throw new SQLException();
         }
         return null;
     }

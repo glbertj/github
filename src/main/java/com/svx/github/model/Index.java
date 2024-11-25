@@ -26,37 +26,26 @@ public class Index {
         stagedFiles.clear();
     }
 
-    private void saveToIndexFile(Repository repository) {
+    private void saveToIndexFile(Repository repository) throws IOException {
         Path indexPath = repository.getIndexPath();
-
-        try {
-            String serializedIndex = JsonUtility.serialize(stagedFiles);
-            Files.writeString(indexPath, serializedIndex, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            System.out.println("Error saving index to file: " + e.getMessage());
-        }
+        String serializedIndex = JsonUtility.serialize(stagedFiles);
+        Files.writeString(indexPath, serializedIndex, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
-    public void loadFromIndexFile(Repository repository) {
+    public void loadFromIndexFile(Repository repository) throws IOException {
         Path indexPath = repository.getIndexPath();
 
         if (Files.exists(indexPath)) {
-            try {
                 String serializedIndex = Files.readString(indexPath).trim();
                 if (!serializedIndex.isEmpty()) {
                     Map<String, String> loadedStagedFiles = JsonUtility.deserialize(serializedIndex);
                     stagedFiles.clear();
                     stagedFiles.putAll(loadedStagedFiles);
                 }
-            } catch (IOException e) {
-                System.out.println("Error loading index from file: " + e.getMessage());
-            }
-        } else {
-            System.out.println("Index file does not exist for repository: " + repository.getName());
         }
     }
 
-    public void detectAndStageChanges(Repository repository) {
+    public void detectAndStageChanges(Repository repository) throws IOException {
         Path repoPath = repository.getPath();
         VersionControl versionControl = RepositoryManager.getVersionControl();
         Commit latestCommit = versionControl.getCurrentCommit();
@@ -68,32 +57,28 @@ public class Index {
             latestTree = null;
         }
 
-        try {
-            Files.walk(repoPath)
-                    .filter(Files::isRegularFile)
-                    .filter(path -> !path.startsWith(repository.getGitPath()))
-                    .forEach(file -> {
-                        try {
-                            String blobId = Blob.computeBlobId(file);
-                            String relativePath = repoPath.relativize(file).toString();
+        Files.walk(repoPath)
+                .filter(Files::isRegularFile)
+                .filter(path -> !path.startsWith(repository.getGitPath()))
+                .forEach(file -> {
+                    try {
+                        String blobId = Blob.computeBlobId(file);
+                        String relativePath = repoPath.relativize(file).toString();
 
-                            if (latestTree != null) {
-                                String committedBlobId = latestTree.getEntries().get(relativePath);
-                                if (committedBlobId != null && committedBlobId.equals(blobId)) {
-                                    return;
-                                }
+                        if (latestTree != null) {
+                            String committedBlobId = latestTree.getEntries().get(relativePath);
+                            if (committedBlobId != null && committedBlobId.equals(blobId)) {
+                                return;
                             }
-
-                            Blob blob = new Blob(Files.readString(file), repository);
-                            stagedFiles.put(relativePath, blob.getId());
-                            FileUtility.saveToDisk(blob.getId(), blob.getContent(), repository.getObjectsPath());
-                        } catch (Exception e) {
-                            System.out.println("Error processing file for staging: " + e.getMessage());
                         }
-                    });
-        } catch (IOException e) {
-            System.out.println("Error detecting changes: " + e.getMessage());
-        }
+
+                        Blob blob = new Blob(Files.readString(file), repository);
+                        stagedFiles.put(relativePath, blob.getId());
+                        FileUtility.saveToDisk(blob.getId(), blob.getContent(), repository.getObjectsPath());
+                    } catch (Exception e) {
+                        System.err.println("Error detect and stage: " + e.getMessage());
+                    }
+                });
 
         saveToIndexFile(repository);
     }

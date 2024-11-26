@@ -13,7 +13,10 @@ import com.svx.github.utility.DifferenceUtility;
 import com.svx.github.utility.FileUtility;
 import com.svx.github.view.MainLayoutView;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.fxmisc.richtext.InlineCssTextArea;
@@ -66,10 +69,14 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         });
         view.getExitMenu().setOnAction(e -> appController.exitApp());
 
+        view.getChangesMenuItem().setOnAction(e -> switchToChangesTab());
+        view.getHistoryMenuItem().setOnAction(e -> switchToHistoryTab());
         view.getToggleFullScreenMenuItem().setOnAction(e -> appController.toggleFullScreen());
         view.getRemoveRepositoryMenuItem().setOnAction(e -> {
             if (RepositoryManager.getCurrentRepository() != null) {
                 RepositoryManager.removeRepository();
+                updateChangedFilesList();
+                updateHistoryTab();
                 appController.showNotification("Repository removed successfully.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             } else {
                 appController.showNotification("No repository selected.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
@@ -111,7 +118,49 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void setSidebarActions() {
+        view.getChangesButton().setOnAction(e -> switchToChangesTab());
+        view.getHistoryButton().setOnAction(e -> switchToHistoryTab());
         view.getCommitButton().setOnAction(e -> handleCommitAction());
+    }
+
+    private void switchToChangesTab() {
+        view.switchToChangesTab();
+        MouseEvent mouseClickEvent = new MouseEvent(
+                MouseEvent.MOUSE_CLICKED,
+                0, 0, 0, 0,
+                MouseButton.PRIMARY,
+                1,
+                true, true, true, true,
+                true, true, true, true, true, true,
+                null
+        );
+        ObservableList<Node> changedFileList = view.getChangedFilesList().getChildren();
+        view.getTextArea().clear();
+
+        if (!changedFileList.isEmpty()) {
+            Node button = changedFileList.get(0);
+            button.fireEvent(mouseClickEvent);
+        }
+    }
+
+    private void switchToHistoryTab() {
+        view.switchToHistoryTab();
+        MouseEvent mouseClickEvent = new MouseEvent(
+                MouseEvent.MOUSE_CLICKED,
+                0, 0, 0, 0,
+                MouseButton.PRIMARY,
+                1,
+                true, true, true, true,
+                true, true, true, true, true, true,
+                null
+        );
+        ObservableList<Node> historyList = view.getHistoryList().getChildren();
+        view.getTextArea().clear();
+
+        if (!historyList.isEmpty()) {
+            Node button = historyList.get(0);
+            button.fireEvent(mouseClickEvent);
+        }
     }
 
     private void setListeners() {
@@ -181,9 +230,9 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
     public void updateChangedFilesList() {
         VersionControl versionControl = RepositoryManager.getVersionControl();
-        if (versionControl == null) return;
-
         view.getChangedFilesList().getChildren().clear();
+        view.getChangesLabel().setText("0 files changed");
+        if (versionControl == null) return;
 
         Map<String, String> stagedFiles = versionControl.getIndex().getStagedFiles();
         if (stagedFiles == null || stagedFiles.isEmpty()) {
@@ -314,6 +363,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         VersionControl versionControl = RepositoryManager.getVersionControl();
         try {
             versionControl.commitChanges(commitMessage);
+            view.getCommitSummaryTextField().clear();
+            view.getCommitDescriptionTextArea().clear();
         } catch (IOException e) {
             appController.showNotification("Failed to commit changes.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
             return;
@@ -326,6 +377,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
     private void updateHistoryTab() {
         view.getHistoryList().getChildren().clear();
+        view.getHistoryLabel().setText("0 commits");
         Repository currentRepo = RepositoryManager.getCurrentRepository();
         if (currentRepo == null) {
             return;

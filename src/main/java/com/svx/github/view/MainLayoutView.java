@@ -24,6 +24,8 @@ public class MainLayoutView extends View<BorderPane> {
     private MenuItem cloneRepositoryMenu;
     private MenuItem logoutMenu;
     private MenuItem exitMenu;
+    private MenuItem changesMenuItem;
+    private MenuItem historyMenuItem;
     private MenuItem toggleFullScreenMenuItem;
     private MenuItem removeRepositoryMenuItem;
     private MenuItem showInExplorerMenuItem;
@@ -197,9 +199,8 @@ public class MainLayoutView extends View<BorderPane> {
         );
 
         Menu viewMenu = new Menu("View");
-        MenuItem changesMenuItem = new MenuItem("Changes");
-        changesMenuItem.setOnAction(e -> switchToChangesTab());
-        MenuItem historyMenuItem = new MenuItem("History");
+        changesMenuItem = new MenuItem("Changes");
+        historyMenuItem = new MenuItem("History");
         historyMenuItem.setOnAction(e -> switchToHistoryTab());
         MenuItem repositoryListMenuItem = new MenuItem("Repository List");
         repositoryListMenuItem.setOnAction(e -> {
@@ -272,11 +273,9 @@ public class MainLayoutView extends View<BorderPane> {
         changesButton = new Button("Changes");
         changesButton.getStyleClass().add("active");
         changesButton.setFocusTraversable(false);
-        changesButton.setOnAction(e -> switchToChangesTab());
 
         historyButton = new Button("History");
         historyButton.setFocusTraversable(false);
-        historyButton.setOnAction(e -> switchToHistoryTab());
 
         HBox sideBarHeader = new HBox(changesButton, historyButton);
         sideBarHeader.getStyleClass().add("sidebar-header");
@@ -405,6 +404,8 @@ public class MainLayoutView extends View<BorderPane> {
     public MenuItem getCloneRepositoryMenu() { return cloneRepositoryMenu; }
     public MenuItem getLogoutMenu() { return logoutMenu; }
     public MenuItem getExitMenu() { return exitMenu; }
+    public MenuItem getChangesMenuItem() { return changesMenuItem; }
+    public MenuItem getHistoryMenuItem() { return historyMenuItem; }
     public MenuItem getToggleFullScreenMenuItem() { return toggleFullScreenMenuItem; }
     public MenuItem getRemoveRepositoryMenuItem() { return removeRepositoryMenuItem; }
     public MenuItem getShowInExplorerMenuItem() { return showInExplorerMenuItem; }
@@ -412,6 +413,8 @@ public class MainLayoutView extends View<BorderPane> {
     public HBox getRepositoryToggleButton() { return repositoryToggleButton; }
     public VBox getRepositoryList() { return repositoryList; }
     public HBox getOriginButton() { return originButton; }
+    public Button getChangesButton() { return changesButton; }
+    public Button getHistoryButton() { return historyButton; }
     public TextField getCommitSummaryTextField() { return commitSummaryTextField; }
     public TextArea getCommitDescriptionTextArea() { return commitDescriptionTextArea; }
     public Button getCommitButton() { return commitButton; }

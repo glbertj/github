@@ -142,6 +142,7 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
 
             Repository.addRepository(clonedRepo);
             RepositoryManager.setCurrentRepository(clonedRepo);
+            RepositoryManager.updateRecentRepository();
 
             appController.showNotification("Repository cloned successfully", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             hideDialog();

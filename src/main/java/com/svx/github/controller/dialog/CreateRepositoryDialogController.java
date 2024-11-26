@@ -71,6 +71,7 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
             Repository.addRepository(newRepo);
             try {
                 RepositoryManager.setCurrentRepository(newRepo);
+                RepositoryManager.updateRecentRepository();
             } catch (IOException | SQLException ex) {
                 appController.showNotification("Error loading repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
             }

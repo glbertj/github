@@ -29,6 +29,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
     public MainLayoutController(AppController appController) {
         super(new MainLayoutView(), appController);
+
+        try {
+            RepositoryManager.loadRecentRepository();
+        } catch (Exception e) {
+            appController.showNotification("Failed to load recent repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+        }
+
         setActions();
     }
 

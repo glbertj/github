@@ -9,7 +9,7 @@ public class Repository {
     private final String name;
     private String latestCommitId;
     private final UUID ownerId;
-    private final Path path;
+    private Path path;
 
     private static final ObservableList<Repository> repositories = FXCollections.observableArrayList();
 
@@ -66,5 +66,9 @@ public class Repository {
 
     public static void removeRepository(Repository repository) {
         repositories.remove(repository);
+    }
+
+    public void setPath(Path path) {
+        this.path = path;
     }
 }

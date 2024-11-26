@@ -49,6 +49,30 @@ public class RepositoryRepository {
         return null;
     }
 
+    public static Repository loadRepository(String name) throws SQLException {
+        if (UserSingleton.getCurrentUser() == null) {
+            return null;
+        }
+
+        String query = "SELECT head_commit_id FROM repositories WHERE owner_id = ? AND name = ?";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, UserSingleton.getCurrentUser().getId().toString());
+            stmt.setString(2, name);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String headCommitId = rs.getString("head_commit_id");
+                return new Repository(name, headCommitId, UserSingleton.getCurrentUser().getId());
+            }
+        } catch (SQLException e) {
+            throw new SQLException();
+        }
+
+        return null;
+    }
+
     public static List<Repository> loadAllUserRepositories() throws SQLException {
         if (UserSingleton.getCurrentUser() == null) {
             return new ArrayList<>();

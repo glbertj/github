@@ -33,6 +33,9 @@ public class Index {
     }
 
     public void loadFromIndexFile(Repository repository) throws IOException {
+        if (repository == null) {
+            return;
+        }
         Path indexPath = repository.getIndexPath();
 
         if (Files.exists(indexPath)) {

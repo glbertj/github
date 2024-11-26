@@ -41,6 +41,10 @@ public class VersionControl {
     }
 
     private void loadCurrentCommit() throws SQLException {
+        if (repository == null) {
+            return;
+        }
+
         String headCommitId = repository.getLatestCommitId();
         if (headCommitId != null) {
             this.currentCommit = CommitRepository.load(headCommitId, repository);

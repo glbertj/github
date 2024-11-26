@@ -31,6 +31,7 @@ public class RepositoryManager {
         if (!versionControlMap.containsKey(repository)) {
             VersionControl versionControl = new VersionControl(repository);
 
+            if (repository == null) return;
             Path headFilePath = repository.getGitPath().resolve("refs").resolve("heads").resolve("master");
             if (Files.exists(headFilePath)) {
                 try {

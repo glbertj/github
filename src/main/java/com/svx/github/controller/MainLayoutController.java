@@ -56,13 +56,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getLogoutMenu().setOnAction(e -> {
             if (RepositoryManager.getCurrentRepository() != null) {
                 try {
+                    appController.logout();
                     RepositoryManager.setCurrentRepository(null);
                 } catch (IOException | SQLException ex) {
                     appController.showNotification("Failed to logout.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
                 }
 
             }
-            appController.logout();
         });
         view.getExitMenu().setOnAction(e -> appController.exitApp());
 

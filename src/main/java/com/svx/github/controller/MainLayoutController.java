@@ -54,9 +54,9 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getAddRepositoryMenu().setOnAction(e -> appController.openDialog(new AddRepositoryDialogController(appController)));
         view.getCloneRepositoryMenu().setOnAction(e -> appController.openDialog(new CloneRepositoryDialogController(appController)));
         view.getLogoutMenu().setOnAction(e -> {
+            appController.logout();
             if (RepositoryManager.getCurrentRepository() != null) {
                 try {
-                    appController.logout();
                     RepositoryManager.setCurrentRepository(null);
                 } catch (IOException | SQLException ex) {
                     appController.showNotification("Failed to logout.", NotificationBox.NotificationType.ERROR, "fas-times-circle");

@@ -140,6 +140,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         if (!changedFileList.isEmpty()) {
             Node button = changedFileList.get(0);
             button.fireEvent(mouseClickEvent);
+        } else {
+            view.getTextArea().clear();
         }
     }
 

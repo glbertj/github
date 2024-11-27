@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class RepositoryManager {
     private static final ObjectProperty<Repository> currentRepository = new SimpleObjectProperty<>();
@@ -70,7 +71,6 @@ public class RepositoryManager {
 
     public static void loadRecentRepository() throws Exception {
         if (!Files.exists(RECENT_REPOSITORY_FILE)) {
-            System.out.println("No recent repositories found.");
             return;
         }
 
@@ -83,10 +83,12 @@ public class RepositoryManager {
                 String name = parts[0];
                 String ownerId = parts[1];
                 Path path = Paths.get(parts[2]);
+                String latestCommitId = GitUtility.getLatestCommitIdFromHead(path);
 
                 if (GitUtility.hasRepository(path)) {
-                    Repository repo = RepositoryRepository.loadRepository(name);
-                    if (repo != null) {
+                    Repository repo = new Repository(name, latestCommitId, UUID.fromString(ownerId), path);
+                    if (String.valueOf(UserSingleton.getCurrentUser().getId()).equals(ownerId)) {
+                        System.out.println("new repo: " + repo.getName());
                         repo.setPath(path);
                         Repository.addRepository(repo);
                     }

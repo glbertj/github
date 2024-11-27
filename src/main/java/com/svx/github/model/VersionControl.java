@@ -11,10 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class VersionControl {
     private final Repository repository;
@@ -51,9 +48,9 @@ public class VersionControl {
         }
     }
 
-    public void commitChanges(String message) throws IOException {
+    public boolean commitChanges(String message) throws IOException {
         if (index.getStagedFiles().isEmpty()) {
-            return;
+            return false;
         }
 
         Tree newTree = new Tree(index.getStagedFiles());
@@ -67,6 +64,7 @@ public class VersionControl {
         repository.setLatestCommitId(newCommit.getId());
 
         index.clear();
+        return true;
     }
 
     private void updateHeadFile(String commitId) throws IOException {
@@ -129,6 +127,7 @@ public class VersionControl {
         }
 
         Path objectsPath = repository.getObjectsPath();
+        Set<String> pulledFiles = new HashSet<>();
 
         Commit commitToPull = CommitRepository.load(latestDatabaseCommitId, repository);
         while (commitToPull != null) {
@@ -138,17 +137,30 @@ public class VersionControl {
             if (treeToPull != null) {
                 treeToPull.saveToDisk(objectsPath);
 
-                for (String blobId : treeToPull.getEntries().values()) {
+                for (Map.Entry<String, String> entry : treeToPull.getEntries().entrySet()) {
+                    String blobId = entry.getValue();
+                    String filePath = entry.getKey();
+
+                    if (pulledFiles.contains(filePath)) {
+                        continue;
+                    }
+
                     if (!Files.exists(objectsPath.resolve(blobId.substring(0, 2)).resolve(blobId.substring(2)))) {
                         Blob blobToPull = BlobRepository.load(blobId, repository);
                         if (blobToPull != null) {
                             FileUtility.saveToDisk(blobToPull.getId(), blobToPull.getContent(), objectsPath);
                         }
                     }
+
+                    Path workingFilePath = repository.getPath().resolve(filePath);
+                    if (!Files.exists(workingFilePath)) {
+                        Files.createDirectories(workingFilePath.getParent());
+                        Files.writeString(workingFilePath, BlobRepository.load(blobId, repository).getContent());
+                    }
+
+                    pulledFiles.add(filePath);
                 }
             }
-
-            restoreFilesFromCommit(commitToPull, repository);
 
             String parentId = commitToPull.getParentId();
             commitToPull = (parentId != null) ? CommitRepository.load(parentId, repository) : null;
@@ -160,6 +172,14 @@ public class VersionControl {
 
         repository.setLatestCommitId(latestDatabaseCommitId);
         RepositoryManager.setCurrentRepository(repository);
+
+        Commit latestCommit = CommitRepository.load(latestDatabaseCommitId, repository);
+        if (latestCommit != null) {
+            VersionControl versionControl = RepositoryManager.getVersionControl();
+            if (versionControl != null) {
+                versionControl.setCurrentCommit(latestCommit);
+            }
+        }
     }
 
     private void restoreFilesFromCommit(Commit commit, Repository repository) throws IOException {

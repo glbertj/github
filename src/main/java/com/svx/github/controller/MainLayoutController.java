@@ -305,8 +305,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
-        String latestDatabaseCommitId = null;
-        Commit latestDatabaseCommit = null;
+        String latestDatabaseCommitId;
+        Commit latestDatabaseCommit;
         try {
             latestDatabaseCommitId = RepositoryRepository.getLatestCommitId(currentRepo);
             latestDatabaseCommit = latestDatabaseCommitId != null
@@ -343,7 +343,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                     appController.showNotification("Failed to pull changes from the database.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
                 }
                 updateMultiFunctionButton();
-                appController.showNotification("Changes pushed successfully.", NotificationBox.NotificationType.SUCCESS, "fas-arrow-down");
+                appController.showNotification("Changes pulled successfully.", NotificationBox.NotificationType.SUCCESS, "fas-arrow-down");
             });
         } else {
             appController.showNotification("You are up to date with the upstream branch.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
@@ -362,15 +362,20 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         VersionControl versionControl = RepositoryManager.getVersionControl();
         try {
-            versionControl.commitChanges(commitMessage);
-            view.getCommitSummaryTextField().clear();
-            view.getCommitDescriptionTextArea().clear();
+            if (!versionControl.commitChanges(commitMessage)) {
+                appController.showNotification("No changes to commit.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
+                return;
+            }
         } catch (IOException e) {
             appController.showNotification("Failed to commit changes.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
             return;
         }
 
+        appController.showNotification("Changes committed successfully.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
         view.getChangesLabel().setText("0 files changed");
+        view.getCommitSummaryTextField().clear();
+        view.getCommitDescriptionTextArea().clear();
+        view.getTextArea().clear();
         updateChangedFilesList();
         updateHistoryTab();
     }

@@ -145,6 +145,8 @@ public class GameView extends View<BorderPane> {
             }
 
             selectedTile = targetTile;
+            selectedTile.getStyleClass().add("recent");
+
             showValidMoves(selectedTile);
             return;
         }
@@ -153,6 +155,10 @@ public class GameView extends View<BorderPane> {
 
         // Selected a valid move
         if (!targetTile.getChildren().isEmpty() && targetTile.getChildren().get(0) instanceof Circle validMoveCircle && validMoveCircle.isVisible()) {
+            clearHighlightedTiles();
+            selectedTile.getStyleClass().add("recent");
+            targetTile.getStyleClass().add("recent"); // TODO! FIX LATER - Try moving the same piece thrice or move twice + one other piece
+
             targetTile.getChildren().add(selectedPiece.getImageView());
             targetTile.setUserData(selectedPiece);
             selectedTile.setUserData(null);
@@ -162,6 +168,7 @@ public class GameView extends View<BorderPane> {
 
         // Selected current piece
         else if (selectedTile == targetTile) {
+            selectedTile.getStyleClass().remove("recent");
             hideValidMoves();
             selectedTile = null;
         }
@@ -169,15 +176,12 @@ public class GameView extends View<BorderPane> {
         // Selected a friendly piece
         else if (targetTile.getUserData() != null && targetTile.getUserData() instanceof ChessPiece piece) {
             if (piece.getColor() == selectedPiece.getColor()) {
+                selectedTile.getStyleClass().remove("recent");
                 selectedTile = targetTile;
+                selectedTile.getStyleClass().add("recent");
                 hideValidMoves();
                 showValidMoves(selectedTile);
             }
-        }
-
-        // Selected an enemy piece
-        else {
-            System.out.println("Enemy");
         }
     }
 
@@ -215,6 +219,14 @@ public class GameView extends View<BorderPane> {
         }
     }
 
+    private void clearHighlightedTiles() {
+        for (Node node : chessBoard.getChildren()) {
+            if (node instanceof StackPane tile) {
+                tile.getStyleClass().remove("recent");
+            }
+        }
+    }
+
     // Right Section
     private VBox createRightSection() {
         Label opponentName = new Label("Opponent");
@@ -241,19 +253,8 @@ public class GameView extends View<BorderPane> {
         return (StackPane) chessBoard.getChildren().get(index);
     }
 
-    public GridPane getChessBoard() {
-        return chessBoard;
-    }
-
-    public Label getOnlineStatus() {
-        return onlineStatus;
-    }
-
-    public HBox getOpponentCapturedPieces() {
-        return opponentCapturedPieces;
-    }
-
-    public HBox getPlayerCapturedPieces() {
-        return playerCapturedPieces;
-    }
+    public GridPane getChessBoard() { return chessBoard; }
+    public Label getOnlineStatus() { return onlineStatus; }
+    public HBox getOpponentCapturedPieces() { return opponentCapturedPieces; }
+    public HBox getPlayerCapturedPieces() { return playerCapturedPieces; }
 }

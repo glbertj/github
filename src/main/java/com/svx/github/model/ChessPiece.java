@@ -17,6 +17,7 @@ public class ChessPiece {
         String path = "/com/svx/github/chess/" + color.toString().toLowerCase() + "_" + type.toString().toLowerCase() + ".png";
         Image image = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
         this.imageView = new ImageView(image);
+        this.imageView.getStyleClass().add("chess-piece");
     }
 
     public enum PieceType {

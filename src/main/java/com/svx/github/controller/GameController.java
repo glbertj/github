@@ -1,8 +1,15 @@
 package com.svx.github.controller;
 
-public class GameController {
+import com.svx.github.view.GameView;
 
-    public void startGame() {
+public class GameController extends Controller<GameView> {
+
+    public GameController(AppController appController) {
+        super(new GameView(), appController);
+    }
+
+    @Override
+    protected void setActions() {
 
     }
 }

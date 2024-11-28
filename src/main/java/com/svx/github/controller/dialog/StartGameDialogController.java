@@ -1,6 +1,7 @@
 package com.svx.github.controller.dialog;
 
 import com.svx.github.controller.AppController;
+import com.svx.github.controller.GameController;
 import com.svx.github.view.dialog.StartGameDialogView;
 
 public class StartGameDialogController extends DialogController<StartGameDialogView> {
@@ -21,7 +22,7 @@ public class StartGameDialogController extends DialogController<StartGameDialogV
 
         view.getConfirmButton().setOnAction(e -> {
             appController.logout();
-            appController.startGame();
+            appController.navigatePage(new GameController(appController));
             hideDialog();
         });
     }

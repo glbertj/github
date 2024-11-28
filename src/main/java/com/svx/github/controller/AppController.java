@@ -24,11 +24,9 @@ import java.util.Objects;
 public class AppController {
     private final Stage primaryStage;
     private final StackPane rootPane;
-    Scene appScene;
+    private final Scene appScene;
     private final NotificationBox notificationBox;
     private final Pane darkenOverlay;
-
-    private final GameController gameController;
 
     public AppController(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -51,27 +49,23 @@ public class AppController {
         StackPane.setAlignment(notificationBox, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(notificationBox, new Insets(0, 20, 20, 0));
 
-        gameController = new GameController();
-
         ConnectionManager.setAppController(this);
     }
 
     public void startApp() {
         this.primaryStage.setScene(appScene);
-        User currentUser = SessionManager.validateSession();
-        if (currentUser != null) {
-            UserSingleton.setCurrentUser(currentUser);
-            navigatePage(new MainLayoutController(this));
-            showNotification("Valid session found!", NotificationBox.NotificationType.SUCCESS, "fas-sign-in-alt");
-        } else {
-            navigatePage(new LoginController(this));
-        }
+//        User currentUser = SessionManager.validateSession();
+//        if (currentUser != null) {
+//            UserSingleton.setCurrentUser(currentUser);
+//            navigatePage(new MainLayoutController(this));
+//            showNotification("Valid session found!", NotificationBox.NotificationType.SUCCESS, "fas-sign-in-alt");
+//        } else {
+//            navigatePage(new LoginController(this));
+//        }
+
+        navigatePage(new GameController(this));
 
         primaryStage.show();
-    }
-
-    public void startGame() {
-        gameController.startGame();
     }
 
     public <T extends Parent> void navigatePage(Controller<? extends View<T>> controller) {
@@ -136,6 +130,4 @@ public class AppController {
     public ReadOnlyBooleanProperty getFocusedProperty() {
         return primaryStage.focusedProperty();
     }
-
-    public GameController getGameController() { return gameController; }
 }

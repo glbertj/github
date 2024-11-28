@@ -24,6 +24,11 @@ public class ConnectionManager {
         }
     }
 
+    public static boolean isOnline() {
+        // IMPLEMENT
+        return true;
+    }
+
     public static void setAppController(AppController appController) {
         ConnectionManager.appController = appController;
     }

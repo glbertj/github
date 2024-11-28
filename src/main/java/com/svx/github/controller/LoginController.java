@@ -35,8 +35,10 @@ public class LoginController extends Controller<LoginView> {
         try {
             authenticatedUser = username.contains("@") ? UserRepository.getByEmail(username) : UserRepository.getByUsername(username);
         } catch (SQLException e) {
-            appController.showNotification("An error occurred while trying to log in.", NotificationBox.NotificationType.ERROR, "fas-lock");
+            appController.showNotification("You seem to be offline.", NotificationBox.NotificationType.ERROR, "fas-lock");
+            return;
         }
+
         if (authenticatedUser != null && CryptoUtility.verifyPassword(password, authenticatedUser.getPassword())) {
             SessionManager.createSession(authenticatedUser);
             UserSingleton.setCurrentUser(authenticatedUser);

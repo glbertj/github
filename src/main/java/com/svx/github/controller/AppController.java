@@ -1,6 +1,7 @@
 package com.svx.github.controller;
 
 import com.svx.github.controller.dialog.DialogController;
+import com.svx.github.manager.ConnectionManager;
 import com.svx.github.manager.SessionManager;
 import com.svx.github.model.NotificationBox;
 import com.svx.github.model.User;
@@ -23,16 +24,18 @@ import java.util.Objects;
 public class AppController {
     private final Stage primaryStage;
     private final StackPane rootPane;
+    Scene appScene;
     private final NotificationBox notificationBox;
     private final Pane darkenOverlay;
+
+    private final GameController gameController;
 
     public AppController(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
         rootPane = new StackPane();
         rootPane.getStyleClass().add("root-pane");
-        Scene primaryScene = new Scene(rootPane, 1000, 700);
-        this.primaryStage.setScene(primaryScene);
+        appScene = new Scene(rootPane, 1000, 700);
         this.primaryStage.setTitle("GiThub");
         this.primaryStage.setMinWidth(1000);
         this.primaryStage.setMinHeight(700);
@@ -47,9 +50,14 @@ public class AppController {
         rootPane.getChildren().addAll(notificationBox);
         StackPane.setAlignment(notificationBox, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(notificationBox, new Insets(0, 20, 20, 0));
+
+        gameController = new GameController();
+
+        ConnectionManager.setAppController(this);
     }
 
     public void startApp() {
+        this.primaryStage.setScene(appScene);
         User currentUser = SessionManager.validateSession();
         if (currentUser != null) {
             UserSingleton.setCurrentUser(currentUser);
@@ -60,6 +68,10 @@ public class AppController {
         }
 
         primaryStage.show();
+    }
+
+    public void startGame() {
+        gameController.startGame();
     }
 
     public <T extends Parent> void navigatePage(Controller<? extends View<T>> controller) {
@@ -109,7 +121,6 @@ public class AppController {
         navigatePage(new LoginController(this));
         SessionManager.removeSession();
         UserSingleton.clearCurrentUser();
-        showNotification("Logged out.", NotificationBox.NotificationType.SUCCESS, "fas-sign-out-alt");
     }
 
     public void exitApp() {
@@ -125,4 +136,6 @@ public class AppController {
     public ReadOnlyBooleanProperty getFocusedProperty() {
         return primaryStage.focusedProperty();
     }
+
+    public GameController getGameController() { return gameController; }
 }

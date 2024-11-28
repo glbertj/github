@@ -88,7 +88,6 @@ public class RepositoryManager {
                 if (GitUtility.hasRepository(path)) {
                     Repository repo = new Repository(name, latestCommitId, UUID.fromString(ownerId), path);
                     if (String.valueOf(UserSingleton.getCurrentUser().getId()).equals(ownerId)) {
-                        System.out.println("new repo: " + repo.getName());
                         repo.setPath(path);
                         Repository.addRepository(repo);
                     }

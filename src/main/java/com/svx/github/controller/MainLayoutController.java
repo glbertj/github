@@ -58,6 +58,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getCloneRepositoryMenu().setOnAction(e -> appController.openDialog(new CloneRepositoryDialogController(appController)));
         view.getLogoutMenu().setOnAction(e -> {
             appController.logout();
+            appController.showNotification("Logged out.", NotificationBox.NotificationType.SUCCESS, "fas-sign-out-alt");
             if (RepositoryManager.getCurrentRepository() != null) {
                 try {
                     RepositoryManager.setCurrentRepository(null);

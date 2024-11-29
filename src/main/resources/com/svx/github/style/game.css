@@ -2,13 +2,21 @@
     -fx-padding: 80;
 }
 
-.chess-board {
-
-}
-
 .tile {
     -fx-background-radius: 0;
-    -fx-alignment: center;;
+    -fx-alignment: center;
+}
+
+.tile .valid-move-circle {
+    -fx-background-color: black;
+    -fx-opacity: 0.3;
+}
+
+.tile .enemy-circle {
+    -fx-background-color: transparent;
+    -fx-opacity: 0.3;
+    -fx-border-color: black;
+    -fx-border-width: 10;
 }
 
 .green {

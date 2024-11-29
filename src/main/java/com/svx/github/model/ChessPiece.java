@@ -1,16 +1,22 @@
 package com.svx.github.model;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
 import java.util.Objects;
 
-public class ChessPiece {
+public class ChessPiece implements Observable {
+    private final ObjectProperty<ChessPiece> pieceProperty;
+
     private final PieceType type;
     private final PieceColor color;
     private final ImageView imageView;
 
     public ChessPiece(PieceType type, PieceColor color) {
+        this.pieceProperty = new SimpleObjectProperty<>(this);
         this.type = type;
         this.color = color;
 
@@ -18,6 +24,16 @@ public class ChessPiece {
         Image image = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
         this.imageView = new ImageView(image);
         this.imageView.getStyleClass().add("chess-piece");
+    }
+
+    @Override
+    public void addListener(InvalidationListener invalidationListener) {
+        pieceProperty.addListener(invalidationListener);
+    }
+
+    @Override
+    public void removeListener(InvalidationListener invalidationListener) {
+        pieceProperty.removeListener(invalidationListener);
     }
 
     public enum PieceType {

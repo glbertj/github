@@ -11,7 +11,7 @@ public class ChessTile extends StackPane {
     private final int row;
     private final int col;
     private final SimpleBooleanProperty isValidMove;
-    private final SimpleBooleanProperty isEnemy;
+    private final SimpleBooleanProperty isEatable;
     private final SimpleBooleanProperty isRecentMove;
 
     public ChessTile(int row, int col) {
@@ -19,7 +19,7 @@ public class ChessTile extends StackPane {
         this.row = row;
         this.col = col;
         isValidMove = new SimpleBooleanProperty(false);
-        isEnemy = new SimpleBooleanProperty(false);
+        isEatable = new SimpleBooleanProperty(false);
         isRecentMove = new SimpleBooleanProperty(false);
 
         getStyleClass().add("tile");
@@ -33,12 +33,13 @@ public class ChessTile extends StackPane {
         getChildren().add(validMoveCircle);
         validMoveCircle.visibleProperty().bind(isValidMove);
 
-        // Enemy indicator
-        Circle enemyCircle = new Circle(10);
+        // Enemy indicator (Ring)
+        Circle enemyCircle = new Circle();
+        enemyCircle.setRadius(30.0);
         enemyCircle.getStyleClass().add("enemy-circle");
-        enemyCircle.setVisible(true);
+        enemyCircle.setVisible(false);
         getChildren().add(enemyCircle);
-        enemyCircle.visibleProperty().bind(isEnemy);
+        enemyCircle.visibleProperty().bind(isEatable);
 
         // Recent move indicator
         isRecentMove.addListener((observable, oldValue, newValue) -> {
@@ -53,20 +54,33 @@ public class ChessTile extends StackPane {
         pieceProperty.addListener((observable) -> {
             ChessPiece newPiece = pieceProperty.get();
             if (newPiece != null) {
-                getChildren().add(newPiece.getImageView());
-            } else {
-                if (getChildren().get(2) != null) {
+                if (getChildren().size() == 3) {
                     getChildren().remove(2);
                 }
+                getChildren().add(newPiece.getImageView());
             }
         });
+
+        // Resizes
+//        widthProperty().addListener((observable, oldValue, newValue) -> {
+//            double size = Math.min(getWidth(), getHeight());
+//            enemyCircle.setRadius(size / 2);
+//
+//            if (pieceProperty.get() != null) {
+//                pieceProperty.get().getImageView().setFitWidth(size);
+//                pieceProperty.get().getImageView().setFitHeight(size);
+//            }
+//        });
     }
 
     public int getRow() { return row; }
     public int getCol() { return col; }
     public ChessPiece getPiece() { return pieceProperty.get(); }
     public void setPiece(ChessPiece piece) { pieceProperty.set(piece); }
+    public boolean isValidMove() { return isValidMove.get(); }
     public void setIsValidMove(boolean isValidMove) { this.isValidMove.set(isValidMove); }
-    public void setIsEnemy(boolean isEnemy) { this.isEnemy.set(isEnemy); }
+    public boolean isEatable() { return isEatable.get(); }
+    public void setIsEatable(boolean isEatable) { this.isEatable.set(isEatable); }
+    public boolean isRecentMove() { return isRecentMove.get(); }
     public void setIsRecentMove(boolean isRecentMove) { this.isRecentMove.set(isRecentMove); }
 }

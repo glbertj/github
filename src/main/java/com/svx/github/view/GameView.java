@@ -1,13 +1,13 @@
 package com.svx.github.view;
 
 import com.svx.github.model.ChessPiece;
+import com.svx.github.model.ChessTile;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,7 +15,7 @@ import java.util.Objects;
 public class GameView extends View<BorderPane> {
     // Left
     private GridPane chessBoard;
-    private StackPane selectedTile;
+    private ChessTile selectedTile;
 
     // Right
     private Label onlineStatus;
@@ -90,19 +90,8 @@ public class GameView extends View<BorderPane> {
     }
 
     private StackPane createTile(int row, int col) {
-        StackPane tile = new StackPane();
-        tile.getStyleClass().add("tile");
-        String tileClass = (row + col) % 2 == 0 ? "green" : "white";
-        tile.getStyleClass().add(tileClass);
-
-        Circle validMoveCircle = new Circle(10);
-        validMoveCircle.setFill(Color.BLACK);
-        validMoveCircle.setOpacity(0.3);
-        validMoveCircle.setVisible(false);
-        tile.getChildren().add(validMoveCircle);
-
+        ChessTile tile = new ChessTile(row, col);
         tile.setOnMouseClicked(e -> onTileClick(tile));
-
         return tile;
     }
 
@@ -123,128 +112,114 @@ public class GameView extends View<BorderPane> {
     private void addPawnsToRow(int row, ChessPiece.PieceColor color) {
         for (int col = 0; col < 8; col++) {
             ChessPiece pawn = new ChessPiece(ChessPiece.PieceType.PAWN, color);
-            StackPane pawnTile = getTileAt(row, col);
-            pawnTile.getChildren().add(pawn.getImageView());
-            pawnTile.setUserData(pawn);
+            ChessTile pawnTile = getTileAt(row, col);
+            pawnTile.setPiece(pawn);
         }
     }
 
     private void addPiecesToRow(int row, ChessPiece.PieceColor color, ChessPiece.PieceType[] pieceTypes) {
         for (int col = 0; col < 8; col++) {
             ChessPiece piece = new ChessPiece(pieceTypes[col], color);
-            StackPane tile = getTileAt(row, col);
-            tile.setUserData(piece);
-            tile.getChildren().add(piece.getImageView());
+            ChessTile tile = getTileAt(row, col);
+            tile.setPiece(piece);
         }
     }
 
-    private void onTileClick(StackPane targetTile) {
+    private void onTileClick(ChessTile targetTile) {
         // No piece selected
         if (selectedTile == null) {
-            if (targetTile.getUserData() == null) {
+            if (targetTile.getPiece() == null) {
                 return;
             }
 
             selectedTile = targetTile;
-            selectedTile.getStyleClass().add("recent");
+            selectedTile.setIsRecentMove(true);
 
             showValidMoves(selectedTile);
             return;
         }
 
-        ChessPiece selectedPiece = (ChessPiece) selectedTile.getUserData();
-
+        ChessPiece selectedPiece = selectedTile.getPiece();
         // Selected a valid move
-        if (!targetTile.getChildren().isEmpty() && (
-                targetTile.getChildren().getFirst() instanceof Circle validMoveCircle && validMoveCircle.isVisible()
-                )) {
+        if (targetTile.isValidMove()) {
             clearHighlightedTiles();
-            selectedTile.getStyleClass().add("recent");
-            targetTile.getStyleClass().add("recent"); // TODO! FIX LATER - Try moving the same piece thrice or move twice + one other piece
+            selectedTile.setIsRecentMove(true);
+            targetTile.setIsRecentMove(true);
 
-            targetTile.getChildren().add(selectedPiece.getImageView());
-            targetTile.setUserData(selectedPiece);
-            selectedTile.setUserData(null);
+            targetTile.setPiece(selectedPiece);
+            selectedTile.setPiece(null);
             selectedTile = null;
             hideValidMoves();
-
-//            if (true) {
-//                // Friendly Piece
-//                if (piece.getColor() == selectedPiece.getColor()) {
-//                    selectedTile.getStyleClass().remove("recent");
-//                    selectedTile = targetTile;
-//                    selectedTile.getStyleClass().add("recent");
-//                    hideValidMoves();
-//                    showValidMoves(selectedTile);
-//                }
-//
-//                // Opposing Piece
-//                else {
-//                    if (piece.getColor().equals(ChessPiece.PieceColor.BLACK)) {
-//                        capturedBlackPiece.add(piece);
-//                    } else {
-//                        capturedWhitePiece.add(piece);
-//                    }
-//
-//                    targetTile.setUserData(selectedPiece);
-//
-//                }
-//            }
         }
 
         // Selected current piece
         else if (selectedTile == targetTile) {
-            selectedTile.getStyleClass().remove("recent");
+            selectedTile.setIsRecentMove(false);
             hideValidMoves();
             selectedTile = null;
         }
+
+        // Selected opposing piece
+        else if (targetTile.isEatable()) {
+            if (targetTile.getPiece().getColor() == ChessPiece.PieceColor.WHITE) {
+                capturedWhitePiece.add(targetTile.getPiece());
+            } else {
+                capturedBlackPiece.add(targetTile.getPiece());
+            }
+
+            targetTile.setPiece(selectedPiece);
+            selectedTile.setPiece(null);
+            selectedTile = null;
+            hideValidMoves();
+        }
+
+        // Selected friendly piece
+        else if (targetTile.getPiece() != null && targetTile.getPiece().getColor() == selectedPiece.getColor()) {
+            hideValidMoves();
+            selectedTile.setIsRecentMove(false);
+            selectedTile = targetTile;
+            selectedTile.setIsRecentMove(true);
+            showValidMoves(selectedTile);
+        }
     }
 
-    private void showValidMoves(StackPane currentTile) {
+    private void showValidMoves(ChessTile currentTile) {
         int currentRow = GridPane.getRowIndex(currentTile);
         int currentCol = GridPane.getColumnIndex(currentTile);
 
-        ChessPiece selectedPiece = (ChessPiece) currentTile.getUserData();
+        ChessPiece selectedPiece = currentTile.getPiece();
         int[] validMoves = getValidMoves(selectedPiece, currentRow, currentCol);
 
-        // Loop through the valid moves and show the valid move circles
         for (int move : validMoves) {
-            int targetRow = move / 8; // Get the row from the valid move (assuming 8x8 board)
-            int targetCol = move % 8; // Get the column from the valid move
+            int targetRow = move / 8;
+            int targetCol = move % 8;
 
-            // Get the target tile based on row and column
-            StackPane targetTile = getTileAt(targetRow, targetCol);
+            ChessTile targetTile = getTileAt(targetRow, targetCol);
+            if (targetTile == null) return;
+            targetTile.setIsValidMove(true);
 
-            // Check if there's a piece already on the target tile
-            if (targetTile.getUserData() != null && targetTile.getUserData() instanceof ChessPiece piece) {
-                if (piece.getColor() == selectedPiece.getColor()) {
-                    continue; // Skip if the piece on the tile is the same color
+            if (targetTile.getPiece() != null) {
+                if (!(targetTile.getPiece().getColor() == selectedPiece.getColor())) {
+                    targetTile.setIsEatable(true);
+                    targetTile.setIsValidMove(false);
                 }
             }
-
-            // Add the valid move circle (or make it visible if already added)
-            Circle validMoveCircle = (Circle) targetTile.getChildren().getFirst(); // Assumes the circle is the first child
-            validMoveCircle.setVisible(true); // Show the valid move circle
         }
     }
 
     private void hideValidMoves() {
         for (Node node : chessBoard.getChildren()) {
-            if (node instanceof StackPane tile) {
-                if (!tile.getChildren().isEmpty()) {
-                    Node firstChild = tile.getChildren().getFirst();
-                    if (firstChild instanceof Circle validMoveCircle) {
-                        validMoveCircle.setVisible(false);
-                    }
-                }
+            if (node instanceof ChessTile tile) {
+                tile.setIsValidMove(false);
+                tile.setIsEatable(false);
             }
         }
     }
 
     private void clearHighlightedTiles() {
         for (Node node : chessBoard.getChildren()) {
-            if (node instanceof StackPane tile) {
-                tile.getStyleClass().remove("recent");
+            if (node instanceof ChessTile tile) {
+                tile.setIsRecentMove(false);
             }
         }
     }
@@ -267,76 +242,68 @@ public class GameView extends View<BorderPane> {
         return new VBox(topSection, bottomSection);
     }
 
-    // TODO! PLS MOVE THIS SOMEWHERE ELSE LATER BUT I JUST WANNA FINISH THIS STUPID SHIT
+    // TODO! PLS MOVE THIS SOMEWHERE ELSE LATER
     public int[] getValidMoves(ChessPiece chessPiece, int currentRow, int currentCol) {
         List<Integer> validMoves = new ArrayList<>();
 
+        ChessTile currentTile = getTileAt(currentRow, currentCol);  // Get ChessTile
         switch (chessPiece.getType()) {
             case PAWN:
-                validMoves.addAll(getPawnMoves(currentRow, currentCol));
+                validMoves.addAll(getPawnMoves(currentTile, currentRow, currentCol));
                 break;
             case ROOK:
-                validMoves.addAll(getRookMoves(currentRow, currentCol));
+                validMoves.addAll(getRookMoves(currentTile, currentRow, currentCol));
                 break;
             case KNIGHT:
-                validMoves.addAll(getKnightMoves(currentRow, currentCol));
+                validMoves.addAll(getKnightMoves(currentTile, currentRow, currentCol));
                 break;
             case BISHOP:
-                validMoves.addAll(getBishopMoves(currentRow, currentCol));
+                validMoves.addAll(getBishopMoves(currentTile, currentRow, currentCol));
                 break;
             case QUEEN:
-                validMoves.addAll(getQueenMoves(currentRow, currentCol));
+                validMoves.addAll(getQueenMoves(currentTile, currentRow, currentCol));
                 break;
             case KING:
-                validMoves.addAll(getKingMoves(currentRow, currentCol));
+                validMoves.addAll(getKingMoves(currentTile, currentRow, currentCol));
                 break;
         }
 
         return validMoves.stream().mapToInt(i -> i).toArray();
     }
 
-    private List<Integer> getPawnMoves(int currentRow, int currentCol) {
+    private List<Integer> getPawnMoves(ChessTile currentTile, int currentRow, int currentCol) {
         List<Integer> moves = new ArrayList<>();
-        ChessPiece currentPiece = (ChessPiece) getTileAt(currentRow, currentCol).getUserData();
+        ChessPiece currentPiece = currentTile.getPiece();
         int direction = (currentPiece.getColor() == ChessPiece.PieceColor.BLACK) ? 1 : -1;  // White moves up, black moves down
 
         // Forward move (one square)
-        if (isValidMove(currentRow + direction, currentCol)) {
-            StackPane targetTile = getTileAt(currentRow + direction, currentCol);
-            ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
-            if (pieceOnTarget == null) {
-                moves.add((currentRow + direction) * 8 + currentCol);  // Empty space, can move
-            }
+        ChessTile targetTile = getTileAt(currentRow + direction, currentCol);
+        if (targetTile != null && targetTile.getPiece() == null) {
+            moves.add((currentRow + direction) * 8 + currentCol);  // Empty space, can move
         }
 
         // Forward move (two squares, only on first move)
         if ((currentPiece.getColor() == ChessPiece.PieceColor.BLACK && currentRow == 1) || (currentPiece.getColor() == ChessPiece.PieceColor.WHITE && currentRow == 6)) {
-            if (isValidMove(currentRow + 2 * direction, currentCol)) {
-                StackPane targetTile1 = getTileAt(currentRow + direction, currentCol);
-                StackPane targetTile2 = getTileAt(currentRow + 2 * direction, currentCol);
-
-                ChessPiece pieceOnTarget1 = (ChessPiece) targetTile1.getUserData();
-                ChessPiece pieceOnTarget2 = (ChessPiece) targetTile2.getUserData();
-
-                if (pieceOnTarget1 == null && pieceOnTarget2 == null) {
-                    moves.add((currentRow + 2 * direction) * 8 + currentCol);  // Both squares empty, can move two squares
-                }
+            ChessTile targetTile1 = getTileAt(currentRow + direction, currentCol);
+            ChessTile targetTile2 = getTileAt(currentRow + 2 * direction, currentCol);
+            if (targetTile1 != null && targetTile2 != null && targetTile1.getPiece() == null && targetTile2.getPiece() == null) {
+                moves.add((currentRow + 2 * direction) * 8 + currentCol);  // Both squares empty, can move two squares
             }
         }
 
         // Diagonal capture (left)
         if (isValidMove(currentRow + direction, currentCol - 1)) {
-            StackPane targetTile = getTileAt(currentRow + direction, currentCol - 1);
-            ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
+            targetTile = getTileAt(currentRow + direction, currentCol - 1);
+            ChessPiece pieceOnTarget = targetTile != null ? targetTile.getPiece() : null;
             if (pieceOnTarget != null && pieceOnTarget.getColor() != currentPiece.getColor()) {
-                moves.add((currentRow + direction) * 8 + (currentCol - 1));  // Capture opponent's piece
+                moves.add((currentRow + direction) * 8 + (currentCol - 1));
             }
         }
 
         // Diagonal capture (right)
         if (isValidMove(currentRow + direction, currentCol + 1)) {
-            StackPane targetTile = getTileAt(currentRow + direction, currentCol + 1);
-            ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
+            targetTile = getTileAt(currentRow + direction, currentCol + 1);
+            ChessPiece pieceOnTarget = targetTile != null ? targetTile.getPiece() : null;
             if (pieceOnTarget != null && pieceOnTarget.getColor() != currentPiece.getColor()) {
                 moves.add((currentRow + direction) * 8 + (currentCol + 1));  // Capture opponent's piece
             }
@@ -345,18 +312,17 @@ public class GameView extends View<BorderPane> {
         return moves;
     }
 
-    private List<Integer> getRookMoves(int currentRow, int currentCol) {
+    private List<Integer> getRookMoves(ChessTile currentTile, int currentRow, int currentCol) {
         List<Integer> moves = new ArrayList<>();
 
         // Horizontal moves (left and right)
         for (int i = 1; i <= 7; i++) {
-            if (isValidMove(currentRow, currentCol + i)) {
-                StackPane targetTile = getTileAt(currentRow, currentCol + i);
-                ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
-
+            ChessTile targetTile = getTileAt(currentRow, currentCol + i);
+            if (targetTile != null) {
+                ChessPiece pieceOnTarget = targetTile.getPiece();
                 if (pieceOnTarget == null) {
                     moves.add(currentRow * 8 + (currentCol + i));  // No piece blocking, add move
-                } else if (pieceOnTarget.getColor() != ((ChessPiece) getTileAt(currentRow, currentCol).getUserData()).getColor()) {
+                } else if (pieceOnTarget.getColor() != currentTile.getPiece().getColor()) {
                     moves.add(currentRow * 8 + (currentCol + i));  // Opponent's piece, can capture
                     break;  // Stop after capturing (can't jump over it)
                 } else {
@@ -369,13 +335,12 @@ public class GameView extends View<BorderPane> {
 
         // Horizontal moves (left and right, the other direction)
         for (int i = 1; i <= 7; i++) {
-            if (isValidMove(currentRow, currentCol - i)) {
-                StackPane targetTile = getTileAt(currentRow, currentCol - i);
-                ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
-
+            ChessTile targetTile = getTileAt(currentRow, currentCol - i);
+            if (targetTile != null) {
+                ChessPiece pieceOnTarget = targetTile.getPiece();
                 if (pieceOnTarget == null) {
                     moves.add(currentRow * 8 + (currentCol - i));  // No piece blocking, add move
-                } else if (pieceOnTarget.getColor() != ((ChessPiece) getTileAt(currentRow, currentCol).getUserData()).getColor()) {
+                } else if (pieceOnTarget.getColor() != currentTile.getPiece().getColor()) {
                     moves.add(currentRow * 8 + (currentCol - i));  // Opponent's piece, can capture
                     break;  // Stop after capturing (can't jump over it)
                 } else {
@@ -388,13 +353,12 @@ public class GameView extends View<BorderPane> {
 
         // Vertical moves (up and down)
         for (int i = 1; i <= 7; i++) {
-            if (isValidMove(currentRow + i, currentCol)) {
-                StackPane targetTile = getTileAt(currentRow + i, currentCol);
-                ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
-
+            ChessTile targetTile = getTileAt(currentRow + i, currentCol);
+            if (targetTile != null) {
+                ChessPiece pieceOnTarget = targetTile.getPiece();
                 if (pieceOnTarget == null) {
                     moves.add((currentRow + i) * 8 + currentCol);  // No piece blocking, add move
-                } else if (pieceOnTarget.getColor() != ((ChessPiece) getTileAt(currentRow, currentCol).getUserData()).getColor()) {
+                } else if (pieceOnTarget.getColor() != currentTile.getPiece().getColor()) {
                     moves.add((currentRow + i) * 8 + currentCol);  // Opponent's piece, can capture
                     break;  // Stop after capturing (can't jump over it)
                 } else {
@@ -407,13 +371,12 @@ public class GameView extends View<BorderPane> {
 
         // Vertical moves (down and up, the other direction)
         for (int i = 1; i <= 7; i++) {
-            if (isValidMove(currentRow - i, currentCol)) {
-                StackPane targetTile = getTileAt(currentRow - i, currentCol);
-                ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
-
+            ChessTile targetTile = getTileAt(currentRow - i, currentCol);
+            if (targetTile != null) {
+                ChessPiece pieceOnTarget = targetTile.getPiece();
                 if (pieceOnTarget == null) {
                     moves.add((currentRow - i) * 8 + currentCol);  // No piece blocking, add move
-                } else if (pieceOnTarget.getColor() != ((ChessPiece) getTileAt(currentRow, currentCol).getUserData()).getColor()) {
+                } else if (pieceOnTarget.getColor() != currentTile.getPiece().getColor()) {
                     moves.add((currentRow - i) * 8 + currentCol);  // Opponent's piece, can capture
                     break;  // Stop after capturing (can't jump over it)
                 } else {
@@ -427,7 +390,7 @@ public class GameView extends View<BorderPane> {
         return moves;
     }
 
-    private List<Integer> getKnightMoves(int currentRow, int currentCol) {
+    private List<Integer> getKnightMoves(ChessTile currentTile, int currentRow, int currentCol) {
         List<Integer> moves = new ArrayList<>();
         int[] rowOffsets = {-2, -1, 1, 2, 2, 1, -1, -2};
         int[] colOffsets = {1, 2, 2, 1, -1, -2, -2, -1};
@@ -437,44 +400,31 @@ public class GameView extends View<BorderPane> {
             int newCol = currentCol + colOffsets[i];
 
             if (isValidMove(newRow, newCol)) {
-                moves.add(newRow * 8 + newCol);
+                ChessTile targetTile = getTileAt(newRow, newCol);
+                if (targetTile != null) {
+                    ChessPiece pieceOnTarget = targetTile.getPiece();
+                    if (pieceOnTarget == null || pieceOnTarget.getColor() != currentTile.getPiece().getColor()) {
+                        moves.add(newRow * 8 + newCol);
+                    }
+                }
             }
         }
 
         return moves;
     }
 
-    private List<Integer> getBishopMoves(int currentRow, int currentCol) {
+    private List<Integer> getBishopMoves(ChessTile currentTile, int currentRow, int currentCol) {
         List<Integer> moves = new ArrayList<>();
+        ChessPiece currentPiece = currentTile.getPiece();
 
-        // Diagonal moves (top-left to bottom-right)
+        // Diagonal moves (top-left)
         for (int i = 1; i <= 7; i++) {
-            if (isValidMove(currentRow + i, currentCol + i)) {
-                StackPane targetTile = getTileAt(currentRow + i, currentCol + i);
-                ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
-
-                if (pieceOnTarget == null) {
-                    moves.add((currentRow + i) * 8 + (currentCol + i));  // No piece blocking, add move
-                } else if (pieceOnTarget.getColor() != ((ChessPiece) getTileAt(currentRow, currentCol).getUserData()).getColor()) {
-                    moves.add((currentRow + i) * 8 + (currentCol + i));  // Opponent's piece, can capture
-                    break;  // Stop after capturing (can't jump over it)
-                } else {
-                    break;  // Same color, stop (can't move past own piece)
-                }
-            } else {
-                break;  // Edge of the board, stop
-            }
-        }
-
-        // Diagonal moves (top-right to bottom-left)
-        for (int i = 1; i <= 7; i++) {
-            if (isValidMove(currentRow + i, currentCol - i)) {
-                StackPane targetTile = getTileAt(currentRow + i, currentCol - i);
-                ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
-
+            ChessTile targetTile = getTileAt(currentRow + i, currentCol - i);
+            if (targetTile != null) {
+                ChessPiece pieceOnTarget = targetTile.getPiece();
                 if (pieceOnTarget == null) {
                     moves.add((currentRow + i) * 8 + (currentCol - i));  // No piece blocking, add move
-                } else if (pieceOnTarget.getColor() != ((ChessPiece) getTileAt(currentRow, currentCol).getUserData()).getColor()) {
+                } else if (pieceOnTarget.getColor() != currentPiece.getColor()) {
                     moves.add((currentRow + i) * 8 + (currentCol - i));  // Opponent's piece, can capture
                     break;  // Stop after capturing (can't jump over it)
                 } else {
@@ -485,16 +435,15 @@ public class GameView extends View<BorderPane> {
             }
         }
 
-        // Diagonal moves (bottom-left to top-right)
+        // Diagonal moves (top-right)
         for (int i = 1; i <= 7; i++) {
-            if (isValidMove(currentRow - i, currentCol + i)) {
-                StackPane targetTile = getTileAt(currentRow - i, currentCol + i);
-                ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
-
+            ChessTile targetTile = getTileAt(currentRow + i, currentCol + i);
+            if (targetTile != null) {
+                ChessPiece pieceOnTarget = targetTile.getPiece();
                 if (pieceOnTarget == null) {
-                    moves.add((currentRow - i) * 8 + (currentCol + i));  // No piece blocking, add move
-                } else if (pieceOnTarget.getColor() != ((ChessPiece) getTileAt(currentRow, currentCol).getUserData()).getColor()) {
-                    moves.add((currentRow - i) * 8 + (currentCol + i));  // Opponent's piece, can capture
+                    moves.add((currentRow + i) * 8 + (currentCol + i));  // No piece blocking, add move
+                } else if (pieceOnTarget.getColor() != currentPiece.getColor()) {
+                    moves.add((currentRow + i) * 8 + (currentCol + i));  // Opponent's piece, can capture
                     break;  // Stop after capturing (can't jump over it)
                 } else {
                     break;  // Same color, stop (can't move past own piece)
@@ -504,15 +453,14 @@ public class GameView extends View<BorderPane> {
             }
         }
 
-        // Diagonal moves (bottom-right to top-left)
+        // Diagonal moves (bottom-left)
         for (int i = 1; i <= 7; i++) {
-            if (isValidMove(currentRow - i, currentCol - i)) {
-                StackPane targetTile = getTileAt(currentRow - i, currentCol - i);
-                ChessPiece pieceOnTarget = (ChessPiece) targetTile.getUserData();
-
+            ChessTile targetTile = getTileAt(currentRow - i, currentCol - i);
+            if (targetTile != null) {
+                ChessPiece pieceOnTarget = targetTile.getPiece();
                 if (pieceOnTarget == null) {
                     moves.add((currentRow - i) * 8 + (currentCol - i));  // No piece blocking, add move
-                } else if (pieceOnTarget.getColor() != ((ChessPiece) getTileAt(currentRow, currentCol).getUserData()).getColor()) {
+                } else if (pieceOnTarget.getColor() != currentPiece.getColor()) {
                     moves.add((currentRow - i) * 8 + (currentCol - i));  // Opponent's piece, can capture
                     break;  // Stop after capturing (can't jump over it)
                 } else {
@@ -523,27 +471,54 @@ public class GameView extends View<BorderPane> {
             }
         }
 
+        // Diagonal moves (bottom-right)
+        for (int i = 1; i <= 7; i++) {
+            ChessTile targetTile = getTileAt(currentRow - i, currentCol + i);
+            if (targetTile != null) {
+                ChessPiece pieceOnTarget = targetTile.getPiece();
+                if (pieceOnTarget == null) {
+                    moves.add((currentRow - i) * 8 + (currentCol + i));  // No piece blocking, add move
+                } else if (pieceOnTarget.getColor() != currentPiece.getColor()) {
+                    moves.add((currentRow - i) * 8 + (currentCol + i));  // Opponent's piece, can capture
+                    break;  // Stop after capturing (can't jump over it)
+                } else {
+                    break;  // Same color, stop (can't move past own piece)
+                }
+            } else {
+                break;  // Edge of the board, stop
+            }
+        }
+
         return moves;
     }
 
-    private List<Integer> getQueenMoves(int currentRow, int currentCol) {
+    private List<Integer> getQueenMoves(ChessTile currentTile, int currentRow, int currentCol) {
         List<Integer> moves = new ArrayList<>();
-        moves.addAll(getRookMoves(currentRow, currentCol));  // Add rook-like moves
-        moves.addAll(getBishopMoves(currentRow, currentCol));  // Add bishop-like moves
+        moves.addAll(getRookMoves(currentTile, currentRow, currentCol));
+        moves.addAll(getBishopMoves(currentTile, currentRow, currentCol));
+
         return moves;
     }
 
-    private List<Integer> getKingMoves(int currentRow, int currentCol) {
+    private List<Integer> getKingMoves(ChessTile currentTile, int currentRow, int currentCol) {
         List<Integer> moves = new ArrayList<>();
-        int[] rowOffsets = {-1, 0, 1, 1, 1, 0, -1, -1};
-        int[] colOffsets = {-1, -1, -1, 0, 1, 1, 1, 0};
+        ChessPiece currentPiece = currentTile.getPiece();
+
+        int[] rowOffsets = {-1, -1, -1, 0, 0, 1, 1, 1};
+        int[] colOffsets = {-1, 0, 1, -1, 1, -1, 0, 1};
 
         for (int i = 0; i < 8; i++) {
             int newRow = currentRow + rowOffsets[i];
             int newCol = currentCol + colOffsets[i];
 
             if (isValidMove(newRow, newCol)) {
-                moves.add(newRow * 8 + newCol);
+                ChessTile targetTile = getTileAt(newRow, newCol);
+                if (targetTile != null) {
+                    ChessPiece pieceOnTarget = targetTile.getPiece();
+                    if (pieceOnTarget == null || pieceOnTarget.getColor() != currentPiece.getColor()) {
+                        moves.add(newRow * 8 + newCol);
+                    }
+                }
             }
         }
 
@@ -555,9 +530,17 @@ public class GameView extends View<BorderPane> {
     }
 
     // Helper
-    private StackPane getTileAt(int row, int col) {
-        int index = row * 8 + col;
-        return (StackPane) chessBoard.getChildren().get(index);
+    private ChessTile getTileAt(int row, int col) {
+        for (Node node : chessBoard.getChildren()) {
+            if (node instanceof ChessTile tile) {
+                int nodeRow = GridPane.getRowIndex(tile);
+                int nodeCol = GridPane.getColumnIndex(tile);
+                if (nodeRow == row && nodeCol == col) {
+                    return tile;
+                }
+            }
+        }
+        return null;
     }
 
     public GridPane getChessBoard() { return chessBoard; }

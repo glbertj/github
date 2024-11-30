@@ -2,25 +2,31 @@ package com.svx.github.view;
 
 import com.svx.github.model.ChessPiece;
 import com.svx.github.model.ChessTile;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class GameView extends View<BorderPane> {
+    private boolean playerIsWhite = true;
+
     // Left
     private GridPane chessBoard;
     private ChessTile selectedTile;
 
     // Right
     private Label onlineStatus;
-    private final ArrayList<ChessPiece> capturedWhitePiece = new ArrayList<>();
-    private final ArrayList<ChessPiece> capturedBlackPiece = new ArrayList<>();
+    private final ObservableList<ChessPiece> capturedWhitePiece = FXCollections.observableArrayList();
+    private HBox capturedWhiteBox;
+    private final ObservableList<ChessPiece> capturedBlackPiece = FXCollections.observableArrayList();
+    private HBox capturedBlackBox;
 
     @Override
     public void initializeView() {
@@ -31,6 +37,7 @@ public class GameView extends View<BorderPane> {
                 getClass().getResource("/com/svx/github/style/game.css")
         ).toExternalForm();
 
+        playerIsWhite = Math.random() < 0.5;
 
         HBox leftSection = new HBox();
         initializeBoard();
@@ -96,14 +103,31 @@ public class GameView extends View<BorderPane> {
     }
 
     private void addPieces() {
-        addPiecesToRow(0, ChessPiece.PieceColor.BLACK, new ChessPiece.PieceType[]{
+        int blackBackPieces;
+        int blackFrontPieces;
+        int whiteBackPieces;
+        int whiteFrontPieces;
+
+        if (playerIsWhite) {
+            blackBackPieces = 0;
+            blackFrontPieces = 1;
+            whiteFrontPieces = 6;
+            whiteBackPieces = 7;
+        } else {
+            whiteBackPieces = 0;
+            whiteFrontPieces = 1;
+            blackFrontPieces = 6;
+            blackBackPieces = 7;
+        }
+
+        addPiecesToRow(blackBackPieces, ChessPiece.PieceColor.BLACK, new ChessPiece.PieceType[]{
                 ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN,
                 ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK
         });
-        addPawnsToRow(1, ChessPiece.PieceColor.BLACK);
+        addPawnsToRow(blackFrontPieces, ChessPiece.PieceColor.BLACK);
 
-        addPawnsToRow(6, ChessPiece.PieceColor.WHITE);
-        addPiecesToRow(7, ChessPiece.PieceColor.WHITE, new ChessPiece.PieceType[]{
+        addPawnsToRow(whiteFrontPieces, ChessPiece.PieceColor.WHITE);
+        addPiecesToRow(whiteBackPieces, ChessPiece.PieceColor.WHITE, new ChessPiece.PieceType[]{
                 ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN,
                 ChessPiece.PieceType.KING, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK
         });
@@ -113,6 +137,7 @@ public class GameView extends View<BorderPane> {
         for (int col = 0; col < 8; col++) {
             ChessPiece pawn = new ChessPiece(ChessPiece.PieceType.PAWN, color);
             ChessTile pawnTile = getTileAt(row, col);
+            if (pawnTile == null) return;
             pawnTile.setPiece(pawn);
         }
     }
@@ -121,6 +146,7 @@ public class GameView extends View<BorderPane> {
         for (int col = 0; col < 8; col++) {
             ChessPiece piece = new ChessPiece(pieceTypes[col], color);
             ChessTile tile = getTileAt(row, col);
+            if (tile == null) return;
             tile.setPiece(piece);
         }
     }
@@ -139,7 +165,26 @@ public class GameView extends View<BorderPane> {
             return;
         }
 
+        // Selected current piece
+        if (selectedTile == targetTile) {
+            selectedTile.setIsRecentMove(false);
+            hideValidMoves();
+            selectedTile = null;
+            return;
+        }
+
         ChessPiece selectedPiece = selectedTile.getPiece();
+
+        // Selected friendly piece
+        if (targetTile.getPiece() != null && targetTile.getPiece().getColor() == selectedPiece.getColor()) {
+            hideValidMoves();
+            selectedTile.setIsRecentMove(false);
+            selectedTile = targetTile;
+            selectedTile.setIsRecentMove(true);
+            showValidMoves(selectedTile);
+            return;
+        }
+
         // Selected a valid move
         if (targetTile.isValidMove()) {
             clearHighlightedTiles();
@@ -152,14 +197,7 @@ public class GameView extends View<BorderPane> {
             hideValidMoves();
         }
 
-        // Selected current piece
-        else if (selectedTile == targetTile) {
-            selectedTile.setIsRecentMove(false);
-            hideValidMoves();
-            selectedTile = null;
-        }
-
-        // Selected opposing piece
+        // Ate an enemy piece
         else if (targetTile.isEatable()) {
             if (targetTile.getPiece().getColor() == ChessPiece.PieceColor.WHITE) {
                 capturedWhitePiece.add(targetTile.getPiece());
@@ -173,13 +211,8 @@ public class GameView extends View<BorderPane> {
             hideValidMoves();
         }
 
-        // Selected friendly piece
-        else if (targetTile.getPiece() != null && targetTile.getPiece().getColor() == selectedPiece.getColor()) {
-            hideValidMoves();
-            selectedTile.setIsRecentMove(false);
-            selectedTile = targetTile;
-            selectedTile.setIsRecentMove(true);
-            showValidMoves(selectedTile);
+        if (targetTile.getPiece() != null && targetTile.getPiece().getType() == ChessPiece.PieceType.PAWN) {
+            handlePawnPromotion(targetTile);
         }
     }
 
@@ -228,7 +261,33 @@ public class GameView extends View<BorderPane> {
     private VBox createRightSection() {
         Label opponentName = new Label("Opponent");
         Label playerName = new Label("Player (You)");
-        VBox topSection = new VBox(opponentName, playerName);
+
+        capturedWhiteBox = new HBox();
+        capturedWhiteBox.getStyleClass().add("captured-box");
+
+        capturedBlackBox = new HBox();
+        capturedBlackBox.getStyleClass().add("captured-box");
+
+        capturedBlackPiece.addListener((ListChangeListener<ChessPiece>) c -> {
+            capturedBlackBox.getChildren().clear();
+            for (ChessPiece piece : capturedBlackPiece) {
+                capturedBlackBox.getChildren().add(piece.getImageView());
+            }
+        });
+
+        capturedWhitePiece.addListener((ListChangeListener<ChessPiece>) c -> {
+            capturedWhiteBox.getChildren().clear();
+            for (ChessPiece piece : capturedWhitePiece) {
+                capturedWhiteBox.getChildren().add(piece.getImageView());
+            }
+        });
+
+        VBox topSection;
+        if (playerIsWhite) {
+            topSection = new VBox(opponentName, capturedBlackBox, playerName, capturedWhiteBox);
+        } else {
+            topSection = new VBox(opponentName, capturedWhiteBox, playerName, capturedBlackBox);
+        }
         VBox.setVgrow(topSection, Priority.ALWAYS);
 
         Label onlineLabel = new Label("Online Status: ");
@@ -246,7 +305,8 @@ public class GameView extends View<BorderPane> {
     public int[] getValidMoves(ChessPiece chessPiece, int currentRow, int currentCol) {
         List<Integer> validMoves = new ArrayList<>();
 
-        ChessTile currentTile = getTileAt(currentRow, currentCol);  // Get ChessTile
+        ChessTile currentTile = getTileAt(currentRow, currentCol);
+        if (currentTile == null) return new int[0];
         switch (chessPiece.getType()) {
             case PAWN:
                 validMoves.addAll(getPawnMoves(currentTile, currentRow, currentCol));
@@ -275,6 +335,14 @@ public class GameView extends View<BorderPane> {
         List<Integer> moves = new ArrayList<>();
         ChessPiece currentPiece = currentTile.getPiece();
         int direction = (currentPiece.getColor() == ChessPiece.PieceColor.BLACK) ? 1 : -1;  // White moves up, black moves down
+        int whiteStartingRow = 6;
+        int blackStartingRow = 1;
+
+        if (!playerIsWhite) {
+            direction *= -1;
+            whiteStartingRow = 1;
+            blackStartingRow = 6;
+        };
 
         // Forward move (one square)
         ChessTile targetTile = getTileAt(currentRow + direction, currentCol);
@@ -283,7 +351,7 @@ public class GameView extends View<BorderPane> {
         }
 
         // Forward move (two squares, only on first move)
-        if ((currentPiece.getColor() == ChessPiece.PieceColor.BLACK && currentRow == 1) || (currentPiece.getColor() == ChessPiece.PieceColor.WHITE && currentRow == 6)) {
+        if ((currentPiece.getColor() == ChessPiece.PieceColor.BLACK && currentRow == blackStartingRow) || (currentPiece.getColor() == ChessPiece.PieceColor.WHITE && currentRow == whiteStartingRow)) {
             ChessTile targetTile1 = getTileAt(currentRow + direction, currentCol);
             ChessTile targetTile2 = getTileAt(currentRow + 2 * direction, currentCol);
             if (targetTile1 != null && targetTile2 != null && targetTile1.getPiece() == null && targetTile2.getPiece() == null) {
@@ -529,6 +597,39 @@ public class GameView extends View<BorderPane> {
         return row >= 0 && row < 8 && col >= 0 && col < 8;
     }
 
+    private void handlePawnPromotion(ChessTile currentTile) {
+        int blackPromotionRow = 7;
+        int whitePromotionRow = 0;
+
+        if (!playerIsWhite) {
+            blackPromotionRow = 0;
+            whitePromotionRow = 7;
+        }
+
+        int currentRow = GridPane.getRowIndex(currentTile);
+        ChessPiece currentPiece = currentTile.getPiece();
+
+        if (currentPiece.getColor() == ChessPiece.PieceColor.WHITE && currentRow == whitePromotionRow) {
+            promotePawn(currentTile, ChessPiece.PieceColor.WHITE);
+        } else if (currentPiece.getColor() == ChessPiece.PieceColor.BLACK && currentRow == blackPromotionRow) {
+            promotePawn(currentTile, ChessPiece.PieceColor.BLACK);
+        }
+    }
+
+    private void promotePawn(ChessTile currentTile, ChessPiece.PieceColor color) {
+//        String promotionChoice = promptForPromotionChoice(color);
+        String promotionChoice = "queen";
+
+        ChessPiece promotedPiece = switch (promotionChoice.toLowerCase()) {
+            case "rook" -> new ChessPiece(ChessPiece.PieceType.ROOK, color);
+            case "bishop" -> new ChessPiece(ChessPiece.PieceType.BISHOP, color);
+            case "knight" -> new ChessPiece(ChessPiece.PieceType.KNIGHT, color);
+            default -> new ChessPiece(ChessPiece.PieceType.QUEEN, color);
+        };
+
+        currentTile.setPiece(promotedPiece);
+    }
+
     // Helper
     private ChessTile getTileAt(int row, int col) {
         for (Node node : chessBoard.getChildren()) {
@@ -542,7 +643,4 @@ public class GameView extends View<BorderPane> {
         }
         return null;
     }
-
-    public GridPane getChessBoard() { return chessBoard; }
-    public Label getOnlineStatus() { return onlineStatus; }
 }

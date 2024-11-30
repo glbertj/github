@@ -8,14 +8,14 @@
 }
 
 .tile .valid-move-circle {
-    -fx-opacity: 0.3;
+    -fx-opacity: 0.2;
 }
 
 .tile .enemy-circle {
     -fx-fill: transparent;
     -fx-stroke: black;
-    -fx-stroke-width: 5;
-    -fx-opacity: 0.3;
+    -fx-stroke-width: 6;
+    -fx-opacity: 0.2;
 }
 
 .green {

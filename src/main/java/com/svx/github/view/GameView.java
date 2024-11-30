@@ -2,6 +2,7 @@ package com.svx.github.view;
 
 import com.svx.github.model.ChessPiece;
 import com.svx.github.model.ChessTile;
+import com.svx.github.utility.SoundUtility;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -16,6 +17,7 @@ import java.util.Objects;
 
 public class GameView extends View<BorderPane> {
     private boolean playerIsWhite = true;
+    private boolean playerTurn = true;
 
     // Left
     private GridPane chessBoard;
@@ -30,6 +32,7 @@ public class GameView extends View<BorderPane> {
 
     @Override
     public void initializeView() {
+        SoundUtility.SoundType.START.play();
         root = new BorderPane();
         root.getStyleClass().add("game-root");
 
@@ -98,7 +101,11 @@ public class GameView extends View<BorderPane> {
 
     private StackPane createTile(int row, int col) {
         ChessTile tile = new ChessTile(row, col);
-        tile.setOnMouseClicked(e -> onTileClick(tile));
+        tile.setOnMouseClicked(e -> {
+//            if (playerTurn) {
+                onTileClick(tile);
+//            }
+        });
         return tile;
     }
 
@@ -158,6 +165,10 @@ public class GameView extends View<BorderPane> {
                 return;
             }
 
+            if (targetTile.getPiece().getColor() != (playerIsWhite ? ChessPiece.PieceColor.WHITE : ChessPiece.PieceColor.BLACK)) {
+                return;
+            }
+
             selectedTile = targetTile;
             selectedTile.setIsRecentMove(true);
 
@@ -174,6 +185,7 @@ public class GameView extends View<BorderPane> {
         }
 
         ChessPiece selectedPiece = selectedTile.getPiece();
+        playerTurn = !playerTurn;
 
         // Selected friendly piece
         if (targetTile.getPiece() != null && targetTile.getPiece().getColor() == selectedPiece.getColor()) {
@@ -187,6 +199,7 @@ public class GameView extends View<BorderPane> {
 
         // Selected a valid move
         if (targetTile.isValidMove()) {
+            SoundUtility.SoundType.MOVE.play();
             clearHighlightedTiles();
             selectedTile.setIsRecentMove(true);
             targetTile.setIsRecentMove(true);
@@ -199,6 +212,7 @@ public class GameView extends View<BorderPane> {
 
         // Ate an enemy piece
         else if (targetTile.isEatable()) {
+            SoundUtility.SoundType.CAPTURE.play();
             if (targetTile.getPiece().getColor() == ChessPiece.PieceColor.WHITE) {
                 capturedWhitePiece.add(targetTile.getPiece());
             } else {
@@ -342,7 +356,7 @@ public class GameView extends View<BorderPane> {
             direction *= -1;
             whiteStartingRow = 1;
             blackStartingRow = 6;
-        };
+        }
 
         // Forward move (one square)
         ChessTile targetTile = getTileAt(currentRow + direction, currentCol);

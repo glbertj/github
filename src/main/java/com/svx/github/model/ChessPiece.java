@@ -20,7 +20,7 @@ public class ChessPiece implements Observable {
         this.type = type;
         this.color = color;
 
-        String path = "/com/svx/github/chess/" + color.toString().toLowerCase() + "_" + type.toString().toLowerCase() + ".png";
+        String path = "/com/svx/github/chess_image/" + color.toString().toLowerCase() + "_" + type.toString().toLowerCase() + ".png";
         Image image = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
         this.imageView = new ImageView(image);
         this.imageView.getStyleClass().add("chess-piece");

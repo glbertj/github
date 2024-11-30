@@ -18,7 +18,7 @@ public class RegisterController extends Controller<RegisterView> {
     @Override
     protected void setActions() {
         view.getRegisterButton().setOnAction(e -> handleRegister());
-        view.getToLoginButton().setOnAction(e -> navigateToLogin());
+        view.getToLoginButton().setOnMouseClicked(e -> navigateToLogin());
     }
 
     private void handleRegister() {

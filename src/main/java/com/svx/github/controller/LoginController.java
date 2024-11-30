@@ -19,7 +19,7 @@ public class LoginController extends Controller<LoginView> {
     @Override
     protected void setActions() {
         view.getLoginButton().setOnAction(e -> handleLogin());
-        view.getRegisterButton().setOnAction(e -> navigateToRegister());
+        view.getRegisterButton().setOnMouseClicked(e -> navigateToRegister());
     }
 
     private void handleLogin() {

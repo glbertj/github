@@ -1,16 +1,25 @@
 package com.svx.github.view;
 
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+
+import java.io.File;
 import java.util.Objects;
 
-public abstract class AuthView extends View<GridPane> {
+public abstract class AuthView extends View<StackPane> {
     protected Label titleLabel;
+    protected VBox outerContainer;
+    protected GridPane formContainer;
+    protected GridPane lowerContainer;
+    protected ImageView backgroundImage;
+    protected ImageView logoImage;
 
     public AuthView(String title) {
         super();
@@ -20,17 +29,60 @@ public abstract class AuthView extends View<GridPane> {
     }
 
     protected void setupRoot() {
-        root = new GridPane();
+        root = new StackPane();
         root.setId("auth-pane");
-        root.setVgap(15);
-        root.setHgap(10);
-        root.setAlignment(Pos.CENTER);
+
+        initializeOuterContainer();
+        initializeFormContainer();
+        initializeLowerContainer();
+        initializeBackgroundImage();
+        initializeLogoImage();
 
         styleReference = Objects.requireNonNull(
                 getClass().getResource("/com/svx/github/style/auth.css")
         ).toExternalForm();
 
-        root.add(titleLabel, 0, 0, 2, 1);
+        outerContainer.getChildren().addAll(logoImage, titleLabel, formContainer, lowerContainer);
+        root.getChildren().addAll(backgroundImage, outerContainer);
+    }
+
+    private void initializeOuterContainer() {
+        outerContainer = new VBox(20);
+        outerContainer.setAlignment(Pos.CENTER);
+        outerContainer.setMaxWidth(400);
+    }
+
+    private void initializeFormContainer() {
+        formContainer = new GridPane();
+        formContainer.setMaxHeight(Region.USE_PREF_SIZE);
+        formContainer.setVgap(20);
+        formContainer.setHgap(10);
+        formContainer.setAlignment(Pos.CENTER);
+        formContainer.getStyleClass().add("container");
+    }
+
+    private void initializeLowerContainer() {
+        lowerContainer = new GridPane();
+        lowerContainer.setAlignment(Pos.CENTER);
+        lowerContainer.setHgap(5);
+        lowerContainer.getStyleClass().add("container");
+    }
+
+    private void initializeBackgroundImage() {
+        backgroundImage = new ImageView(new Image(
+                Objects.requireNonNull(getClass().getResource("/com/svx/github/image/auth-background.png")).toExternalForm()
+        ));
+        backgroundImage.setPreserveRatio(true);
+        backgroundImage.fitWidthProperty().bind(root.widthProperty());
+        backgroundImage.fitHeightProperty().bind(root.heightProperty());
+    }
+
+    private void initializeLogoImage() {
+        logoImage = new ImageView(new Image(
+                Objects.requireNonNull(getClass().getResource("/com/svx/github/image/GoaTHub-01-white.png")).toExternalForm()
+        ));
+        logoImage.setPreserveRatio(true);
+        logoImage.setFitWidth(80);
     }
 
     protected TextField createTextField(String placeholder) {
@@ -51,7 +103,23 @@ public abstract class AuthView extends View<GridPane> {
         Button button = createAnimatedButton(text);
         button.getStyleClass().add("auth-button");
         button.getStyleClass().add("primary-button");
+        button.prefWidthProperty().bind(formContainer.widthProperty());
         return button;
+    }
+
+    protected Label createLink(String text) {
+        Label link = new Label(text);
+        link.getStyleClass().add("auth-link");
+        return link;
+    }
+
+    protected VBox createFieldBox(String labelText, Control inputField) {
+        Label label = new Label(labelText);
+        label.getStyleClass().add("bold");
+
+        VBox fieldBox = new VBox(10);
+        fieldBox.getChildren().addAll(label, inputField);
+        return fieldBox;
     }
 }
 

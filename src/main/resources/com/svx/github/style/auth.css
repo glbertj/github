@@ -1,9 +1,9 @@
 #auth-title {
     -fx-text-fill: #e1e4e8;
-    -fx-font-size: 20px;
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
     -fx-alignment: center;
-    -fx-padding: 0 0 20 0;
+    -fx-padding: 10 0 10 0;
 }
 
 Button:focused {
@@ -11,9 +11,32 @@ Button:focused {
 }
 
 .primary-button {
-    -fx-padding: 3px 80px;
+    -fx-padding: 5px 80px;
 }
 
 .secondary-button {
     -fx-padding: 5px 10px;
+}
+
+.container {
+    -fx-background-color: #000000;
+    -fx-padding: 16px 16px 21px 16px;
+    -fx-background-radius: 6px;
+    -fx-border-width: 1px;
+    -fx-border-color: #e1e4e8;
+    -fx-border-radius: 6px;
+}
+
+.auth-link {
+    -fx-text-fill: #0864d4;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.auth-link:hover {
+    -fx-text-fill: #3078d9;
+}
+
+.auth-link:pressed {
+    -fx-text-fill: #0648a3;
 }

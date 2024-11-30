@@ -4,16 +4,18 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 public class RegisterView extends AuthView {
     private TextField usernameField;
     private TextField emailField;
     private PasswordField passwordField;
     private Button registerButton;
-    private Button toLoginButton;
+    private Label toLoginButton;
 
     public RegisterView() {
-        super("Register");
+        super("Create an Account");
     }
 
     @Override
@@ -21,22 +23,20 @@ public class RegisterView extends AuthView {
         setupRoot();
 
         usernameField = createTextField("yora");
-        root.add(new Label("Username:"), 0, 1);
-        root.add(usernameField, 1, 1);
-
         emailField = createTextField("yora@gmail.com");
-        root.add(new Label("Email:"), 0, 2);
-        root.add(emailField, 1, 2);
-
         passwordField = createPasswordField();
-        root.add(new Label("Password:"), 0, 3);
-        root.add(passwordField, 1, 3);
+
+        formContainer.add(createFieldBox("Username", usernameField), 0, 0);
+        formContainer.add(createFieldBox("Email address", emailField), 0, 1);
+        formContainer.add(createFieldBox("Password", passwordField), 0, 2);
 
         registerButton = createButton("Register");
-        root.add(registerButton, 0, 4);
+        formContainer.add(registerButton, 0, 3);
 
-        toLoginButton = createButton("Back to Login");
-        root.add(toLoginButton, 1, 4);
+        toLoginButton = createLink("Sign in to GoaThub.");
+
+        lowerContainer.add(new Label("Already have an account?"), 0, 0);
+        lowerContainer.add(toLoginButton, 1, 0);
     }
 
     public TextField getUsernameField() {
@@ -55,7 +55,7 @@ public class RegisterView extends AuthView {
         return registerButton;
     }
 
-    public Button getToLoginButton() {
+    public Label getToLoginButton() {
         return toLoginButton;
     }
 }

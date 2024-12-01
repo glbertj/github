@@ -1,7 +1,7 @@
 package com.svx.github.controller.dialog;
 
 import com.svx.github.controller.AppController;
-import com.svx.github.controller.GameController;
+import com.svx.chess.controller.GameController;
 import com.svx.github.view.dialog.StartGameDialogView;
 
 public class StartGameDialogController extends DialogController<StartGameDialogView> {

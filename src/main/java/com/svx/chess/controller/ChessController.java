@@ -97,6 +97,10 @@ public class ChessController extends Controller<ChessView> {
         }
 
         whiteTurn = !whiteTurn;
+        view.clearHighlightedTiles();
+        selectedTile.setIsRecentMove(true);
+        targetTile.setIsRecentMove(true);
+
         if (targetTile.isValidMove()) {
             movePiece(selectedPiece, targetTile);
         } else if (targetTile.isEatable()) {
@@ -110,10 +114,6 @@ public class ChessController extends Controller<ChessView> {
 
     private void movePiece(ChessPiece selectedPiece, ChessTile targetTile) {
         SoundUtility.SoundType.MOVE.play();
-
-        view.clearHighlightedTiles();
-        selectedTile.setIsRecentMove(true);
-        targetTile.setIsRecentMove(true);
 
         targetTile.setPiece(selectedPiece);
         selectedTile.setPiece(null);

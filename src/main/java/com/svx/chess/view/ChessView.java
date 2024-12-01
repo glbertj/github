@@ -19,8 +19,8 @@ public class ChessView extends View<BorderPane> {
 
     // Right
     private Label onlineStatus;
-    private HBox capturedWhiteBox;
-    private HBox capturedBlackBox;
+    private FlowPane capturedWhiteBox;
+    private FlowPane capturedBlackBox;
 
     @Override
     public void initializeView() {
@@ -88,10 +88,10 @@ public class ChessView extends View<BorderPane> {
         Label opponentName = new Label("Opponent");
         Label playerName = new Label("Player (You)");
 
-        capturedWhiteBox = new HBox();
+        capturedWhiteBox = new FlowPane();
         capturedWhiteBox.getStyleClass().add("captured-box");
 
-        capturedBlackBox = new HBox();
+        capturedBlackBox = new FlowPane();
         capturedBlackBox.getStyleClass().add("captured-box");
 
         VBox topSection;
@@ -115,6 +115,6 @@ public class ChessView extends View<BorderPane> {
 
     public Chess.PieceColor getPlayerColor() { return playerColor; }
     public ChessBoard getChessBoard() { return chessBoard; }
-    public HBox getCapturedWhiteBox() { return capturedWhiteBox; }
-    public HBox getCapturedBlackBox() { return capturedBlackBox; }
+    public FlowPane getCapturedWhiteBox() { return capturedWhiteBox; }
+    public FlowPane getCapturedBlackBox() { return capturedBlackBox; }
 }

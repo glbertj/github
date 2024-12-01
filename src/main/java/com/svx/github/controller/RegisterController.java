@@ -13,6 +13,7 @@ public class RegisterController extends Controller<RegisterView> {
 
     public RegisterController(AppController appController) {
         super(new RegisterView(), appController);
+        setActions();
     }
 
     @Override

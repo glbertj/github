@@ -14,6 +14,7 @@ public class LoginController extends Controller<LoginView> {
 
     public LoginController(AppController appController) {
         super(new LoginView(), appController);
+        setActions();
     }
 
     @Override

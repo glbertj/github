@@ -11,7 +11,6 @@ public abstract class Controller<T extends View<? extends Parent>> {
         this.view = view;
         this.appController = appController;
         view.initializeView();
-        setActions();
     }
 
     protected abstract void setActions();

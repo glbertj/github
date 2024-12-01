@@ -1,4 +1,4 @@
-package com.svx.github.utility;
+package com.svx.chess.utility;
 
 import javax.sound.sampled.*;
 import java.io.IOException;
@@ -8,7 +8,7 @@ public class SoundUtility {
 
     private static void playSound(String soundFileName) {
         try {
-            String path = "/com/svx/github/chess_sfx/" + soundFileName + ".wav";
+            String path = "/com/svx/chess/chess_sfx/" + soundFileName + ".wav";
 
             URL soundURL = SoundUtility.class.getResource(path);
             if (soundURL == null) {

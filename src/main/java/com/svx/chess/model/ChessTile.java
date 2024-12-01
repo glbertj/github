@@ -11,20 +11,14 @@ public class ChessTile extends StackPane {
     private final SimpleBooleanProperty isValidMove;
     private final SimpleBooleanProperty isEatable;
     private final SimpleBooleanProperty isRecentMove;
-    private final int row;
-    private final int col;
 
-    public ChessTile(int row, int col) {
+    public ChessTile() {
         pieceProperty = new SimpleObjectProperty<>();
         isValidMove = new SimpleBooleanProperty(false);
         isEatable = new SimpleBooleanProperty(false);
         isRecentMove = new SimpleBooleanProperty(false);
-        this.row = row;
-        this.col = col;
 
         getStyleClass().add("tile");
-        String styleClass = (row + col) % 2 == 0 ? "green" : "white";
-        getStyleClass().add(styleClass);
 
         addValidMoveIndicator();
         addEnemyIndicator();
@@ -85,6 +79,4 @@ public class ChessTile extends StackPane {
     public boolean isEatable() { return isEatable.get(); }
     public void setIsEatable(boolean isEatable) { this.isEatable.set(isEatable); }
     public void setIsRecentMove(boolean isRecentMove) { this.isRecentMove.set(isRecentMove); }
-    public int getRow() { return row; }
-    public int getCol() { return col; }
 }

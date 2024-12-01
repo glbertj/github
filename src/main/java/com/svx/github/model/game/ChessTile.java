@@ -1,4 +1,4 @@
-package com.svx.github.model;
+package com.svx.github.model.game;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;

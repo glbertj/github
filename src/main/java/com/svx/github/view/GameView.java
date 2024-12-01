@@ -1,7 +1,7 @@
 package com.svx.github.view;
 
-import com.svx.github.model.ChessPiece;
-import com.svx.github.model.ChessTile;
+import com.svx.github.model.game.ChessPiece;
+import com.svx.github.model.game.ChessTile;
 import com.svx.github.utility.SoundUtility;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -16,8 +16,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class GameView extends View<BorderPane> {
-    private boolean playerIsWhite = true;
-    private boolean playerTurn = true;
+    private ChessPiece.PieceColor playerColor;
+    private boolean whiteTurn = true;
+    private boolean whiteInCheck = false;
+    private boolean blackInCheck = false;
 
     // Left
     private GridPane chessBoard;
@@ -40,7 +42,7 @@ public class GameView extends View<BorderPane> {
                 getClass().getResource("/com/svx/github/style/game.css")
         ).toExternalForm();
 
-        playerIsWhite = Math.random() < 0.5;
+        playerColor = Math.random() > 0.5 ? ChessPiece.PieceColor.WHITE : ChessPiece.PieceColor.BLACK;
 
         HBox leftSection = new HBox();
         initializeBoard();
@@ -102,9 +104,9 @@ public class GameView extends View<BorderPane> {
     private StackPane createTile(int row, int col) {
         ChessTile tile = new ChessTile(row, col);
         tile.setOnMouseClicked(e -> {
-//            if (playerTurn) {
+            if (playerColor.equals(ChessPiece.PieceColor.WHITE) && whiteTurn) {
                 onTileClick(tile);
-//            }
+            }
         });
         return tile;
     }
@@ -115,7 +117,7 @@ public class GameView extends View<BorderPane> {
         int whiteBackPieces;
         int whiteFrontPieces;
 
-        if (playerIsWhite) {
+        if (playerColor.equals(ChessPiece.PieceColor.WHITE)) {
             blackBackPieces = 0;
             blackFrontPieces = 1;
             whiteFrontPieces = 6;
@@ -165,10 +167,6 @@ public class GameView extends View<BorderPane> {
                 return;
             }
 
-            if (targetTile.getPiece().getColor() != (playerIsWhite ? ChessPiece.PieceColor.WHITE : ChessPiece.PieceColor.BLACK)) {
-                return;
-            }
-
             selectedTile = targetTile;
             selectedTile.setIsRecentMove(true);
 
@@ -185,8 +183,6 @@ public class GameView extends View<BorderPane> {
         }
 
         ChessPiece selectedPiece = selectedTile.getPiece();
-        playerTurn = !playerTurn;
-
         // Selected friendly piece
         if (targetTile.getPiece() != null && targetTile.getPiece().getColor() == selectedPiece.getColor()) {
             hideValidMoves();
@@ -197,6 +193,7 @@ public class GameView extends View<BorderPane> {
             return;
         }
 
+        whiteTurn = !whiteTurn;
         // Selected a valid move
         if (targetTile.isValidMove()) {
             SoundUtility.SoundType.MOVE.play();
@@ -297,7 +294,7 @@ public class GameView extends View<BorderPane> {
         });
 
         VBox topSection;
-        if (playerIsWhite) {
+        if (playerColor.equals(ChessPiece.PieceColor.WHITE)) {
             topSection = new VBox(opponentName, capturedBlackBox, playerName, capturedWhiteBox);
         } else {
             topSection = new VBox(opponentName, capturedWhiteBox, playerName, capturedBlackBox);
@@ -352,7 +349,7 @@ public class GameView extends View<BorderPane> {
         int whiteStartingRow = 6;
         int blackStartingRow = 1;
 
-        if (!playerIsWhite) {
+        if (!playerColor.equals(ChessPiece.PieceColor.WHITE)) {
             direction *= -1;
             whiteStartingRow = 1;
             blackStartingRow = 6;
@@ -615,7 +612,7 @@ public class GameView extends View<BorderPane> {
         int blackPromotionRow = 7;
         int whitePromotionRow = 0;
 
-        if (!playerIsWhite) {
+        if (!playerColor.equals(ChessPiece.PieceColor.WHITE)) {
             blackPromotionRow = 0;
             whitePromotionRow = 7;
         }
@@ -644,6 +641,14 @@ public class GameView extends View<BorderPane> {
         currentTile.setPiece(promotedPiece);
     }
 
+    public boolean isPlayerInCheck(ChessPiece.PieceColor playerColor) {
+        ChessTile kingTile = findKing(playerColor);
+
+
+
+        return false;
+    }
+
     // Helper
     private ChessTile getTileAt(int row, int col) {
         for (Node node : chessBoard.getChildren()) {
@@ -651,6 +656,17 @@ public class GameView extends View<BorderPane> {
                 int nodeRow = GridPane.getRowIndex(tile);
                 int nodeCol = GridPane.getColumnIndex(tile);
                 if (nodeRow == row && nodeCol == col) {
+                    return tile;
+                }
+            }
+        }
+        return null;
+    }
+
+    private ChessTile findKing(ChessPiece.PieceColor color) {
+        for (Node node : chessBoard.getChildren()) {
+            if (node instanceof ChessTile tile && tile.getPiece() != null && tile.getPiece() instanceof ChessPiece piece) {
+                if (piece.getType().equals(ChessPiece.PieceType.KING) && piece.getColor().equals(color)) {
                     return tile;
                 }
             }

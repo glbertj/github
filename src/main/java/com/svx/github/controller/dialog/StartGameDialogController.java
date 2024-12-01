@@ -1,7 +1,7 @@
 package com.svx.github.controller.dialog;
 
 import com.svx.github.controller.AppController;
-import com.svx.chess.controller.GameController;
+import com.svx.chess.controller.ChessController;
 import com.svx.github.view.dialog.StartGameDialogView;
 
 public class StartGameDialogController extends DialogController<StartGameDialogView> {
@@ -22,7 +22,7 @@ public class StartGameDialogController extends DialogController<StartGameDialogV
 
         view.getConfirmButton().setOnAction(e -> {
             appController.logout();
-            appController.navigatePage(new GameController(appController));
+            appController.navigatePage(new ChessController(appController));
             hideDialog();
         });
     }

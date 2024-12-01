@@ -9,8 +9,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-
-import java.io.File;
 import java.util.Objects;
 
 public abstract class AuthView extends View<StackPane> {

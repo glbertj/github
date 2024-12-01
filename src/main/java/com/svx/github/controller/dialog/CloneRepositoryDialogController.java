@@ -7,7 +7,6 @@ import com.svx.github.repository.RepositoryRepository;
 import com.svx.github.utility.ComponentUtility;
 import com.svx.github.view.dialog.CloneRepositoryDialogView;
 import javafx.beans.binding.Bindings;
-import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;

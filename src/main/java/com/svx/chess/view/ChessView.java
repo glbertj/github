@@ -96,9 +96,9 @@ public class ChessView extends View<BorderPane> {
 
         VBox topSection;
         if (playerColor.equals(Chess.PieceColor.WHITE)) {
-            topSection = new VBox(opponentName, capturedBlackBox, playerName, capturedWhiteBox);
-        } else {
             topSection = new VBox(opponentName, capturedWhiteBox, playerName, capturedBlackBox);
+        } else {
+            topSection = new VBox(opponentName, capturedBlackBox, playerName, capturedWhiteBox);
         }
         VBox.setVgrow(topSection, Priority.ALWAYS);
 

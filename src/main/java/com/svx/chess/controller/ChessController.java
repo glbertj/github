@@ -11,7 +11,6 @@ import com.svx.github.controller.Controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.layout.GridPane;
 
 public class ChessController extends Controller<ChessView> {
     private final ChessBoard chessBoard;
@@ -61,42 +60,59 @@ public class ChessController extends Controller<ChessView> {
     }
 
     private void onTileClick(ChessTile targetTile) {
-        // No piece selected
         if (selectedTile == null) {
-            if (targetTile.getPiece() == null) {
-                return;
-            }
-
-            selectedTile = targetTile;
-            selectedTile.setIsRecentMove(true);
-
-            int[] validMoves = Chess.getValidMoves(selectedTile, chessBoard.getTiles());
-            view.showValidMoves(validMoves);
+            if (targetTile.getPiece() == null) return;
+            if (targetTile.getPiece().getColor().equals(Chess.PieceColor.WHITE) && !whiteTurn) return;
+            if (targetTile.getPiece().getColor().equals(Chess.PieceColor.BLACK) && whiteTurn) return;
+            selectPiece(targetTile);
             return;
         }
 
-        // Selected current piece
         if (selectedTile == targetTile) {
-            selectedTile.setIsRecentMove(false);
-            view.hideValidMoves();
-            selectedTile = null;
+            deselectPiece();
             return;
         }
 
         ChessPiece selectedPiece = selectedTile.getPiece();
-        // Selected friendly piece
         if (targetTile.getPiece() != null && targetTile.getPiece().getColor() == selectedPiece.getColor()) {
-            view.hideValidMoves();
-            selectedTile.setIsRecentMove(false);
-            selectedTile = targetTile;
-            selectedTile.setIsRecentMove(true);
-
-            int[] validMoves = Chess.getValidMoves(selectedTile, chessBoard.getTiles());
-            view.showValidMoves(validMoves);
+            deselectPiece();
+            selectPiece(targetTile);
             return;
         }
 
         whiteTurn = !whiteTurn;
+        processMoveOrCapture(selectedPiece, targetTile);
+
+        if (targetTile.getPiece() != null && targetTile.getPiece().getType() == Chess.PieceType.PAWN) {
+            Chess.handlePawnPromotion(targetTile, playerColor);
+        }
+
+        if (Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getWhiteKingTile())) {
+            SoundUtility.SoundType.CHECK.play();
+        }
+        if (Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getBlackKingTile())) {
+            SoundUtility.SoundType.CHECK.play();
+        }
+    }
+
+    private void selectPiece(ChessTile targetTile) {
+        selectedTile = targetTile;
+        selectedTile.setIsRecentMove(true);
+        int[] validMoves = Chess.getValidMoves(selectedTile, chessBoard.getTiles(), getKingTileForCurrentTurn());
+        view.showValidMoves(validMoves);
+    }
+
+    private void deselectPiece() {
+        selectedTile.setIsRecentMove(false);
+        view.hideValidMoves();
+        selectedTile = null;
+    }
+
+    private void processMoveOrCapture(ChessPiece selectedPiece, ChessTile targetTile) {
+        if (!targetTile.isValidMove() && !targetTile.isEatable()) {
+            return;
+        }
+
         view.clearHighlightedTiles();
         selectedTile.setIsRecentMove(true);
         targetTile.setIsRecentMove(true);
@@ -107,8 +123,8 @@ public class ChessController extends Controller<ChessView> {
             capturePiece(selectedPiece, targetTile);
         }
 
-        if (targetTile.getPiece() != null && targetTile.getPiece().getType() == Chess.PieceType.PAWN) {
-            Chess.handlePawnPromotion(targetTile, playerColor);
+        if (targetTile.getPiece().getType() == Chess.PieceType.KING) {
+            updateKingTile(targetTile);
         }
     }
 
@@ -136,5 +152,17 @@ public class ChessController extends Controller<ChessView> {
         selectedTile.setPiece(null);
         selectedTile = null;
         view.hideValidMoves();
+    }
+
+    private ChessTile getKingTileForCurrentTurn() {
+        return whiteTurn ? chessBoard.getWhiteKingTile() : chessBoard.getBlackKingTile();
+    }
+
+    private void updateKingTile(ChessTile targetTile) {
+        if (targetTile.getPiece().getColor() == Chess.PieceColor.WHITE) {
+            chessBoard.setWhiteKingTile(targetTile);
+        } else {
+            chessBoard.setBlackKingTile(targetTile);
+        }
     }
 }

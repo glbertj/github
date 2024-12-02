@@ -194,9 +194,11 @@ public class Chess {
                 ChessTile targetTile = tiles[newRow][newCol];
                 ChessPiece pieceOnTarget = targetTile != null ? targetTile.getPiece() : null;
 
-                if ((pieceOnTarget == null || pieceOnTarget.getColor() != currentTile.getPiece().getColor()) &&
-                        wouldNotPutKingInCheck(tiles, currentTile, targetTile, kingTile)) {
-                    moves.add(newRow * 8 + newCol);
+                if ((pieceOnTarget == null || pieceOnTarget.getColor() != currentTile.getPiece().getColor())) {
+                    assert targetTile != null;
+                    if (wouldNotPutKingInCheck(tiles, currentTile, targetTile, kingTile)) {
+                        moves.add(newRow * 8 + newCol);
+                    }
                 }
             }
         }

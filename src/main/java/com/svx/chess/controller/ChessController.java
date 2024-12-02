@@ -99,7 +99,7 @@ public class ChessController extends Controller<ChessView> {
         selectedTile = targetTile;
         selectedTile.setIsRecentMove(true);
         int[] validMoves = Chess.getValidMoves(selectedTile, chessBoard.getTiles(), getKingTileForCurrentTurn());
-        view.showValidMoves(validMoves);
+        view.showValidMoves(selectedTile, validMoves);
     }
 
     private void deselectPiece() {

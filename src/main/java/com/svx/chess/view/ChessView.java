@@ -46,7 +46,7 @@ public class ChessView extends View<BorderPane> {
         root.setCenter(container);
     }
 
-    public void showValidMoves(int[] validMoves) {
+    public void showValidMoves(ChessTile selectedTile, int[] validMoves) {
         ChessTile[][] tiles = chessBoard.getTiles();
 
         for (int move : validMoves) {
@@ -58,7 +58,7 @@ public class ChessView extends View<BorderPane> {
             targetTile.setIsValidMove(true);
 
             if (targetTile.getPiece() != null) {
-                if (!(targetTile.getPiece().getColor() == playerColor)) {
+                if (!selectedTile.getPiece().getColor().equals(targetTile.getPiece().getColor())) {
                     targetTile.setIsEatable(true);
                     targetTile.setIsValidMove(false);
                 }

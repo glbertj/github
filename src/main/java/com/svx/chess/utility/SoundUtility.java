@@ -31,7 +31,7 @@ public class SoundUtility {
         CAPTURE("capture"),
         CASTLE("castle"),
         CHECK("check"),
-        FINISH("finish"),
+        CHECKMATE("finish"),
         MOVE("move"),
         START("start");
 

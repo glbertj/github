@@ -14,11 +14,13 @@ public class ChessPiece implements Observable {
     private final Chess.PieceType type;
     private final Chess.PieceColor color;
     private final ImageView imageView;
+    private boolean hasMoved;
 
     public ChessPiece(Chess.PieceType type, Chess.PieceColor color) {
         this.pieceProperty = new SimpleObjectProperty<>(this);
         this.type = type;
         this.color = color;
+        this.hasMoved = false;
 
         String path = "/com/svx/chess/chess_image/" + color.toString().toLowerCase() + "_" + type.toString().toLowerCase() + ".png";
         Image image = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
@@ -39,4 +41,6 @@ public class ChessPiece implements Observable {
     public Chess.PieceType getType() { return type; }
     public Chess.PieceColor getColor() { return color; }
     public ImageView getImageView() { return imageView; }
+    public boolean hasMoved() { return hasMoved; }
+    public void setHasMoved(boolean hasMoved) { this.hasMoved = hasMoved; }
 }

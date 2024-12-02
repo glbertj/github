@@ -11,6 +11,7 @@ import com.svx.github.controller.Controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.scene.Parent;
 
 public class ChessController extends Controller<ChessView> {
     private final ChessBoard chessBoard;
@@ -80,17 +81,21 @@ public class ChessController extends Controller<ChessView> {
             return;
         }
 
-        whiteTurn = !whiteTurn;
         processMoveOrCapture(selectedPiece, targetTile);
 
         if (targetTile.getPiece() != null && targetTile.getPiece().getType() == Chess.PieceType.PAWN) {
             Chess.handlePawnPromotion(targetTile, playerColor);
         }
 
-        if (Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getWhiteKingTile())) {
-            SoundUtility.SoundType.CHECK.play();
-        }
-        if (Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getBlackKingTile())) {
+        if (Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getWhiteKingTile()) || Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getBlackKingTile())) {
+            if (Chess.isCheckMate(chessBoard.getTiles(), chessBoard.getWhiteKingTile())) {
+                SoundUtility.SoundType.CHECKMATE.play();
+                return;
+            } else if (Chess.isCheckMate(chessBoard.getTiles(), chessBoard.getBlackKingTile())) {
+                SoundUtility.SoundType.CHECKMATE.play();
+                return;
+            }
+
             SoundUtility.SoundType.CHECK.play();
         }
     }
@@ -116,12 +121,15 @@ public class ChessController extends Controller<ChessView> {
         view.clearHighlightedTiles();
         selectedTile.setIsRecentMove(true);
         targetTile.setIsRecentMove(true);
+        selectedPiece.setHasMoved(true);
 
         if (targetTile.isValidMove()) {
             movePiece(selectedPiece, targetTile);
         } else if (targetTile.isEatable()) {
             capturePiece(selectedPiece, targetTile);
         }
+
+        whiteTurn = !whiteTurn;
 
         if (targetTile.getPiece().getType() == Chess.PieceType.KING) {
             updateKingTile(targetTile);

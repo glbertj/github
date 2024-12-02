@@ -1,6 +1,7 @@
 package com.svx.chess.model;
 
 import javafx.scene.layout.GridPane;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -161,14 +162,12 @@ public class Chess {
                         if (wouldNotPutKingInCheck(tiles, currentTile, targetTile, kingTile)) {
                             moves.add(newRow * 8 + newCol);
                         }
-                    }
-                    else if (pieceOnTarget.getColor() != currentTile.getPiece().getColor()) {
+                    } else if (pieceOnTarget.getColor() != currentTile.getPiece().getColor()) {
                         if (wouldNotPutKingInCheck(tiles, currentTile, targetTile, kingTile)) {
                             moves.add(newRow * 8 + newCol);
                         }
                         break;
-                    }
-                    else {
+                    } else {
                         break;
                     }
                 }
@@ -273,15 +272,40 @@ public class Chess {
                 ChessTile targetTile = tiles[newRow][newCol];
                 ChessPiece pieceOnTarget = targetTile != null ? targetTile.getPiece() : null;
 
-                if (pieceOnTarget == null || pieceOnTarget.getColor() != currentPiece.getColor()) {
-                    moves.add(newRow * 8 + newCol);
+                if ((pieceOnTarget == null || pieceOnTarget.getColor() != currentPiece.getColor())) {
+                    assert targetTile != null;
+                    if (wouldNotPutKingInCheck(tiles, currentTile, targetTile, kingTile)) {
+                        moves.add(newRow * 8 + newCol);
+                    }
                 }
+            }
+        }
 
-                // TODO! fix this
-//                if ((pieceOnTarget == null || pieceOnTarget.getColor() != currentPiece.getColor()) &&
-//                        wouldNotPutKingInCheck(tiles, currentTile, targetTile, kingTile)) {
-//                    moves.add(newRow * 8 + newCol);
-//                }
+        // Castling logic
+        int kingRow = GridPane.getRowIndex(kingTile);
+        int kingCol = GridPane.getColumnIndex(kingTile);
+
+        int kingSideRookCol = 7;
+        int queenSideRookCol = 0;
+
+        if (playerColor.equals(Chess.PieceColor.BLACK)) {
+            kingSideRookCol = 0;
+            queenSideRookCol = 7;
+        }
+
+        if (canCastle(tiles, kingTile, tiles[kingRow][kingSideRookCol], true)) {
+            if (playerColor.equals(Chess.PieceColor.WHITE)) {
+                moves.add((kingRow * 8) + (kingCol + 2));
+            } else {
+                moves.add((kingRow * 8) + (kingCol - 2));
+            }
+        }
+
+        if (canCastle(tiles, kingTile, tiles[kingRow][queenSideRookCol], false)) {
+            if (playerColor.equals(Chess.PieceColor.WHITE)) {
+                moves.add((kingRow * 8) + (kingCol - 2));
+            } else {
+                moves.add((kingRow * 8) + (kingCol + 2));
             }
         }
 
@@ -293,16 +317,21 @@ public class Chess {
     }
 
     private static boolean wouldNotPutKingInCheck(ChessTile[][] tiles, ChessTile currentTile, ChessTile targetTile, ChessTile kingTile) {
-        ChessPiece movingPiece = currentTile.getPiece();
-        ChessPiece capturedPiece = targetTile.getPiece();
+        ChessPiece previousMovingPiece = currentTile.getPiece();
+        ChessPiece previousTargetPiece = targetTile.getPiece();
 
-        targetTile.setPiece(movingPiece);
+        targetTile.setPiece(previousMovingPiece);
         currentTile.setPiece(null);
 
-        boolean isInCheck = isKingInCheck(tiles, kingTile);
+        boolean isInCheck;
+        if (kingTile.getPiece() == null) {
+            isInCheck = isKingInCheck(tiles, targetTile);
+        } else {
+            isInCheck = isKingInCheck(tiles, kingTile);
+        }
 
-        currentTile.setPiece(movingPiece);
-        targetTile.setPiece(capturedPiece);
+        currentTile.setPiece(previousMovingPiece);
+        targetTile.setPiece(previousTargetPiece);
 
         return !isInCheck;
     }
@@ -312,14 +341,14 @@ public class Chess {
         int kingCol = GridPane.getColumnIndex(kingTile);
 
         int[][] directions = {
-                {1, 0},
-                {-1, 0},
-                {0, 1},
-                {0, -1},
-                {1, 1},
-                {-1, -1},
-                {1, -1},
-                {-1, 1}
+                {1, 0},   // Down
+                {-1, 0},  // Up
+                {0, 1},   // Right
+                {0, -1},  // Left
+                {1, 1},   // Down-Right (Diagonal)
+                {-1, -1}, // Up-Left (Diagonal)
+                {1, -1},  // Down-Left (Diagonal)
+                {-1, 1}   // Up-Right (Diagonal)
         };
 
         for (int[] direction : directions) {
@@ -333,8 +362,10 @@ public class Chess {
                 ChessTile tile = tiles[r][c];
                 if (tile != null && tile.getPiece() != null) {
                     ChessPiece piece = tile.getPiece();
+                    if (piece == null) break;
 
                     if (piece.getColor() != kingTile.getPiece().getColor()) {
+                        boolean diagonalMove = Math.abs(dRow) == Math.abs(dCol);
                         switch (piece.getType()) {
                             case ROOK:
                                 if (dRow == 0 || dCol == 0) {
@@ -342,54 +373,122 @@ public class Chess {
                                 }
                                 break;
                             case QUEEN:
-                                if (dRow == 0 || dCol == 0) {
+                                if (dRow == 0 || dCol == 0 || diagonalMove) {
                                     return true;
                                 }
+                                break;
                             case BISHOP:
-                                if (dRow != 0 && dCol != 0) {
+                                if (diagonalMove) {
                                     return true;
                                 }
                                 break;
                             case PAWN:
-                                if ((kingTile.getPiece().getColor() == Chess.PieceColor.WHITE && dRow == 1) ||
-                                        (kingTile.getPiece().getColor() == Chess.PieceColor.BLACK && dRow == -1)) {
-                                    return true;
+                                if (kingTile.getPiece().getColor() == Chess.PieceColor.WHITE) {
+                                    if (dRow == -1 && (dCol == -1 || dCol == 1)) {
+                                        return true;
+                                    }
+                                } else if (kingTile.getPiece().getColor() == Chess.PieceColor.BLACK) {
+                                    if (dRow == 1 && (dCol == -1 || dCol == 1)) {
+                                        return true;
+                                    }
                                 }
                                 break;
                         }
-
-                        if (piece.getType().equals(PieceType.KNIGHT)) {
-                            int[][] knightMoves = {
-                                    {kingRow + 2, kingCol + 1}, {kingRow + 2, kingCol - 1},
-                                    {kingRow - 2, kingCol + 1}, {kingRow - 2, kingCol - 1},
-                                    {kingRow + 1, kingCol + 2}, {kingRow + 1, kingCol - 2},
-                                    {kingRow - 1, kingCol + 2}, {kingRow - 1, kingCol - 2}
-                            };
-
-                            for (int[] move : knightMoves) {
-                                int targetRow = move[0];
-                                int targetCol = move[1];
-                                if (isValidMove(targetRow, targetCol)) {
-                                    ChessTile targetTile = tiles[targetRow][targetCol];
-                                    if (targetTile != null && targetTile.getPiece() != null) {
-                                        ChessPiece targetPiece = targetTile.getPiece();
-                                        if (targetPiece.getColor() != kingTile.getPiece().getColor() && targetPiece.getType() == Chess.PieceType.KNIGHT) {
-                                            return true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
-                    break;
+                    break; // Stop checking if any piece (including blocking) is in the way
                 }
                 r += dRow;
                 c += dCol;
             }
         }
 
+        // Check Knight moves
+        int[][] knightMoves = {
+                {kingRow + 2, kingCol + 1}, {kingRow + 2, kingCol - 1},
+                {kingRow - 2, kingCol + 1}, {kingRow - 2, kingCol - 1},
+                {kingRow + 1, kingCol + 2}, {kingRow + 1, kingCol - 2},
+                {kingRow - 1, kingCol + 2}, {kingRow - 1, kingCol - 2}
+        };
+
+        for (int[] move : knightMoves) {
+            int targetRow = move[0];
+            int targetCol = move[1];
+            if (isValidMove(targetRow, targetCol)) {
+                ChessTile targetTile = tiles[targetRow][targetCol];
+                if (targetTile != null && targetTile.getPiece() != null) {
+                    ChessPiece targetPiece = targetTile.getPiece();
+                    if (targetPiece.getColor() != kingTile.getPiece().getColor() && targetPiece.getType() == Chess.PieceType.KNIGHT) {
+                        return true;
+                    }
+                }
+            }
+        }
+
         return false;
     }
 
-    public static void setPlayerColor(Chess.PieceColor color) { playerColor = color; }
+    public static boolean isCheckMate(ChessTile[][] tiles, ChessTile kingTile) {
+        for (ChessTile[] row : tiles) {
+            for (ChessTile tile : row) {
+                if (tile.getPiece() != null && tile.getPiece().getColor() == kingTile.getPiece().getColor()) {
+                    int[] validMoves = getValidMoves(tile, tiles, kingTile);
+                    if (validMoves.length > 0) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public static boolean canCastle(ChessTile[][] tiles, ChessTile kingTile, ChessTile rookTile, boolean isLeftSide) {
+        ChessPiece king = kingTile.getPiece();
+        ChessPiece rook = rookTile.getPiece();
+
+        if (king == null || rook == null) return false;
+        if (king.hasMoved() || rook.hasMoved()) return false;
+
+        int startCol;
+        int endCol;
+
+        if (playerColor.equals(PieceColor.WHITE)) {
+            startCol = isLeftSide ? GridPane.getColumnIndex(kingTile) + 1 : GridPane.getColumnIndex(kingTile) - 3;
+            endCol = isLeftSide ? GridPane.getColumnIndex(rookTile) - 1 : GridPane.getColumnIndex(rookTile) + 1;
+        } else {
+            startCol = isLeftSide ? GridPane.getColumnIndex(kingTile) - 2 : GridPane.getColumnIndex(kingTile) + 1;
+            endCol = isLeftSide ? GridPane.getColumnIndex(rookTile) + 2 : GridPane.getColumnIndex(rookTile) - 1;
+        }
+
+        for (int col = startCol; col < endCol; col++) {
+            ChessTile tile = tiles[GridPane.getRowIndex(kingTile)][col];
+            if (tile.getPiece() != null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static void castle(ChessTile[][] tiles, ChessTile kingTile, ChessTile rookTile, boolean isKingSide) {
+        int direction = isKingSide ? 1 : -1;
+        int kingRow = GridPane.getRowIndex(kingTile);
+        int kingCol = GridPane.getColumnIndex(kingTile);
+
+        ChessTile newKingTile = tiles[kingRow][kingCol + 2 * direction];
+        ChessPiece kingPiece = kingTile.getPiece();
+        newKingTile.setPiece(kingPiece);
+        kingTile.setPiece(null);
+
+        ChessTile newRookTile = tiles[kingRow][kingCol + direction];
+        ChessPiece rookPiece = rookTile.getPiece();
+        newRookTile.setPiece(rookPiece);
+        rookTile.setPiece(null);
+
+        kingPiece.setHasMoved(true);
+        rookPiece.setHasMoved(true);
+    }
+
+    public static void setPlayerColor(Chess.PieceColor color) {
+        playerColor = color;
+    }
 }

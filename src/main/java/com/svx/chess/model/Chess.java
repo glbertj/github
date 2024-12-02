@@ -293,19 +293,20 @@ public class Chess {
             queenSideRookCol = 7;
         }
 
+        // TODO! improve
         if (canCastle(tiles, kingTile, tiles[kingRow][kingSideRookCol], true)) {
             if (playerColor.equals(Chess.PieceColor.WHITE)) {
-                moves.add((kingRow * 8) + (kingCol + 2));
+                tiles[kingRow][kingCol + 2].setIsCastleMove(true);
             } else {
-                moves.add((kingRow * 8) + (kingCol - 2));
+                tiles[kingRow][kingCol - 2].setIsCastleMove(true);
             }
         }
 
         if (canCastle(tiles, kingTile, tiles[kingRow][queenSideRookCol], false)) {
             if (playerColor.equals(Chess.PieceColor.WHITE)) {
-                moves.add((kingRow * 8) + (kingCol - 2));
+                tiles[kingRow][kingCol - 2].setIsCastleMove(true);
             } else {
-                moves.add((kingRow * 8) + (kingCol + 2));
+                tiles[kingRow][kingCol + 2].setIsCastleMove(true);
             }
         }
 
@@ -441,22 +442,22 @@ public class Chess {
         return true;
     }
 
-    public static boolean canCastle(ChessTile[][] tiles, ChessTile kingTile, ChessTile rookTile, boolean isLeftSide) {
+    public static boolean canCastle(ChessTile[][] tiles, ChessTile kingTile, ChessTile rookTile, boolean isRightSide) {
         ChessPiece king = kingTile.getPiece();
         ChessPiece rook = rookTile.getPiece();
 
         if (king == null || rook == null) return false;
-        if (king.hasMoved() || rook.hasMoved()) return false;
+        if (king.cannotCastle() || rook.cannotCastle()) return false;
 
         int startCol;
         int endCol;
 
         if (playerColor.equals(PieceColor.WHITE)) {
-            startCol = isLeftSide ? GridPane.getColumnIndex(kingTile) + 1 : GridPane.getColumnIndex(kingTile) - 3;
-            endCol = isLeftSide ? GridPane.getColumnIndex(rookTile) - 1 : GridPane.getColumnIndex(rookTile) + 1;
+            startCol = isRightSide ? GridPane.getColumnIndex(kingTile) + 1 : GridPane.getColumnIndex(kingTile) - 3;
+            endCol = isRightSide ? GridPane.getColumnIndex(rookTile) - 1 : GridPane.getColumnIndex(rookTile) + 1;
         } else {
-            startCol = isLeftSide ? GridPane.getColumnIndex(kingTile) - 2 : GridPane.getColumnIndex(kingTile) + 1;
-            endCol = isLeftSide ? GridPane.getColumnIndex(rookTile) + 2 : GridPane.getColumnIndex(rookTile) - 1;
+            startCol = isRightSide ? GridPane.getColumnIndex(kingTile) - 2 : GridPane.getColumnIndex(kingTile) + 1;
+            endCol = isRightSide ? GridPane.getColumnIndex(rookTile) + 2 : GridPane.getColumnIndex(rookTile) - 1;
         }
 
         for (int col = startCol; col < endCol; col++) {
@@ -467,25 +468,6 @@ public class Chess {
         }
 
         return true;
-    }
-
-    public static void castle(ChessTile[][] tiles, ChessTile kingTile, ChessTile rookTile, boolean isKingSide) {
-        int direction = isKingSide ? 1 : -1;
-        int kingRow = GridPane.getRowIndex(kingTile);
-        int kingCol = GridPane.getColumnIndex(kingTile);
-
-        ChessTile newKingTile = tiles[kingRow][kingCol + 2 * direction];
-        ChessPiece kingPiece = kingTile.getPiece();
-        newKingTile.setPiece(kingPiece);
-        kingTile.setPiece(null);
-
-        ChessTile newRookTile = tiles[kingRow][kingCol + direction];
-        ChessPiece rookPiece = rookTile.getPiece();
-        newRookTile.setPiece(rookPiece);
-        rookTile.setPiece(null);
-
-        kingPiece.setHasMoved(true);
-        rookPiece.setHasMoved(true);
     }
 
     public static void setPlayerColor(Chess.PieceColor color) {

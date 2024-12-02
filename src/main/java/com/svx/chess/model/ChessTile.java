@@ -11,18 +11,21 @@ public class ChessTile extends StackPane {
     private final SimpleBooleanProperty isValidMove;
     private final SimpleBooleanProperty isEatable;
     private final SimpleBooleanProperty isRecentMove;
+    private final SimpleBooleanProperty isCastleMove;
 
     public ChessTile() {
         pieceProperty = new SimpleObjectProperty<>();
         isValidMove = new SimpleBooleanProperty(false);
         isEatable = new SimpleBooleanProperty(false);
         isRecentMove = new SimpleBooleanProperty(false);
+        isCastleMove = new SimpleBooleanProperty(false);
 
         getStyleClass().add("tile");
 
         addValidMoveIndicator();
         addEnemyIndicator();
         addRecentMoveIndicator();
+        addCastleMoveIndicator();
         addChessPieceImage();
     }
 
@@ -53,12 +56,20 @@ public class ChessTile extends StackPane {
         });
     }
 
+    private void addCastleMoveIndicator() {
+        Circle castleMoveCircle = new Circle(10);
+        castleMoveCircle.getStyleClass().add("valid-move-circle");
+        castleMoveCircle.setVisible(false);
+        getChildren().add(castleMoveCircle);
+        castleMoveCircle.visibleProperty().bind(isCastleMove);
+    }
+
     private void addChessPieceImage() {
         pieceProperty.addListener((observable) -> {
             ChessPiece newPiece = pieceProperty.get();
             if (newPiece != null) {
-                if (getChildren().size() == 3) {
-                    getChildren().remove(2);
+                if (getChildren().size() == 4) {
+                    getChildren().remove(3);
                 }
                 getChildren().add(newPiece.getImageView());
             }
@@ -79,4 +90,6 @@ public class ChessTile extends StackPane {
     public boolean isEatable() { return isEatable.get(); }
     public void setIsEatable(boolean isEatable) { this.isEatable.set(isEatable); }
     public void setIsRecentMove(boolean isRecentMove) { this.isRecentMove.set(isRecentMove); }
+    public boolean isCastleMove() { return isCastleMove.get(); }
+    public void setIsCastleMove(boolean isCastleMove) { this.isCastleMove.set(isCastleMove); }
 }

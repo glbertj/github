@@ -11,7 +11,7 @@ import com.svx.github.controller.Controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.Parent;
+import javafx.scene.layout.GridPane;
 
 public class ChessController extends Controller<ChessView> {
     private final ChessBoard chessBoard;
@@ -81,7 +81,7 @@ public class ChessController extends Controller<ChessView> {
             return;
         }
 
-        processMoveOrCapture(selectedPiece, targetTile);
+        handleBoardUpdate(selectedPiece, targetTile);
 
         if (targetTile.getPiece() != null && targetTile.getPiece().getType() == Chess.PieceType.PAWN) {
             Chess.handlePawnPromotion(targetTile, playerColor);
@@ -94,6 +94,12 @@ public class ChessController extends Controller<ChessView> {
             } else if (Chess.isCheckMate(chessBoard.getTiles(), chessBoard.getBlackKingTile())) {
                 SoundUtility.SoundType.CHECKMATE.play();
                 return;
+            }
+
+            if (Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getWhiteKingTile())) {
+                chessBoard.getWhiteKingTile().getPiece().setCanCastle(false);
+            } else {
+                chessBoard.getBlackKingTile().getPiece().setCanCastle(false);
             }
 
             SoundUtility.SoundType.CHECK.play();
@@ -113,19 +119,24 @@ public class ChessController extends Controller<ChessView> {
         selectedTile = null;
     }
 
-    private void processMoveOrCapture(ChessPiece selectedPiece, ChessTile targetTile) {
-        if (!targetTile.isValidMove() && !targetTile.isEatable()) {
+    private void handleBoardUpdate(ChessPiece selectedPiece, ChessTile targetTile) {
+        if (!targetTile.isValidMove() && !targetTile.isEatable() && !targetTile.isCastleMove()) {
             return;
         }
 
         view.clearHighlightedTiles();
         selectedTile.setIsRecentMove(true);
         targetTile.setIsRecentMove(true);
-        selectedPiece.setHasMoved(true);
+        selectedPiece.setCanCastle(false);
 
-        if (targetTile.isValidMove()) {
+        if (targetTile.isCastleMove()) {
+            SoundUtility.SoundType.CASTLE.play();
+            castle(selectedPiece, targetTile);
+        } else if (targetTile.isValidMove()) {
+            SoundUtility.SoundType.MOVE.play();
             movePiece(selectedPiece, targetTile);
         } else if (targetTile.isEatable()) {
+            SoundUtility.SoundType.CAPTURE.play();
             capturePiece(selectedPiece, targetTile);
         }
 
@@ -137,8 +148,6 @@ public class ChessController extends Controller<ChessView> {
     }
 
     private void movePiece(ChessPiece selectedPiece, ChessTile targetTile) {
-        SoundUtility.SoundType.MOVE.play();
-
         targetTile.setPiece(selectedPiece);
         selectedTile.setPiece(null);
         selectedTile = null;
@@ -146,8 +155,6 @@ public class ChessController extends Controller<ChessView> {
     }
 
     public void capturePiece(ChessPiece selectedPiece, ChessTile targetTile) {
-        SoundUtility.SoundType.CAPTURE.play();
-
         if (targetTile.getPiece().getColor() == Chess.PieceColor.WHITE) {
             capturedWhitePiece.add(targetTile.getPiece());
         } else {
@@ -160,6 +167,22 @@ public class ChessController extends Controller<ChessView> {
         selectedTile.setPiece(null);
         selectedTile = null;
         view.hideValidMoves();
+    }
+
+    public void castle(ChessPiece selectedPiece, ChessTile targetTile) {
+        ChessPiece rookPiece;
+        ChessTile targetRookTile;
+        if (GridPane.getColumnIndex(targetTile) > 4) {
+            rookPiece = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][7].getPiece();
+            targetRookTile = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][5];
+        } else {
+            rookPiece = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][0].getPiece();
+            targetRookTile = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][3];
+        }
+        movePiece(selectedPiece, targetTile);
+
+        selectedTile = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][GridPane.getColumnIndex(targetTile) > 4 ? 7 : 0];
+        movePiece(rookPiece, targetRookTile);
     }
 
     private ChessTile getKingTileForCurrentTurn() {

@@ -351,14 +351,14 @@ public class Chess {
         int kingCol = GridPane.getColumnIndex(kingTile);
 
         int[][] directions = {
-                {1, 0},   // Down
-                {-1, 0},  // Up
-                {0, 1},   // Right
-                {0, -1},  // Left
-                {1, 1},   // Down-Right (Diagonal)
-                {-1, -1}, // Up-Left (Diagonal)
-                {1, -1},  // Down-Left (Diagonal)
-                {-1, 1}   // Up-Right (Diagonal)
+                {1, 0},
+                {-1, 0},
+                {0, 1},
+                {0, -1},
+                {1, 1},
+                {-1, -1},
+                {1, -1},
+                {-1, 1}
         };
 
         for (int[] direction : directions) {
@@ -394,18 +394,26 @@ public class Chess {
                                 break;
                             case PAWN:
                                 if (kingTile.getPiece().getColor() == Chess.PieceColor.WHITE) {
+                                    if (dRow == -1 && dCol == 0) {
+                                        return false;
+                                    }
                                     if (dRow == -1 && (dCol == -1 || dCol == 1)) {
                                         return true;
                                     }
-                                } else if (kingTile.getPiece().getColor() == Chess.PieceColor.BLACK) {
+                                }
+                                else if (kingTile.getPiece().getColor() == Chess.PieceColor.BLACK) {
+                                    if (dRow == 1 && dCol == 0) {
+                                        return false;
+                                    }
                                     if (dRow == 1 && (dCol == -1 || dCol == 1)) {
                                         return true;
                                     }
                                 }
                                 break;
+
                         }
                     }
-                    break; // Stop checking if any piece (including blocking) is in the way
+                    break;
                 }
                 r += dRow;
                 c += dCol;

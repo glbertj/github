@@ -81,7 +81,7 @@ public class ChessController extends Controller<ChessView> {
             return;
         }
 
-        handleBoardUpdate(selectedPiece, targetTile);
+        handleMove(selectedPiece, targetTile);
 
         if (targetTile.getPiece() != null && targetTile.getPiece().getType() == Chess.PieceType.PAWN) {
             Chess.handlePawnPromotion(targetTile, playerColor);
@@ -119,7 +119,7 @@ public class ChessController extends Controller<ChessView> {
         selectedTile = null;
     }
 
-    private void handleBoardUpdate(ChessPiece selectedPiece, ChessTile targetTile) {
+    private void handleMove(ChessPiece selectedPiece, ChessTile targetTile) {
         if (!targetTile.isValidMove() && !targetTile.isEatable() && !targetTile.isCastleMove() && !targetTile.isEnPassantMove()) {
             return;
         }
@@ -173,6 +173,7 @@ public class ChessController extends Controller<ChessView> {
         } else {
             capturedBlackPiece.add(targetTile.getPiece());
         }
+        targetTile.setPiece(null);
     }
 
     private void castle(ChessPiece selectedPiece, ChessTile targetTile) {
@@ -206,11 +207,13 @@ public class ChessController extends Controller<ChessView> {
     }
 
     private void clearJumpMoves() {
-        for (ChessTile[] row : chessBoard.getTiles()) {
-            for (ChessTile tile : row) {
-                tile.setIsJumpMove(false);
-                tile.setJustJumped(false);
-            }
+        int rowToClear = (playerColor.equals(Chess.PieceColor.WHITE)) ? (whiteTurn ? 4 : 3) : (whiteTurn ? 3 : 4);
+
+        ChessTile[] targetRow = chessBoard.getTiles()[rowToClear];
+
+        for (ChessTile tile : targetRow) {
+            tile.setIsJumpMove(false);
+            tile.setJustJumped(false);
         }
     }
 

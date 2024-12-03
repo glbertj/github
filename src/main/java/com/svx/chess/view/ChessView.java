@@ -71,6 +71,8 @@ public class ChessView extends View<BorderPane> {
             if (node instanceof ChessTile tile) {
                 tile.setIsValidMove(false);
                 tile.setIsEatable(false);
+                tile.setIsEnPassantMove(false);
+                tile.setIsCastleMove(false);
             }
         }
     }

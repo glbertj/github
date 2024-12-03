@@ -34,7 +34,7 @@ public class AppController {
         rootPane = new StackPane();
         rootPane.getStyleClass().add("root-pane");
         appScene = new Scene(rootPane, 1000, 700);
-        this.primaryStage.setTitle("GiThub");
+        this.primaryStage.setTitle("GoaThub");
         this.primaryStage.setMinWidth(1000);
         this.primaryStage.setMinHeight(700);
         this.primaryStage.setMaximized(true);

@@ -120,7 +120,7 @@ public class ChessController extends Controller<ChessView> {
     }
 
     private void handleBoardUpdate(ChessPiece selectedPiece, ChessTile targetTile) {
-        if (!targetTile.isValidMove() && !targetTile.isEatable() && !targetTile.isCastleMove()) {
+        if (!targetTile.isValidMove() && !targetTile.isEatable() && !targetTile.isCastleMove() && !targetTile.isEnPassantMove()) {
             return;
         }
 
@@ -129,15 +129,28 @@ public class ChessController extends Controller<ChessView> {
         targetTile.setIsRecentMove(true);
         selectedPiece.setCanCastle(false);
 
-        if (targetTile.isCastleMove()) {
+        if (selectedPiece.getColor().equals(playerColor)) {
+            clearJumpMoves();
+        }
+
+        if (targetTile.isEnPassantMove()) {
+            SoundUtility.SoundType.CAPTURE.play();
+            enPassant(selectedPiece, targetTile);
+        } else if (targetTile.isCastleMove()) {
             SoundUtility.SoundType.CASTLE.play();
             castle(selectedPiece, targetTile);
         } else if (targetTile.isValidMove()) {
             SoundUtility.SoundType.MOVE.play();
+
+            if (targetTile.isJumpMove()) {
+                targetTile.setJustJumped(true);
+            }
+
             movePiece(selectedPiece, targetTile);
         } else if (targetTile.isEatable()) {
             SoundUtility.SoundType.CAPTURE.play();
-            capturePiece(selectedPiece, targetTile);
+            capturePiece(targetTile);
+            movePiece(selectedPiece, targetTile);
         }
 
         whiteTurn = !whiteTurn;
@@ -154,22 +167,15 @@ public class ChessController extends Controller<ChessView> {
         view.hideValidMoves();
     }
 
-    public void capturePiece(ChessPiece selectedPiece, ChessTile targetTile) {
+    private void capturePiece(ChessTile targetTile) {
         if (targetTile.getPiece().getColor() == Chess.PieceColor.WHITE) {
             capturedWhitePiece.add(targetTile.getPiece());
         } else {
             capturedBlackPiece.add(targetTile.getPiece());
         }
-
-        targetTile.setPiece(selectedPiece);
-
-        selectedTile.getPiece();
-        selectedTile.setPiece(null);
-        selectedTile = null;
-        view.hideValidMoves();
     }
 
-    public void castle(ChessPiece selectedPiece, ChessTile targetTile) {
+    private void castle(ChessPiece selectedPiece, ChessTile targetTile) {
         ChessPiece rookPiece;
         ChessTile targetRookTile;
         if (GridPane.getColumnIndex(targetTile) > 4) {
@@ -183,6 +189,29 @@ public class ChessController extends Controller<ChessView> {
 
         selectedTile = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][GridPane.getColumnIndex(targetTile) > 4 ? 7 : 0];
         movePiece(rookPiece, targetRookTile);
+    }
+
+    private void enPassant(ChessPiece selectedPiece, ChessTile targetTile) {
+        int direction = (selectedPiece.getColor() == Chess.PieceColor.BLACK) ? -1 : 1;
+        if (playerColor.equals(Chess.PieceColor.BLACK)) {
+            direction *= -1;
+        }
+
+        int targetTileRow = GridPane.getRowIndex(targetTile);
+        int targetTileCol = GridPane.getColumnIndex(targetTile);
+
+        ChessTile enemyPawnTile = chessBoard.getTiles()[targetTileRow + direction][targetTileCol];
+        capturePiece(enemyPawnTile);
+        movePiece(selectedPiece, targetTile);
+    }
+
+    private void clearJumpMoves() {
+        for (ChessTile[] row : chessBoard.getTiles()) {
+            for (ChessTile tile : row) {
+                tile.setIsJumpMove(false);
+                tile.setJustJumped(false);
+            }
+        }
     }
 
     private ChessTile getKingTileForCurrentTurn() {

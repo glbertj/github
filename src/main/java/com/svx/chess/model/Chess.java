@@ -107,6 +107,7 @@ public class Chess {
             if (targetTile1 != null && targetTile2 != null
                     && targetTile1.getPiece() == null && targetTile2.getPiece() == null) {
                 if (wouldNotPutKingInCheck(tiles, currentTile, targetTile2, kingTile)) {
+                    tiles[currentRow + 2 * direction][currentCol].setIsJumpMove(true);
                     moves.add((currentRow + 2 * direction) * 8 + currentCol);
                 }
             }
@@ -124,6 +125,13 @@ public class Chess {
                         moves.add(newRow * 8 + newCol);
                     }
                 }
+            }
+        }
+
+        ChessTile enPassantTile = getEnPassantAbleTile(tiles, currentTile);
+        if (enPassantTile != null) {
+            if (wouldNotPutKingInCheck(tiles, currentTile, enPassantTile, kingTile)) {
+                enPassantTile.setIsEnPassantMove(true);
             }
         }
 
@@ -468,6 +476,35 @@ public class Chess {
         }
 
         return true;
+    }
+
+    public static ChessTile getEnPassantAbleTile(ChessTile[][] tiles, ChessTile pawnTile) {
+        if (pawnTile.getPiece() == null) return null;
+
+        int currentRow = GridPane.getRowIndex(pawnTile);
+        int currentCol = GridPane.getColumnIndex(pawnTile);
+
+        int leftCol = currentCol - 1;
+        int rightCol = currentCol + 1;
+
+        ChessPiece pawnPiece = pawnTile.getPiece();
+
+        int direction = (pawnPiece.getColor() == Chess.PieceColor.BLACK) ? 1 : -1;
+        if (playerColor.equals(Chess.PieceColor.BLACK)) {
+            direction *= -1;
+        }
+
+        if (isValidMove(currentRow, leftCol) && tiles[currentRow][leftCol].justJumped()
+                && pawnPiece.getColor() != tiles[currentRow][leftCol].getPiece().getColor()) {
+            return tiles[currentRow + direction][leftCol];
+        }
+
+        if (isValidMove(currentRow, rightCol) && tiles[currentRow][rightCol].justJumped()
+                && pawnPiece.getColor() != tiles[currentRow][rightCol].getPiece().getColor()) {
+            return tiles[currentRow + direction][rightCol];
+        }
+
+        return null;
     }
 
     public static void setPlayerColor(Chess.PieceColor color) {

@@ -160,7 +160,7 @@ public class ChessController extends Controller<ChessView> {
 
     private void movePiece(ChessPiece selectedPiece, ChessTile targetTile) {
         targetTile.setPiece(selectedPiece);
-        selectedTile.setPiece(null);
+        if (selectedTile != null) selectedTile.setPiece(null);
         selectedTile = null;
         view.hideValidMoves();
     }
@@ -177,16 +177,31 @@ public class ChessController extends Controller<ChessView> {
     private void castle(ChessPiece selectedPiece, ChessTile targetTile) {
         ChessPiece rookPiece;
         ChessTile targetRookTile;
-        if (GridPane.getColumnIndex(targetTile) > 4) {
-            rookPiece = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][7].getPiece();
-            targetRookTile = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][5];
+        int row = GridPane.getRowIndex(targetTile);
+        int col = GridPane.getColumnIndex(targetTile);
+
+        boolean kingSide = (playerColor == Chess.PieceColor.WHITE) ? (col > 3) : (col < 4);
+
+        if (kingSide) {
+            if (playerColor == Chess.PieceColor.WHITE) {
+                rookPiece = chessBoard.getTiles()[row][7].getPiece();
+                targetRookTile = chessBoard.getTiles()[row][5];
+            } else {
+                rookPiece = chessBoard.getTiles()[row][7].getPiece();
+                targetRookTile = chessBoard.getTiles()[row][5];
+            }
         } else {
-            rookPiece = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][0].getPiece();
-            targetRookTile = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][3];
+            if (playerColor == Chess.PieceColor.WHITE) {
+                rookPiece = chessBoard.getTiles()[row][0].getPiece();
+                targetRookTile = chessBoard.getTiles()[row][3];
+            } else {
+                rookPiece = chessBoard.getTiles()[row][0].getPiece();
+                targetRookTile = chessBoard.getTiles()[row][3];
+            }
         }
+
         movePiece(selectedPiece, targetTile);
 
-        selectedTile = chessBoard.getTiles()[GridPane.getRowIndex(targetTile)][GridPane.getColumnIndex(targetTile) > 4 ? 7 : 0];
         movePiece(rookPiece, targetRookTile);
     }
 

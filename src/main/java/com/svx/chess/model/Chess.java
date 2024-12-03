@@ -107,7 +107,6 @@ public class Chess {
             if (targetTile1 != null && targetTile2 != null
                     && targetTile1.getPiece() == null && targetTile2.getPiece() == null) {
                 if (wouldNotPutKingInCheck(tiles, currentTile, targetTile2, kingTile)) {
-                    System.out.println("there's a jump move");
                     tiles[currentRow + 2 * direction][currentCol].setIsJumpMove(true);
                     moves.add((currentRow + 2 * direction) * 8 + currentCol);
                 }
@@ -511,7 +510,6 @@ public class Chess {
             return tiles[currentRow + direction][rightCol];
         }
 
-        System.out.println("none");
         return null;
     }
 

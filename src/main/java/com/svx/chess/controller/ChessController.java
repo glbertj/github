@@ -129,9 +129,7 @@ public class ChessController extends Controller<ChessView> {
         targetTile.setIsRecentMove(true);
         selectedPiece.setCanCastle(false);
 
-        if (selectedPiece.getColor().equals(playerColor)) {
-            clearJumpMoves();
-        }
+        clearJumpMoves();
 
         if (targetTile.isEnPassantMove()) {
             SoundUtility.SoundType.CAPTURE.play();
@@ -207,7 +205,7 @@ public class ChessController extends Controller<ChessView> {
     }
 
     private void clearJumpMoves() {
-        int rowToClear = (playerColor.equals(Chess.PieceColor.WHITE)) ? (whiteTurn ? 4 : 3) : (whiteTurn ? 3 : 4);
+        int rowToClear = (playerColor.equals(Chess.PieceColor.WHITE)) ? (whiteTurn ? 3 : 4) : (whiteTurn ? 4 : 3);
 
         ChessTile[] targetRow = chessBoard.getTiles()[rowToClear];
 

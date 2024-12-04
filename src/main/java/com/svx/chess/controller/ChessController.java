@@ -187,16 +187,16 @@ public class ChessController extends Controller<ChessView> {
                 rookPiece = chessBoard.getTiles()[row][7].getPiece();
                 targetRookTile = chessBoard.getTiles()[row][5];
             } else {
-                rookPiece = chessBoard.getTiles()[row][7].getPiece();
-                targetRookTile = chessBoard.getTiles()[row][5];
+                rookPiece = chessBoard.getTiles()[row][0].getPiece();
+                targetRookTile = chessBoard.getTiles()[row][2];
             }
         } else {
             if (playerColor == Chess.PieceColor.WHITE) {
                 rookPiece = chessBoard.getTiles()[row][0].getPiece();
                 targetRookTile = chessBoard.getTiles()[row][3];
             } else {
-                rookPiece = chessBoard.getTiles()[row][0].getPiece();
-                targetRookTile = chessBoard.getTiles()[row][3];
+                rookPiece = chessBoard.getTiles()[row][7].getPiece();
+                targetRookTile = chessBoard.getTiles()[row][4];
             }
         }
 

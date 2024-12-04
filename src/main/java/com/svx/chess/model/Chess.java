@@ -391,31 +391,31 @@ public class Chess {
                                     return true;
                                 }
                                 break;
-                            case PAWN:
-                                if (kingTile.getPiece().getColor() == Chess.PieceColor.WHITE) {
-                                    if (dRow == -1 && dCol == 0) {
-                                        return false;
-                                    }
-                                    if (dRow == -1 && (dCol == -1 || dCol == 1)) {
-                                        return true;
-                                    }
-                                }
-                                else if (kingTile.getPiece().getColor() == Chess.PieceColor.BLACK) {
-                                    if (dRow == 1 && dCol == 0) {
-                                        return false;
-                                    }
-                                    if (dRow == 1 && (dCol == -1 || dCol == 1)) {
-                                        return true;
-                                    }
-                                }
-                                break;
-
                         }
                     }
                     break;
                 }
                 r += dRow;
                 c += dCol;
+            }
+
+            if (!isValidMove(r, c)) continue;
+
+            ChessTile tile = tiles[r][c];
+            if (tile != null && tile.getPiece() != null) {
+                ChessPiece piece = tile.getPiece();
+                if (piece == null) break;
+
+                if (piece.getColor() == kingTile.getPiece().getColor()) continue;
+                if ((playerColor.equals(kingTile.getPiece().getColor()))) {
+                    if (dRow == -1 && (dCol == -1 || dCol == 1)) {
+                        return true;
+                    }
+                } else {
+                    if (dRow == 1 && (dCol == -1 || dCol == 1)) {
+                        return true;
+                    }
+                }
             }
         }
 
@@ -434,12 +434,15 @@ public class Chess {
                 ChessTile targetTile = tiles[targetRow][targetCol];
                 if (targetTile != null && targetTile.getPiece() != null) {
                     ChessPiece targetPiece = targetTile.getPiece();
-                    if (targetPiece.getColor() != kingTile.getPiece().getColor() && targetPiece.getType() == Chess.PieceType.KNIGHT) {
+                    if (targetPiece.getColor() != kingTile.getPiece().getColor() && targetPiece.getType().equals(Chess.PieceType.KNIGHT)) {
+                        System.out.println("knight");
                         return true;
                     }
                 }
             }
         }
+
+        System.out.println("1 tile is ok");
 
         return false;
     }

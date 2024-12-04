@@ -5,6 +5,7 @@ import com.svx.github.controller.dialog.DialogController;
 import com.svx.github.manager.ConnectionManager;
 import com.svx.github.manager.SessionManager;
 import com.svx.github.model.NotificationBox;
+import com.svx.github.model.User;
 import com.svx.github.model.UserSingleton;
 import com.svx.github.view.View;
 import com.svx.github.view.dialog.DialogView;

@@ -304,17 +304,29 @@ public class Chess {
         // TODO! improve
         if (canCastle(tiles, kingTile, tiles[kingRow][kingSideRookCol], true)) {
             if (playerColor.equals(Chess.PieceColor.WHITE)) {
-                tiles[kingRow][kingCol + 2].setIsCastleMove(true);
+                if (wouldNotPutKingInCheck(tiles, currentTile, tiles[kingRow][kingCol + 2], kingTile)
+                        && wouldNotPutKingInCheck(tiles, currentTile, tiles[kingRow][kingCol + 2], kingTile)) {
+                    tiles[kingRow][kingCol + 2].setIsCastleMove(true);
+                }
             } else {
-                tiles[kingRow][kingCol - 2].setIsCastleMove(true);
+                if (wouldNotPutKingInCheck(tiles, currentTile, tiles[kingRow][kingCol - 2], kingTile)
+                        && wouldNotPutKingInCheck(tiles, currentTile, tiles[kingRow][kingCol - 2], kingTile)) {
+                    tiles[kingRow][kingCol - 2].setIsCastleMove(true);
+                }
             }
         }
 
         if (canCastle(tiles, kingTile, tiles[kingRow][queenSideRookCol], false)) {
             if (playerColor.equals(Chess.PieceColor.WHITE)) {
-                tiles[kingRow][kingCol - 2].setIsCastleMove(true);
+                if (wouldNotPutKingInCheck(tiles, currentTile, tiles[kingRow][kingCol - 2], kingTile)
+                        && wouldNotPutKingInCheck(tiles, currentTile, tiles[kingRow][kingCol - 2], kingTile)) {
+                    tiles[kingRow][kingCol - 2].setIsCastleMove(true);
+                }
             } else {
-                tiles[kingRow][kingCol + 2].setIsCastleMove(true);
+                if (wouldNotPutKingInCheck(tiles, currentTile, tiles[kingRow][kingCol + 2], kingTile)
+                        && wouldNotPutKingInCheck(tiles, currentTile, tiles[kingRow][kingCol + 2], kingTile)) {
+                    tiles[kingRow][kingCol + 2].setIsCastleMove(true);
+                }
             }
         }
 

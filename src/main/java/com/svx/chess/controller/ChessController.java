@@ -96,12 +96,6 @@ public class ChessController extends Controller<ChessView> {
                 return;
             }
 
-            if (Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getWhiteKingTile())) {
-                chessBoard.getWhiteKingTile().getPiece().setCanCastle(false);
-            } else {
-                chessBoard.getBlackKingTile().getPiece().setCanCastle(false);
-            }
-
             SoundUtility.SoundType.CHECK.play();
         }
     }
@@ -134,7 +128,7 @@ public class ChessController extends Controller<ChessView> {
         if (targetTile.isEnPassantMove()) {
             SoundUtility.SoundType.CAPTURE.play();
             enPassant(selectedPiece, targetTile);
-        } else if (targetTile.isCastleMove()) {
+        } else if (targetTile.isCastleMove() && !Chess.isKingInCheck(chessBoard.getTiles(), selectedTile)) {
             SoundUtility.SoundType.CASTLE.play();
             castle(selectedPiece, targetTile);
         } else if (targetTile.isValidMove()) {

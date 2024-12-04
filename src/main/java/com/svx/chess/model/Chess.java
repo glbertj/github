@@ -512,19 +512,15 @@ public class Chess {
 
         if (playerColor.equals(PieceColor.WHITE)) {
             startCol = isRightSide ? GridPane.getColumnIndex(kingTile) + 1 : GridPane.getColumnIndex(kingTile) - 3;
-            endCol = isRightSide ? GridPane.getColumnIndex(rookTile) - 1 : GridPane.getColumnIndex(rookTile) + 1;
+            endCol = isRightSide ? GridPane.getColumnIndex(rookTile) - 1 : GridPane.getColumnIndex(rookTile) + 3;
         } else {
             startCol = isRightSide ? GridPane.getColumnIndex(kingTile) - 2 : GridPane.getColumnIndex(kingTile) + 1;
             endCol = isRightSide ? GridPane.getColumnIndex(rookTile) + 2 : GridPane.getColumnIndex(rookTile) - 1;
         }
 
-        if (startCol > endCol) {
-            int temp = startCol;
-            startCol = endCol;
-            endCol = temp;
-        }
+        System.out.println(startCol + " " + endCol);
 
-        for (int col = startCol; col < endCol; col++) {
+        for (int col = startCol; col <= endCol; col++) {
             ChessTile tile = tiles[GridPane.getRowIndex(kingTile)][col];
             if (tile.getPiece() != null) {
                 return false;

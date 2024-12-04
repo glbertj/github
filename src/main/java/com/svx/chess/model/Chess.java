@@ -349,6 +349,7 @@ public class Chess {
         int kingRow = GridPane.getRowIndex(kingTile);
         int kingCol = GridPane.getColumnIndex(kingTile);
 
+        // Check rook, queen, bishop moves
         int[][] directions = {
                 {1, 0},
                 {-1, 0},
@@ -398,23 +399,52 @@ public class Chess {
                 r += dRow;
                 c += dCol;
             }
+        }
+
+        // Check Pawn moves
+        for(int[] direction : directions) {
+            int dRow = direction[0];
+            int dCol = direction[1];
+
+            int r = kingRow + dRow;
+            int c = kingCol + dCol;
 
             if (!isValidMove(r, c)) continue;
 
             ChessTile tile = tiles[r][c];
             if (tile != null && tile.getPiece() != null) {
                 ChessPiece piece = tile.getPiece();
-                if (piece == null) break;
+                if (piece.getColor().equals(kingTile.getPiece().getColor())) continue;
 
-                if (piece.getColor() == kingTile.getPiece().getColor()) continue;
                 if ((playerColor.equals(kingTile.getPiece().getColor()))) {
-                    if (dRow == -1 && (dCol == -1 || dCol == 1)) {
+                    if (dRow == -1 && (dCol == -1 || dCol == 1) && piece.getType().equals(Chess.PieceType.PAWN)) {
                         return true;
                     }
                 } else {
-                    if (dRow == 1 && (dCol == -1 || dCol == 1)) {
+                    if (dRow == 1 && (dCol == -1 || dCol == 1) && piece.getType().equals(Chess.PieceType.PAWN)) {
                         return true;
                     }
+                }
+            }
+        }
+
+        // Check king moves
+        for(int[] direction : directions) {
+            int dRow = direction[0];
+            int dCol = direction[1];
+
+            int r = kingRow + dRow;
+            int c = kingCol + dCol;
+
+            if (!isValidMove(r, c)) continue;
+
+            ChessTile tile = tiles[r][c];
+            if (tile != null && tile.getPiece() != null) {
+                ChessPiece piece = tile.getPiece();
+                if (piece.getColor().equals(kingTile.getPiece().getColor())) continue;
+
+                if (piece.getType().equals(Chess.PieceType.KING)) {
+                    return true;
                 }
             }
         }
@@ -435,14 +465,11 @@ public class Chess {
                 if (targetTile != null && targetTile.getPiece() != null) {
                     ChessPiece targetPiece = targetTile.getPiece();
                     if (targetPiece.getColor() != kingTile.getPiece().getColor() && targetPiece.getType().equals(Chess.PieceType.KNIGHT)) {
-                        System.out.println("knight");
                         return true;
                     }
                 }
             }
         }
-
-        System.out.println("1 tile is ok");
 
         return false;
     }

@@ -113,7 +113,7 @@
 }
 
 .repository-sidebar.sidebar-header {
-    -fx-padding: 12 6;
+    -fx-padding: 12 12;
     -fx-background-color: #24292e;
 }
 
@@ -151,12 +151,20 @@
     -fx-text-fill: #e1e4e8;
     -fx-border-color: #717b85;
     -fx-border-width: 1px;
-    -fx-border-radius: 8px;
+    -fx-border-radius: 6px;
     -fx-background-radius: 6px;
     -fx-padding: 0px;
     -fx-margin: 0px;
     -fx-pref-height: 100;
     -fx-prompt-text-fill: #b2b2b2;
+}
+
+.commit-description-text-area .viewport {
+    -fx-background-color: #24292e;
+}
+
+.commit-description-text-area .content {
+    -fx-padding: 6px;
 }
 
 .commit-description-text-area:focused {

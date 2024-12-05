@@ -7,6 +7,7 @@ import com.svx.github.manager.SessionManager;
 import com.svx.github.model.NotificationBox;
 import com.svx.github.model.User;
 import com.svx.github.model.UserSingleton;
+import com.svx.github.view.LoadingView;
 import com.svx.github.view.View;
 import com.svx.github.view.dialog.DialogView;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -14,6 +15,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -40,6 +42,10 @@ public class AppController {
         this.primaryStage.setMinHeight(700);
         this.primaryStage.setMaximized(true);
 
+        String iconPath = getClass().getResource("/com/svx/github/image/GoaTHub-01.png").toExternalForm();
+        this.primaryStage.getIcons().add(new Image(iconPath));
+
+
         darkenOverlay = new Pane();
         darkenOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
         darkenOverlay.setVisible(true);
@@ -63,8 +69,8 @@ public class AppController {
 //        } else {
 //            navigatePage(new LoginController(this));
 //        }
-
-        navigatePage(new ChessController(this));
+        navigatePage(new LoadingController(this));
+//        navigatePage(new ChessController(this));
 
         primaryStage.show();
     }

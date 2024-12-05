@@ -4,11 +4,9 @@ import com.svx.github.model.Commit;
 import com.svx.github.model.Repository;
 import com.svx.github.model.UserSingleton;
 import com.svx.github.model.VersionControl;
-import com.svx.github.repository.RepositoryRepository;
 import com.svx.github.utility.GitUtility;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -17,7 +15,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -54,6 +51,7 @@ public class RepositoryManager {
         versionControlMap.remove(repository);
         Repository.removeRepository(repository);
         currentRepository.set(null);
+        updateRecentRepository();
     }
 
     public static ObjectProperty<Repository> currentRepositoryProperty() {
@@ -69,12 +67,14 @@ public class RepositoryManager {
         return versionControlMap.get(repository);
     }
 
-    public static void loadRecentRepository() throws Exception {
+    public static void loadRecentRepository() {
         if (!Files.exists(RECENT_REPOSITORY_FILE)) {
             return;
         }
 
-        BufferedReader reader = Files.newBufferedReader(RECENT_REPOSITORY_FILE);
+        BufferedReader reader;
+        try {
+            reader = Files.newBufferedReader(RECENT_REPOSITORY_FILE);
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(";", 3);
@@ -95,8 +95,10 @@ public class RepositoryManager {
                     System.out.println("Repository folder no longer exists: " + path);
                 }
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-
 
     public static void updateRecentRepository() {
         try (BufferedWriter writer = Files.newBufferedWriter(RECENT_REPOSITORY_FILE)) {
@@ -113,5 +115,12 @@ public class RepositoryManager {
         }
     }
 
+    public static void deleteRecentRepository() {
+        try {
+            Files.deleteIfExists(RECENT_REPOSITORY_FILE);
+        } catch (IOException e) {
+            System.out.println("Error deleting recent repositories: " + e.getMessage());
+        }
+    }
 }
 

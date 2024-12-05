@@ -518,8 +518,6 @@ public class Chess {
             endCol = isRightSide ? GridPane.getColumnIndex(rookTile) + 2 : GridPane.getColumnIndex(rookTile) - 1;
         }
 
-        System.out.println(startCol + " " + endCol);
-
         for (int col = startCol; col <= endCol; col++) {
             ChessTile tile = tiles[GridPane.getRowIndex(kingTile)][col];
             if (tile.getPiece() != null) {

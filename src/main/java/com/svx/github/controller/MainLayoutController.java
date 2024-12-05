@@ -32,13 +32,6 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
     public MainLayoutController(AppController appController) {
         super(new MainLayoutView(), appController);
-
-        try {
-            RepositoryManager.loadRecentRepository();
-        } catch (Exception e) {
-            appController.showNotification("Failed to load recent repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
-        }
-
         setActions();
     }
 
@@ -65,8 +58,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 } catch (IOException | SQLException ex) {
                     appController.showNotification("Failed to logout.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
                 }
-
             }
+            RepositoryManager.deleteRecentRepository();
         });
         view.getExitMenu().setOnAction(e -> appController.exitApp());
 
@@ -137,6 +130,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         );
         ObservableList<Node> changedFileList = view.getChangedFilesList().getChildren();
         view.getTextArea().clear();
+        view.getTextArea().setParagraphStyle(0, "-fx-background-color: transparent; -fx-fill: white;");
 
         if (!changedFileList.isEmpty()) {
             Node button = changedFileList.get(0);
@@ -159,10 +153,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         );
         ObservableList<Node> historyList = view.getHistoryList().getChildren();
         view.getTextArea().clear();
+        view.getTextArea().setParagraphStyle(0, "-fx-background-color: transparent; -fx-fill: white;");
 
         if (!historyList.isEmpty()) {
             Node button = historyList.get(0);
             button.fireEvent(mouseClickEvent);
+        } else {
+            view.getTextArea().clear();
         }
     }
 

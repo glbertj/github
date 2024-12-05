@@ -182,11 +182,11 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 } catch (Exception e) {
                     appController.showNotification("Failed to set current repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
                 }
-                detectAndStageChanges();
-                updateChangedFilesList();
-                updateHistoryTab();
-                switchToChangesTab();
             }
+            detectAndStageChanges();
+            updateHistoryTab();
+            updateChangedFilesList();
+            switchToChangesTab();
         });
 
         appController.getFocusedProperty().addListener((observable, oldValue, newValue) -> {

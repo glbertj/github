@@ -177,10 +177,15 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     private void setListeners() {
         RepositoryManager.currentRepositoryProperty().addListener((observable, oldRepo, newRepo) -> {
             if (newRepo != null) {
-                view.getTextArea().clear();
+                try {
+                    RepositoryManager.setCurrentRepository(newRepo);
+                } catch (Exception e) {
+                    appController.showNotification("Failed to set current repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+                }
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
+                switchToChangesTab();
             }
         });
 
@@ -272,6 +277,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     public void updateChangedFilesList() {
         VersionControl versionControl = RepositoryManager.getVersionControl();
         view.getChangedFilesList().getChildren().clear();
+        view.getTextArea().setParagraphStyle(0, "-fx-background-color: transparent; -fx-fill: white;");
         view.getChangesLabel().setText("0 files changed");
         if (versionControl == null) return;
 
@@ -300,6 +306,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         });
 
         view.getChangesLabel().setText(changedFilesCount.get() + " files changed");
+        switchToChangesTab();
     }
 
     private Map<String, String> loadCumulativeTree(Commit commit) {

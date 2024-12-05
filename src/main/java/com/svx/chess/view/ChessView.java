@@ -4,14 +4,18 @@ import com.svx.chess.model.Chess;
 import com.svx.chess.model.ChessBoard;
 import com.svx.chess.model.ChessTile;
 import com.svx.github.view.View;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import java.util.Objects;
 
-public class ChessView extends View<BorderPane> {
+public class ChessView extends View<StackPane> {
     private Chess.PieceColor playerColor;
 
     // Left
@@ -24,8 +28,9 @@ public class ChessView extends View<BorderPane> {
 
     @Override
     public void initializeView() {
-        root = new BorderPane();
-        root.getStyleClass().add("game-root");
+        root = new StackPane();
+        BorderPane contentContainer = new BorderPane();
+        contentContainer.getStyleClass().add("game-root");
         styleReference = Objects.requireNonNull(
                 getClass().getResource("/com/svx/chess/style/game.css")
         ).toExternalForm();
@@ -39,11 +44,29 @@ public class ChessView extends View<BorderPane> {
 
         VBox rightSection = createRightSection();
 
-        HBox container = new HBox(40, leftSection, rightSection);
+        Separator verticalSeparator = new Separator();
+        verticalSeparator.setOrientation(Orientation.VERTICAL);
+        verticalSeparator.setPrefWidth(1);
+        verticalSeparator.getStyleClass().add("vertical-separator");
+
+        HBox container = new HBox(20, leftSection, verticalSeparator, rightSection);
         HBox.setHgrow(leftSection, Priority.ALWAYS);
         HBox.setHgrow(rightSection, Priority.ALWAYS);
 
-        root.setCenter(container);
+        leftSection.prefWidthProperty().bind(container.widthProperty().divide(2));
+        rightSection.prefWidthProperty().bind(container.widthProperty().divide(2));
+
+        contentContainer.setCenter(container);
+
+        ImageView backgroundImage = new ImageView(new Image(
+                Objects.requireNonNull(getClass().getResource("/com/svx/github/image/auth-background.png")).toExternalForm()
+        ));
+        backgroundImage.setPreserveRatio(true);
+        backgroundImage.fitWidthProperty().bind(contentContainer.widthProperty());
+        backgroundImage.fitHeightProperty().bind(contentContainer.heightProperty());
+        backgroundImage.setMouseTransparent(true);
+
+        root.getChildren().addAll(contentContainer);
     }
 
     public void showValidMoves(ChessTile selectedTile, int[] validMoves) {
@@ -88,7 +111,9 @@ public class ChessView extends View<BorderPane> {
     // Right Section
     private VBox createRightSection() {
         Label opponentName = new Label("Opponent");
+        opponentName.getStyleClass().add("primary-text");
         Label playerName = new Label("Player (You)");
+        playerName.getStyleClass().add("primary-text");
 
         capturedWhiteBox = new FlowPane();
         capturedWhiteBox.getStyleClass().add("captured-box");
@@ -105,9 +130,17 @@ public class ChessView extends View<BorderPane> {
         VBox.setVgrow(topSection, Priority.ALWAYS);
 
         Label onlineLabel = new Label("Online Status: ");
+        onlineLabel.getStyleClass().add("primary-text");
         onlineStatus = new Label("Offline");
+        if (onlineStatus.equals("Online")) {
+            onlineStatus.setStyle("-fx-text-fill: green");
+        } else {
+            onlineStatus.setStyle("-fx-text-fill: red");
+        }
+        onlineStatus.getStyleClass().add("primary-text");
         HBox onlineTextBox = new HBox(onlineLabel, onlineStatus);
-        Button backToLoginButton = new Button("Login");
+        Button backToLoginButton = new Button("BACK TO LOGIN");
+        backToLoginButton.getStyleClass().add("primary-button");
         backToLoginButton.setDisable(true);
         VBox bottomSection = new VBox(onlineTextBox, backToLoginButton);
         VBox.setVgrow(bottomSection, Priority.NEVER);

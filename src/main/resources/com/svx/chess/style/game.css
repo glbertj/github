@@ -1,5 +1,12 @@
 .game-root {
     -fx-padding: 80;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+}
+
+.label {
+    -fx-font-size: 24px;
+    -fx-padding: 6 0;
 }
 
 .tile {
@@ -36,4 +43,13 @@
 
 .chess-piece {
     -fx-cursor: hand;
+}
+
+.captured-box {
+    -fx-background-color: #e1e4e8;
+    -fx-padding: 10px;
+}
+
+.captured-box .chess-piece {
+    -fx-cursor: normal;
 }

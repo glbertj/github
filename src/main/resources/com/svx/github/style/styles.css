@@ -1,12 +1,13 @@
 .root-pane {
     -fx-background-color: #24292e;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.5, 0, 0);
 }
 
 .text-field, .password-field {
     -fx-background-color: #1d2125;
+    -fx-control-inner-background: #1d2125;
     -fx-text-fill: #e1e4e8;
     -fx-border-color: #717b85;
     -fx-border-width: 1px;
@@ -38,6 +39,10 @@ Label {
     -fx-font-size: 12px;
 }
 
+.goat-text {
+    -fx-font-size: 24px;
+}
+
 .bold {
     -fx-font-weight: bold;
 }
@@ -48,14 +53,18 @@ Label {
 }
 
 .repository-list .label {
-    -fx-padding: 0 6;
-    -fx-font-weight: normal;
+    -fx-padding: 0 12;
 }
 
 .list-button {
-    -fx-padding: 12 6;
+    -fx-padding: 12 12;
     -fx-background-color: #24292e;
     -fx-alignment: center-left;
+}
+
+.list-button .label {
+    -fx-font-weight: normal;
+    -fx-padding: 0 0 0 10;
 }
 
 .list-button .icon {

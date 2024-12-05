@@ -7,10 +7,7 @@ import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
 import com.svx.github.repository.CommitRepository;
 import com.svx.github.repository.RepositoryRepository;
-import com.svx.github.utility.ComponentUtility;
-import com.svx.github.utility.DesktopUtility;
-import com.svx.github.utility.DifferenceUtility;
-import com.svx.github.utility.FileUtility;
+import com.svx.github.utility.*;
 import com.svx.github.view.MainLayoutView;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -238,12 +235,21 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             if (newValue.isEmpty()) {
                 filteredRepositories = Repository.getRepositories();
             } else {
+                final String searchTerm = newValue.toLowerCase();
                 filteredRepositories = Repository.getRepositories().stream()
-                        .filter(repo -> repo.getName().toLowerCase().contains(newValue.toLowerCase()))
+                        .filter(repo -> {
+                            String repoName = repo.getName().toLowerCase();
+                            int distance = LevenshteinUtility.getLevenshteinDistance(repoName, searchTerm);
+                            return distance <= 3;
+                        })
                         .collect(Collectors.toList());
             }
 
-            view.getRepositoryList().getChildren().clear();
+            ObservableList<Node> children = view.getRepositoryList().getChildren();
+            if (children.size() > 1) {
+                children.subList(1, children.size()).clear();
+            }
+
             for (Repository repository : filteredRepositories) {
                 view.getRepositoryList().getChildren().add(ComponentUtility.createListButton(repository, view, ComponentUtility.listButtonType.REPOSITORY));
             }

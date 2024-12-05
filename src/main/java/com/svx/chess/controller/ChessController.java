@@ -169,6 +169,7 @@ public class ChessController extends Controller<ChessView> {
     }
 
     private void castle(ChessPiece selectedPiece, ChessTile targetTile) {
+        ChessTile rookTile;
         ChessPiece rookPiece;
         ChessTile targetRookTile;
         int row = GridPane.getRowIndex(targetTile);
@@ -178,24 +179,29 @@ public class ChessController extends Controller<ChessView> {
 
         if (kingSide) {
             if (playerColor == Chess.PieceColor.WHITE) {
-                rookPiece = chessBoard.getTiles()[row][7].getPiece();
+                rookTile = chessBoard.getTiles()[row][7];
+                rookPiece = rookTile.getPiece();
                 targetRookTile = chessBoard.getTiles()[row][5];
             } else {
-                rookPiece = chessBoard.getTiles()[row][0].getPiece();
+                rookTile = chessBoard.getTiles()[row][0];
+                rookPiece = rookTile.getPiece();
                 targetRookTile = chessBoard.getTiles()[row][2];
             }
         } else {
             if (playerColor == Chess.PieceColor.WHITE) {
-                rookPiece = chessBoard.getTiles()[row][0].getPiece();
+                rookTile = chessBoard.getTiles()[row][0];
+                rookPiece = rookTile.getPiece();
                 targetRookTile = chessBoard.getTiles()[row][3];
             } else {
-                rookPiece = chessBoard.getTiles()[row][7].getPiece();
+                rookTile = chessBoard.getTiles()[row][7];
+                rookPiece = rookTile.getPiece();
                 targetRookTile = chessBoard.getTiles()[row][4];
             }
         }
 
         movePiece(selectedPiece, targetTile);
 
+        selectedTile = rookTile;
         movePiece(rookPiece, targetRookTile);
     }
 

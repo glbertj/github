@@ -1,5 +1,6 @@
 package com.svx.github.controller;
 
+import com.svx.chess.controller.ChessController;
 import com.svx.github.controller.dialog.DialogController;
 import com.svx.github.manager.ConnectionManager;
 import com.svx.github.manager.RepositoryManager;
@@ -14,6 +15,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -39,6 +41,10 @@ public class AppController {
         this.primaryStage.setMinWidth(1000);
         this.primaryStage.setMinHeight(700);
         this.primaryStage.setMaximized(true);
+
+        String iconPath = getClass().getResource("/com/svx/github/image/GoaTHub-01.png").toExternalForm();
+        this.primaryStage.getIcons().add(new Image(iconPath));
+
 
         darkenOverlay = new Pane();
         darkenOverlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");

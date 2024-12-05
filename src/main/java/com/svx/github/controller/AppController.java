@@ -62,14 +62,16 @@ public class AppController {
     public void startApp() {
         this.primaryStage.setScene(appScene);
         User currentUser = SessionManager.validateSession();
-        if (currentUser != null) {
-            UserSingleton.setCurrentUser(currentUser);
-            navigatePage(new MainLayoutController(this));
-            RepositoryManager.loadRecentRepository();
-            showNotification("Valid session found!", NotificationBox.NotificationType.SUCCESS, "fas-sign-in-alt");
-        } else {
-            navigatePage(new LoginController(this));
-        }
+//        if (currentUser != null) {
+//            UserSingleton.setCurrentUser(currentUser);
+//            navigatePage(new MainLayoutController(this));
+//            RepositoryManager.loadRecentRepository();
+//            showNotification("Valid session found!", NotificationBox.NotificationType.SUCCESS, "fas-sign-in-alt");
+//        } else {
+//            navigatePage(new LoginController(this));
+//        }
+
+        navigatePage(new ChessController(this));
 
         primaryStage.show();
     }

@@ -153,10 +153,8 @@ public class VersionControl {
                     }
 
                     Path workingFilePath = repository.getPath().resolve(filePath);
-                    if (!Files.exists(workingFilePath)) {
-                        Files.createDirectories(workingFilePath.getParent());
-                        Files.writeString(workingFilePath, BlobRepository.load(blobId, repository).getContent());
-                    }
+                    Files.createDirectories(workingFilePath.getParent());
+                    Files.writeString(workingFilePath, BlobRepository.load(blobId, repository).getContent());
 
                     pulledFiles.add(filePath);
                 }

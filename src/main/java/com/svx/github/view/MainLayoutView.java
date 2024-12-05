@@ -46,6 +46,7 @@ public class MainLayoutView extends View<BorderPane> {
     private Button createRepositoryPopup;
     private Button addRepositoryPopup;
     private Button cloneRepositoryPopup;
+    private TextField searchField;
 
     // Sidebar (Default)
     private BorderPane defaultSidebar;
@@ -252,7 +253,7 @@ public class MainLayoutView extends View<BorderPane> {
         repositorySidebar.getStyleClass().add("sidebar");
         repositorySidebar.getStyleClass().add("repository-sidebar");
 
-        TextField searchField = new TextField();
+        searchField = new TextField();
         searchField.setPromptText("Search repositories...");
         searchField.setPrefWidth(230);
 
@@ -527,6 +528,7 @@ public class MainLayoutView extends View<BorderPane> {
     public Button getCreateRepositoryPopup() { return createRepositoryPopup; }
     public Button getAddRepositoryPopup() { return addRepositoryPopup; }
     public Button getCloneRepositoryPopup() { return cloneRepositoryPopup; }
+    public TextField getSearchField() { return searchField; }
     public HBox getOriginButton() { return originButton; }
     public Button getChangesButton() { return changesButton; }
     public Button getHistoryButton() { return historyButton; }

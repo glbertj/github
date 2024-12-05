@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class MainLayoutController extends Controller<MainLayoutView> {
 
@@ -228,6 +229,23 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                         });
                     }
                 }
+            }
+        });
+
+        view.getSearchField().textProperty().addListener((observable, oldValue, newValue) -> {
+            List<Repository> filteredRepositories;
+
+            if (newValue.isEmpty()) {
+                filteredRepositories = Repository.getRepositories();
+            } else {
+                filteredRepositories = Repository.getRepositories().stream()
+                        .filter(repo -> repo.getName().toLowerCase().contains(newValue.toLowerCase()))
+                        .collect(Collectors.toList());
+            }
+
+            view.getRepositoryList().getChildren().clear();
+            for (Repository repository : filteredRepositories) {
+                view.getRepositoryList().getChildren().add(ComponentUtility.createListButton(repository, view, ComponentUtility.listButtonType.REPOSITORY));
             }
         });
     }

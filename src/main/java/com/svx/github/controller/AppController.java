@@ -1,8 +1,8 @@
 package com.svx.github.controller;
 
-import com.svx.chess.controller.ChessController;
 import com.svx.github.controller.dialog.DialogController;
 import com.svx.github.manager.ConnectionManager;
+import com.svx.github.manager.RepositoryManager;
 import com.svx.github.manager.SessionManager;
 import com.svx.github.model.NotificationBox;
 import com.svx.github.model.User;
@@ -55,16 +55,15 @@ public class AppController {
 
     public void startApp() {
         this.primaryStage.setScene(appScene);
-//        User currentUser = SessionManager.validateSession();
-//        if (currentUser != null) {
-//            UserSingleton.setCurrentUser(currentUser);
-//            navigatePage(new MainLayoutController(this));
-//            showNotification("Valid session found!", NotificationBox.NotificationType.SUCCESS, "fas-sign-in-alt");
-//        } else {
-//            navigatePage(new LoginController(this));
-//        }
-
-        navigatePage(new ChessController(this));
+        User currentUser = SessionManager.validateSession();
+        if (currentUser != null) {
+            UserSingleton.setCurrentUser(currentUser);
+            navigatePage(new MainLayoutController(this));
+            RepositoryManager.loadRecentRepository();
+            showNotification("Valid session found!", NotificationBox.NotificationType.SUCCESS, "fas-sign-in-alt");
+        } else {
+            navigatePage(new LoginController(this));
+        }
 
         primaryStage.show();
     }

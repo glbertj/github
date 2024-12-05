@@ -61,6 +61,11 @@ public class Repository {
     }
 
     public static void addRepository(Repository repository) {
+        for (Repository repo : repositories) {
+            if (repository.getPath().equals(repo.getPath())) {
+                return;
+            }
+        }
         repositories.add(repository);
     }
 

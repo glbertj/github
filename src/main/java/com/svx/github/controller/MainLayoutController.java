@@ -115,6 +115,19 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getChangesButton().setOnAction(e -> switchToChangesTab());
         view.getHistoryButton().setOnAction(e -> switchToHistoryTab());
         view.getCommitButton().setOnAction(e -> handleCommitAction());
+
+        view.getCreateRepositoryPopup().setOnAction(e -> {
+            view.hidePopup();
+            appController.openDialog(new CreateRepositoryDialogController(appController));
+        });
+        view.getAddRepositoryPopup().setOnAction(e -> {
+            view.hidePopup();
+            appController.openDialog(new AddRepositoryDialogController(appController));
+        });
+        view.getCloneRepositoryPopup().setOnAction(e -> {
+            view.hidePopup();
+            appController.openDialog(new CloneRepositoryDialogController(appController));
+        });
     }
 
     private void switchToChangesTab() {
@@ -179,6 +192,10 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
+            }
+
+            if (!newValue) {
+                view.hidePopup();
             }
         });
 

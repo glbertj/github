@@ -1,11 +1,14 @@
 package com.svx.github.view;
 
 import com.svx.github.manager.RepositoryManager;
+import javafx.animation.FadeTransition;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Popup;
+import javafx.util.Duration;
 import org.fxmisc.richtext.InlineCssTextArea;
 import org.kordamp.ikonli.javafx.FontIcon;
 import java.util.Objects;
@@ -38,6 +41,11 @@ public class MainLayoutView extends View<BorderPane> {
     // Sidebar (Repository)
     private VBox repositorySidebar;
     private VBox repositoryList;
+    private Popup repositoryAddPopup;
+    private Button addRepositoryButton;
+    private Button createRepositoryPopup;
+    private Button addRepositoryPopup;
+    private Button cloneRepositoryPopup;
 
     // Sidebar (Default)
     private BorderPane defaultSidebar;
@@ -247,7 +255,8 @@ public class MainLayoutView extends View<BorderPane> {
         TextField searchField = new TextField();
         searchField.setPromptText("Search repositories...");
         searchField.setPrefWidth(230);
-        Button addRepositoryButton = new Button("Add");
+
+        initializePopUp();
 
         HBox repositoryHeader = new HBox(searchField, addRepositoryButton);
         repositoryHeader.getStyleClass().addAll("sidebar-header", "repository-sidebar");
@@ -263,6 +272,109 @@ public class MainLayoutView extends View<BorderPane> {
         repositoryList.getChildren().addFirst(repositoryLabel);
 
         repositorySidebar.getChildren().addAll(repositoryHeader, repositoryList);
+    }
+
+    // I'm super terribly sorry for this lol I just wanna finish this up
+    private void initializePopUp() {
+        addRepositoryButton = new Button("Add");
+
+        repositoryAddPopup = new Popup();
+
+        createRepositoryPopup = new Button("New Repository...");
+        addRepositoryPopup = new Button("Add Local Repository...");
+        cloneRepositoryPopup = new Button("Clone Repository...");
+
+        createRepositoryPopup.setMaxWidth(Double.MAX_VALUE);
+        addRepositoryPopup.setMaxWidth(Double.MAX_VALUE);
+        cloneRepositoryPopup.setMaxWidth(Double.MAX_VALUE);
+
+        createRepositoryPopup.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-text-fill: white;"
+        );
+        addRepositoryPopup.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-text-fill: white;"
+        );
+        cloneRepositoryPopup.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-text-fill: white;"
+        );
+
+        createRepositoryPopup.setOnMouseEntered(event -> createRepositoryPopup.setStyle(
+                "-fx-background-color: #363635;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-text-fill: white;"
+        ));
+        createRepositoryPopup.setOnMouseExited(event -> createRepositoryPopup.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-text-fill: white;"
+        ));
+
+        addRepositoryPopup.setOnMouseEntered(event -> addRepositoryPopup.setStyle(
+                "-fx-background-color: #363635;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-text-fill: white;"
+        ));
+        addRepositoryPopup.setOnMouseExited(event -> addRepositoryPopup.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-text-fill: white;"
+        ));
+
+        cloneRepositoryPopup.setOnMouseEntered(event -> cloneRepositoryPopup.setStyle(
+                "-fx-background-color: #363635;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-text-fill: white;"
+        ));
+        cloneRepositoryPopup.setOnMouseExited(event -> cloneRepositoryPopup.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-text-fill: white;"
+        ));
+
+        VBox popupContent = new VBox(createRepositoryPopup, addRepositoryPopup, cloneRepositoryPopup);
+        repositoryAddPopup.getContent().add(popupContent);
+        popupContent.setStyle(
+                "-fx-border-radius: 16;" +
+                        "-fx-background-color: #1f1f1f;" +
+                        "-fx-padding: 8 0;" +
+                        "-fx-min-width: 150;"
+        );
+
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), popupContent);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        addRepositoryButton.setOnMouseClicked(e -> {
+            repositoryAddPopup.show(addRepositoryButton.getScene().getWindow(), e.getScreenX(), e.getScreenY());
+            fadeIn.play();
+        });
+
+        root.setOnMouseClicked(event -> {
+            if (!repositoryAddPopup.isShowing()) {
+                return;
+            }
+            if (!popupContent.contains(event.getSceneX(), event.getSceneY())) {
+                hidePopup();
+            }
+        });
+
+        createRepositoryPopup.setContentDisplay(ContentDisplay.LEFT);
+        addRepositoryPopup.setContentDisplay(ContentDisplay.LEFT);
+        cloneRepositoryPopup.setContentDisplay(ContentDisplay.LEFT);
+
+        createRepositoryPopup.setAlignment(Pos.CENTER_LEFT);
+        addRepositoryPopup.setAlignment(Pos.CENTER_LEFT);
+        cloneRepositoryPopup.setAlignment(Pos.CENTER_LEFT);
+    }
+
+    public void hidePopup() {
+        repositoryAddPopup.hide();
     }
 
     private void initializeDefaultSideBar() {
@@ -412,6 +524,9 @@ public class MainLayoutView extends View<BorderPane> {
     public MenuItem getShowInVsCodeMenuItem() { return showInVsCodeMenuItem; }
     public HBox getRepositoryToggleButton() { return repositoryToggleButton; }
     public VBox getRepositoryList() { return repositoryList; }
+    public Button getCreateRepositoryPopup() { return createRepositoryPopup; }
+    public Button getAddRepositoryPopup() { return addRepositoryPopup; }
+    public Button getCloneRepositoryPopup() { return cloneRepositoryPopup; }
     public HBox getOriginButton() { return originButton; }
     public Button getChangesButton() { return changesButton; }
     public Button getHistoryButton() { return historyButton; }

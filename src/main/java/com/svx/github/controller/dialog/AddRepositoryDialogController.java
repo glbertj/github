@@ -41,7 +41,7 @@ public class AddRepositoryDialogController extends DialogController<AddRepositor
 
         view.getConfirmButton().setOnAction(e -> {
             Path path = Paths.get(view.getPathField().getText().trim());
-            Path configFilePath = path.resolve(".git").resolve("config");
+            Path configFilePath = path.resolve(".goat").resolve("config");
             String repositoryName = loadRepositoryName(configFilePath);
 
             Repository newRepo = new Repository(repositoryName, "", UserSingleton.getCurrentUser().getId(), path);

@@ -43,7 +43,7 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
 
         view.getConfirmButton().setOnAction(e -> {
             Path path = Paths.get(view.getPathField().getText().trim());
-            Path gitDir = path.resolve(".git");
+            Path gitDir = path.resolve(".goat");
             Path objectsDir = gitDir.resolve("objects");
             Path refsDir = gitDir.resolve("refs");
             Path headsDir = refsDir.resolve("heads");
@@ -63,7 +63,7 @@ public class CreateRepositoryDialogController extends DialogController<CreateRep
                 Files.createFile(indexFile);
                 Files.setAttribute(gitDir, "dos:hidden", true);
             } catch (IOException ex) {
-                appController.showNotification("Error setting up .git directory structure.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+                appController.showNotification("Error setting up .goat directory structure.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
             }
 
             Repository newRepo = new Repository(view.getNameField().getText(), "", UserSingleton.getCurrentUser().getId(), path);

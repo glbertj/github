@@ -96,7 +96,7 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
             return;
         }
 
-        if (Files.exists(destinationPath.resolve(".git"))) {
+        if (Files.exists(destinationPath.resolve(".goat"))) {
             appController.showNotification("The destination already contains a Git repository.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
             return;
         }
@@ -112,7 +112,7 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
             );
 
             try {
-                Path gitDir = destinationPath.resolve(".git");
+                Path gitDir = destinationPath.resolve(".goat");
                 Path objectsDir = gitDir.resolve("objects");
                 Path configFile = gitDir.resolve("config");
                 Path refsDir = gitDir.resolve("refs").resolve("heads");
@@ -127,7 +127,7 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
 
                 Files.setAttribute(gitDir, "dos:hidden", true);
             } catch (IOException ex) {
-                appController.showNotification("Error setting up .git directory structure.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
+                appController.showNotification("Error setting up .goat directory structure.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
                 return;
             }
 

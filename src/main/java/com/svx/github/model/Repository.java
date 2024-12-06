@@ -45,7 +45,7 @@ public class Repository {
     }
 
     public Path getGitPath() {
-        return path.resolve(".git");
+        return path.resolve(".goat");
     }
 
     public Path getObjectsPath() {

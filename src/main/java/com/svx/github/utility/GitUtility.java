@@ -7,7 +7,7 @@ import java.nio.file.Path;
 public class GitUtility {
 
     public static boolean hasRepository(Path path) {
-        Path gitDir = path.resolve(".git");
+        Path gitDir = path.resolve(".goat");
 
         return Files.isDirectory(gitDir) &&
                 Files.isDirectory(gitDir.resolve("objects")) &&
@@ -16,7 +16,7 @@ public class GitUtility {
     }
 
     public static String getLatestCommitIdFromHead(Path repositoryPath) {
-        Path headFilePath = repositoryPath.resolve(".git").resolve("refs").resolve("heads").resolve("master");
+        Path headFilePath = repositoryPath.resolve(".goat").resolve("refs").resolve("heads").resolve("master");
         if (Files.exists(headFilePath)) {
             try {
                 return Files.readString(headFilePath).trim();

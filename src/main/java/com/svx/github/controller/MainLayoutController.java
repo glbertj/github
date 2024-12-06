@@ -140,14 +140,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 null
         );
         ObservableList<Node> changedFileList = view.getChangedFilesList().getChildren();
-        view.getTextArea().clear();
-        view.getTextArea().setParagraphStyle(0, "-fx-background-color: transparent; -fx-fill: white;");
+        view.clearTextArea();
 
         if (!changedFileList.isEmpty()) {
             Node button = changedFileList.get(0);
             button.fireEvent(mouseClickEvent);
         } else {
-            view.getTextArea().clear();
+            view.clearTextArea();
         }
     }
 
@@ -163,14 +162,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 null
         );
         ObservableList<Node> historyList = view.getHistoryList().getChildren();
-        view.getTextArea().clear();
-        view.getTextArea().setParagraphStyle(0, "-fx-background-color: transparent; -fx-fill: white;");
+        view.clearTextArea();
 
         if (!historyList.isEmpty()) {
             Node button = historyList.get(0);
             button.fireEvent(mouseClickEvent);
         } else {
-            view.getTextArea().clear();
+            view.clearTextArea();
         }
     }
 
@@ -191,7 +189,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         appController.getFocusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                view.getTextArea().clear();
+                view.clearTextArea();
                 detectAndStageChanges();
                 updateChangedFilesList();
                 updateHistoryTab();
@@ -423,7 +421,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         view.getChangesLabel().setText("0 files changed");
         view.getCommitSummaryTextField().clear();
         view.getCommitDescriptionTextArea().clear();
-        view.getTextArea().clear();
+        view.clearTextArea();
         updateChangedFilesList();
         updateHistoryTab();
     }
@@ -477,7 +475,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         }
 
         List<LineDifference> differences = DifferenceUtility.getDifference(oldContent, newContent);
-        view.getTextArea().clear();
+        view.clearTextArea();
         renderDifferences(differences);
     }
 

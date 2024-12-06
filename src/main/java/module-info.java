@@ -6,6 +6,7 @@ module com.svx.github {
     requires org.kordamp.ikonli.javafx;
     requires java.desktop;
     requires org.fxmisc.richtext;
+    requires reactfx;
 
     exports com.svx.github.main;
 }

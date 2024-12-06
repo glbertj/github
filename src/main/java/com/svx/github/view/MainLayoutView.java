@@ -10,7 +10,11 @@ import javafx.scene.layout.*;
 import javafx.stage.Popup;
 import javafx.util.Duration;
 import org.fxmisc.richtext.InlineCssTextArea;
+import org.fxmisc.richtext.model.Paragraph;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.reactfx.collection.LiveList;
+
+import java.util.List;
 import java.util.Objects;
 
 public class MainLayoutView extends View<BorderPane> {
@@ -490,6 +494,18 @@ public class MainLayoutView extends View<BorderPane> {
             });
         }
     }
+
+    public void clearTextArea() {
+        textArea.clear();
+
+        LiveList<Paragraph<String, String, String>> paragraphs = textArea.getParagraphs();
+
+        int size = paragraphs.size();
+        for (int i = 0; i < size; i++) {
+            textArea.setParagraphStyle(i, "-fx-background-color: transparent; -fx-fill: white;");
+        }
+    }
+
 
     private void initializeMainContent() {
         mainContent.getStyleClass().add("main-content");

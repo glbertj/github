@@ -91,8 +91,6 @@ public class RepositoryManager {
                         repo.setPath(path);
                         Repository.addRepository(repo);
                     }
-                } else {
-                    System.out.println("Repository folder no longer exists: " + path);
                 }
             }
         } catch (IOException e) {

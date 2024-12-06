@@ -8,12 +8,33 @@ import java.util.List;
 public class DifferenceUtility {
 
     public static List<LineDifference> getDifference(String oldContent, String newContent) {
-        String[] oldLines = (oldContent != null) ? oldContent.split("\n") : new String[0];
-        String[] newLines = (newContent != null) ? newContent.split("\n") : new String[0];
+        String[] oldLines = (oldContent != null && !oldContent.trim().isEmpty()) ? oldContent.split("\n") : new String[0];
+        String[] newLines = (newContent != null && !newContent.trim().isEmpty()) ? newContent.split("\n") : new String[0];
 
         List<LineDifference> diff = new ArrayList<>();
 
+        if (oldLines.length == 0 && newLines.length == 0) {
+            return diff;
+        }
+
         int oldIndex = 0, newIndex = 0;
+        boolean isOldEmpty = oldLines.length == 0;
+        boolean isNewEmpty = newLines.length == 0;
+
+        if (isOldEmpty && !isNewEmpty) {
+            for (String newLine : newLines) {
+                diff.add(new LineDifference(" +     " + newLine, LineDifference.LineType.ADDED));
+            }
+            return diff;
+        }
+
+        if (!isOldEmpty && isNewEmpty) {
+            for (String oldLine : oldLines) {
+                diff.add(new LineDifference(" -     " + oldLine, LineDifference.LineType.REMOVED));
+            }
+            return diff;
+        }
+
         while (oldIndex < oldLines.length || newIndex < newLines.length) {
             String oldLine = (oldIndex < oldLines.length) ? oldLines[oldIndex].trim() : null;
             String newLine = (newIndex < newLines.length) ? newLines[newIndex].trim() : null;

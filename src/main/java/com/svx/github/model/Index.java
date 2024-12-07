@@ -42,12 +42,12 @@ public class Index {
         Path indexPath = repository.getIndexPath();
 
         if (Files.exists(indexPath)) {
-                String serializedIndex = Files.readString(indexPath).trim();
-                if (!serializedIndex.isEmpty()) {
-                    Map<String, String> loadedStagedFiles = JsonUtility.deserialize(serializedIndex);
-                    stagedFiles.clear();
-                    stagedFiles.putAll(loadedStagedFiles);
-                }
+            String serializedIndex = Files.readString(indexPath).trim();
+            if (!serializedIndex.isEmpty()) {
+                Map<String, String> loadedStagedFiles = JsonUtility.deserialize(serializedIndex);
+                stagedFiles.clear();
+                stagedFiles.putAll(loadedStagedFiles);
+            }
         }
     }
 

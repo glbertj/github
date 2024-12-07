@@ -67,7 +67,6 @@ public class RegisterController extends Controller<RegisterView> {
         } else {
             appController.showNotification("Registration failed. Username or email may already be in use.", NotificationBox.NotificationType.ERROR, "fas-copy");
         }
-
     }
 
     private void navigateToLogin() {

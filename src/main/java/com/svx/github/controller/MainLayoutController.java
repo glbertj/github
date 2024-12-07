@@ -370,6 +370,11 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
+        if (ConnectionManager.isNotOnline()) {
+            appController.openDialog(new StartGameDialogController(appController));
+            return;
+        }
+
         String latestDatabaseCommitId;
         Commit latestDatabaseCommit;
         try {

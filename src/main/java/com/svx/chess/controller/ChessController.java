@@ -41,7 +41,7 @@ public class ChessController extends Controller<ChessView> {
         ChessTile[][] tiles = chessBoard.getTiles();
         for (ChessTile[] row : tiles) {
             for (ChessTile tile : row) {
-                tile.setOnMouseClicked(e -> onTileClick(tile));
+                tile.setOnMouseClicked(e -> onTileClick(tile, appController));
             }
         }
 
@@ -60,7 +60,7 @@ public class ChessController extends Controller<ChessView> {
         });
     }
 
-    private void onTileClick(ChessTile targetTile) {
+    private void onTileClick(ChessTile targetTile, AppController appController) {
         if (selectedTile == null) {
             if (targetTile.getPiece() == null) return;
             if (targetTile.getPiece().getColor().equals(Chess.PieceColor.WHITE) && !whiteTurn) return;
@@ -84,7 +84,7 @@ public class ChessController extends Controller<ChessView> {
         handleMove(selectedPiece, targetTile);
 
         if (targetTile.getPiece() != null && targetTile.getPiece().getType() == Chess.PieceType.PAWN) {
-            Chess.handlePawnPromotion(targetTile, playerColor);
+            Chess.handlePawnPromotion(targetTile, playerColor, appController);
         }
 
         if (Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getWhiteKingTile()) || Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getBlackKingTile())) {

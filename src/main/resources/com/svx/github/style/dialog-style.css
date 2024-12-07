@@ -78,3 +78,18 @@
 .list-button {
     -fx-padding: 6 12;
 }
+
+.promote-button {
+    -fx-padding: 3 20;
+    -fx-pref-width: 100;
+    -fx-pref-height: 100;
+    -fx-background-color: white;
+    -fx-border-width: 0;
+    -fx-text-fill: white;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+}
+
+.promote-button:hover {
+    -fx-cursor: hand;
+}

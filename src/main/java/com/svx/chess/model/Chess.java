@@ -1,5 +1,7 @@
 package com.svx.chess.model;
 
+import com.svx.chess.controller.dialog.PromotePawnDialogController;
+import com.svx.github.controller.AppController;
 import javafx.scene.layout.GridPane;
 
 import java.util.ArrayList;
@@ -7,6 +9,7 @@ import java.util.List;
 
 public class Chess {
     private static Chess.PieceColor playerColor;
+    private static Chess.PieceType promotionChoice;
 
     public enum PieceType {
         PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING
@@ -16,7 +19,7 @@ public class Chess {
         WHITE, BLACK
     }
 
-    public static void handlePawnPromotion(ChessTile currentTile, Chess.PieceColor color) {
+    public static void handlePawnPromotion(ChessTile currentTile, Chess.PieceColor color, AppController appController) {
         int blackPromotionRow = 7;
         int whitePromotionRow = 0;
 
@@ -29,15 +32,14 @@ public class Chess {
         ChessPiece currentPiece = currentTile.getPiece();
 
         if (currentPiece.getColor() == Chess.PieceColor.WHITE && currentRow == whitePromotionRow) {
-            promotePawn(currentTile, Chess.PieceColor.WHITE);
+            promotePawn(currentTile, Chess.PieceColor.WHITE, appController);
         } else if (currentPiece.getColor() == Chess.PieceColor.BLACK && currentRow == blackPromotionRow) {
-            promotePawn(currentTile, Chess.PieceColor.BLACK);
+            promotePawn(currentTile, Chess.PieceColor.BLACK, appController);
         }
     }
 
-    private static void promotePawn(ChessTile currentTile, Chess.PieceColor color) {
-//        PieceType promotionChoice = promptForPromotionChoice(color);
-        PieceType promotionChoice = PieceType.QUEEN;
+    private static void promotePawn(ChessTile currentTile, Chess.PieceColor color, AppController appController) {
+        appController.openDialog(new PromotePawnDialogController(appController, color));
 
         ChessPiece promotedPiece = switch (promotionChoice) {
             case ROOK -> new ChessPiece(Chess.PieceType.ROOK, color);
@@ -47,6 +49,7 @@ public class Chess {
         };
 
         currentTile.setPiece(promotedPiece);
+        promotionChoice = null;
     }
 
     public static int[] getValidMoves(ChessTile currentTile, ChessTile[][] tiles, ChessTile kingTile) {
@@ -558,4 +561,5 @@ public class Chess {
     public static void setPlayerColor(Chess.PieceColor color) {
         playerColor = color;
     }
+    public static void setPromotionChoice(Chess.PieceType choice) { promotionChoice = choice; }
 }

@@ -1,7 +1,7 @@
 package com.svx.github.controller;
 
-import com.svx.chess.controller.ChessController;
 import com.svx.github.controller.dialog.DialogController;
+import com.svx.github.controller.dialog.StartGameDialogController;
 import com.svx.github.manager.ConnectionManager;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.manager.SessionManager;
@@ -22,7 +22,6 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import java.sql.SQLException;
 import java.util.Objects;
 
 public class AppController {
@@ -43,7 +42,7 @@ public class AppController {
         this.primaryStage.setMinHeight(700);
         this.primaryStage.setMaximized(true);
 
-        String iconPath = getClass().getResource("/com/svx/github/image/GoaTHub-01.png").toExternalForm();
+        String iconPath = Objects.requireNonNull(getClass().getResource("/com/svx/github/image/GoaTHub-01.png")).toExternalForm();
         this.primaryStage.getIcons().add(new Image(iconPath));
 
 
@@ -56,30 +55,28 @@ public class AppController {
         rootPane.getChildren().addAll(notificationBox);
         StackPane.setAlignment(notificationBox, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(notificationBox, new Insets(0, 20, 20, 0));
-
-        ConnectionManager.setAppController(this);
     }
 
     public void startApp() {
         this.primaryStage.setScene(appScene);
         ConnectionManager.startConnectionMonitor();
 
-        User currentUser = SessionManager.validateSession();
-
-        try {
-            if (currentUser != null && ConnectionManager.getConnection() != null) {
-                UserSingleton.setCurrentUser(currentUser);
-                navigatePage(new MainLayoutController(this));
-                RepositoryManager.loadRecentRepository();
-                showNotification("Valid session found!", NotificationBox.NotificationType.SUCCESS, "fas-sign-in-alt");
-            } else {
-                navigatePage(new LoginController(this));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        if (ConnectionManager.isNotOnline()) {
+            navigatePage(new LoginController(this));
+            openDialog(new StartGameDialogController(this));
+            primaryStage.show();
+            return;
         }
 
-        navigatePage(new ChessController(this));
+        User currentUser = SessionManager.validateSession();
+        if (currentUser != null) {
+            UserSingleton.setCurrentUser(currentUser);
+            navigatePage(new MainLayoutController(this));
+            RepositoryManager.loadRecentRepository();
+            showNotification("Valid session found!", NotificationBox.NotificationType.SUCCESS, "fas-sign-in-alt");
+        } else {
+            navigatePage(new LoginController(this));
+        }
 
         primaryStage.show();
     }

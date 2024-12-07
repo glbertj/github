@@ -1,5 +1,7 @@
 package com.svx.github.controller;
 
+import com.svx.github.controller.dialog.StartGameDialogController;
+import com.svx.github.manager.ConnectionManager;
 import com.svx.github.manager.SessionManager;
 import com.svx.github.model.NotificationBox;
 import com.svx.github.model.User;
@@ -7,7 +9,6 @@ import com.svx.github.model.UserSingleton;
 import com.svx.github.repository.UserRepository;
 import com.svx.github.utility.CryptoUtility;
 import com.svx.github.view.LoginView;
-
 import java.sql.SQLException;
 
 public class LoginController extends Controller<LoginView> {
@@ -24,6 +25,11 @@ public class LoginController extends Controller<LoginView> {
     }
 
     private void handleLogin() {
+        if (ConnectionManager.isNotOnline()) {
+            appController.openDialog(new StartGameDialogController(appController));
+            return;
+        }
+
         String username = view.getUsernameField().getText().trim();
         String password = view.getPasswordField().getText();
 
@@ -32,11 +38,16 @@ public class LoginController extends Controller<LoginView> {
             return;
         }
 
+        if (ConnectionManager.isNotOnline()) {
+            appController.openDialog(new StartGameDialogController(appController));
+            return;
+        }
+
         User authenticatedUser = null;
         try {
             authenticatedUser = username.contains("@") ? UserRepository.getByEmail(username) : UserRepository.getByUsername(username);
         } catch (SQLException e) {
-            appController.showNotification("You seem to be offline.", NotificationBox.NotificationType.ERROR, "fas-lock");
+            appController.showNotification("Something went wrong in the database.", NotificationBox.NotificationType.ERROR, "fas-lock");
             return;
         }
 

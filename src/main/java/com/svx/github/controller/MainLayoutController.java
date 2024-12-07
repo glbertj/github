@@ -3,6 +3,8 @@ package com.svx.github.controller;
 import com.svx.github.controller.dialog.AddRepositoryDialogController;
 import com.svx.github.controller.dialog.CloneRepositoryDialogController;
 import com.svx.github.controller.dialog.CreateRepositoryDialogController;
+import com.svx.github.controller.dialog.StartGameDialogController;
+import com.svx.github.manager.ConnectionManager;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
 import com.svx.github.repository.CommitRepository;
@@ -17,7 +19,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.fxmisc.richtext.InlineCssTextArea;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -46,7 +47,14 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     private void setMenuActions() {
         view.getCreateRepositoryMenu().setOnAction(e -> appController.openDialog(new CreateRepositoryDialogController(appController)));
         view.getAddRepositoryMenu().setOnAction(e -> appController.openDialog(new AddRepositoryDialogController(appController)));
-        view.getCloneRepositoryMenu().setOnAction(e -> appController.openDialog(new CloneRepositoryDialogController(appController)));
+        view.getCloneRepositoryMenu().setOnAction(e -> {
+            if (ConnectionManager.isNotOnline()) {
+                appController.openDialog(new StartGameDialogController(appController));
+                return;
+            }
+
+            appController.openDialog(new CloneRepositoryDialogController(appController));
+        });
         view.getLogoutMenu().setOnAction(e -> {
             appController.logout();
             appController.showNotification("Logged out.", NotificationBox.NotificationType.SUCCESS, "fas-sign-out-alt");
@@ -124,6 +132,12 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         });
         view.getCloneRepositoryPopup().setOnAction(e -> {
             view.hidePopup();
+
+            if (ConnectionManager.isNotOnline()) {
+                appController.openDialog(new StartGameDialogController(appController));
+                return;
+            }
+
             appController.openDialog(new CloneRepositoryDialogController(appController));
         });
     }
@@ -330,6 +344,11 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void updateMultiFunctionButton() {
+        if (ConnectionManager.isNotOnline()) {
+            appController.openDialog(new StartGameDialogController(appController));
+            return;
+        }
+
         Repository currentRepo = RepositoryManager.getCurrentRepository();
         if (currentRepo == null) {
             appController.showNotification("No repository selected.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");

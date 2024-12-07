@@ -15,9 +15,7 @@ public class StartGameDialogController extends DialogController<StartGameDialogV
     public void setActions() {
         super.setActions();
 
-        view.getCancelButton().setOnAction(e -> {
-            hideDialog();
-        });
+        view.getCancelButton().setOnAction(e -> hideDialog());
 
         view.getConfirmButton().setOnAction(e -> {
             appController.navigatePage(new ChessController(appController));

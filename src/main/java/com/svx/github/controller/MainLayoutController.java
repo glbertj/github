@@ -219,7 +219,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 if (change.wasAdded()) {
                     for (Repository repository : change.getAddedSubList()) {
                         boolean alreadyExists = view.getRepositoryList().getChildren().stream().anyMatch(node -> {
-                            if (node instanceof HBox buttonContent) {
+                            if (node instanceof HBox) {
+                                HBox buttonContent = (HBox) node;
                                 Label label = (Label) buttonContent.getChildren().get(1);
                                 return label.getText().equals(repository.getName())
                                         && buttonContent.getUserData() instanceof Repository
@@ -235,7 +236,8 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 if (change.wasRemoved()) {
                     for (Repository repo : change.getRemoved()) {
                         view.getRepositoryList().getChildren().removeIf(node -> {
-                            if (node instanceof HBox buttonContent) {
+                            if (node instanceof HBox) {
+                                HBox buttonContent = (HBox) node;
                                 Label label = (Label) buttonContent.getChildren().get(1);
                                 return label.getText().equals(repo.getName());
                             }
@@ -515,9 +517,15 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
             String paragraphStyle;
             switch (line.getType()) {
-                case ADDED -> paragraphStyle = "-fx-background-color: rgba(17,58,27,1); -fx-fill: white;";
-                case REMOVED -> paragraphStyle = "-fx-background-color: rgba(69,12,15,1); -fx-fill: white;";
-                default -> paragraphStyle = "-fx-background-color: transparent; -fx-fill: white;";
+                case ADDED:
+                    paragraphStyle = "-fx-background-color: rgba(17,58,27,1); -fx-fill: white;";
+                    break;
+                case REMOVED:
+                    paragraphStyle = "-fx-background-color: rgba(69,12,15,1); -fx-fill: white;";
+                    break;
+                default:
+                    paragraphStyle = "-fx-background-color: transparent; -fx-fill: white;";
+                    break;
             }
             styledTextArea.setParagraphStyle(i, paragraphStyle);
 

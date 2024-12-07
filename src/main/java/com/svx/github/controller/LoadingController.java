@@ -2,7 +2,6 @@ package com.svx.github.controller;
 
 import com.svx.chess.controller.ChessController;
 import com.svx.github.view.LoadingView;
-import com.svx.github.view.View;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.control.ProgressBar;

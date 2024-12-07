@@ -13,8 +13,6 @@ import org.fxmisc.richtext.InlineCssTextArea;
 import org.fxmisc.richtext.model.Paragraph;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.reactfx.collection.LiveList;
-
-import java.util.List;
 import java.util.Objects;
 
 public class MainLayoutView extends View<BorderPane> {
@@ -153,9 +151,15 @@ public class MainLayoutView extends View<BorderPane> {
 
     public void switchOriginButton(OriginType type) {
         switch (type) {
-            case FETCH -> switchOriginButton("Fetch Origin", "fas-sync-alt", "some time");
-            case PUSH -> switchOriginButton("Push", "fas-arrow-up", "some time");
-            case PULL -> switchOriginButton("Pull", "fas-arrow-down", "some time");
+            case FETCH:
+                switchOriginButton("Fetch Origin", "fas-sync-alt", "some time");
+                break;
+            case PUSH:
+                switchOriginButton("Push", "fas-arrow-up", "some time");
+                break;
+            case PULL:
+                switchOriginButton("Pull", "fas-arrow-down", "some time");
+                break;
         }
     }
 
@@ -182,7 +186,8 @@ public class MainLayoutView extends View<BorderPane> {
             newOriginButton.setSpacing(10);
 
             Parent parent = originButton.getParent();
-            if (parent instanceof Pane pane) {
+            if (parent instanceof Pane) {
+                Pane pane = (Pane) parent;
                 int index = pane.getChildren().indexOf(originButton);
                 if (index >= 0) {
                     pane.getChildren().set(index, newOriginButton);
@@ -274,12 +279,12 @@ public class MainLayoutView extends View<BorderPane> {
         repositoryList = new VBox();
         repositoryList.setSpacing(5);
         repositoryList.getStyleClass().add("repository-list");
-        repositoryList.getChildren().addFirst(repositoryLabel);
+        repositoryList.getChildren().add(0, repositoryLabel);
 
         repositorySidebar.getChildren().addAll(repositoryHeader, repositoryList);
     }
 
-    // I'm super terribly sorry for this lol I just wanna finish this up
+    // I'm super terribly sorry for this lol I just want to finish this up
     private void initializePopUp() {
         addRepositoryButton = new Button("Add");
 
@@ -472,7 +477,8 @@ public class MainLayoutView extends View<BorderPane> {
             showingHistoryTab = false;
 
             getHistoryList().getChildren().forEach(node -> {
-                if (node instanceof HBox hbox) {
+                if (node instanceof HBox) {
+                    HBox hbox = (HBox) node;
                     hbox.getStyleClass().remove("active");
                 }
             });
@@ -488,7 +494,8 @@ public class MainLayoutView extends View<BorderPane> {
             showingHistoryTab = true;
 
             getChangedFilesList().getChildren().forEach(node -> {
-                if (node instanceof HBox hbox) {
+                if (node instanceof HBox) {
+                    HBox hbox = (HBox) node;
                     hbox.getStyleClass().remove("active");
                 }
             });

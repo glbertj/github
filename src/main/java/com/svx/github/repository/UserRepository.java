@@ -2,7 +2,6 @@ package com.svx.github.repository;
 
 import com.svx.github.manager.ConnectionManager;
 import com.svx.github.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

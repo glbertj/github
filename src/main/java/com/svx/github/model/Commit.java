@@ -2,7 +2,6 @@ package com.svx.github.model;
 
 import com.svx.github.utility.FileUtility;
 import com.svx.github.utility.HashUtility;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 

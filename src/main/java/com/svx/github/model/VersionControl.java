@@ -6,7 +6,6 @@ import com.svx.github.repository.CommitRepository;
 import com.svx.github.repository.RepositoryRepository;
 import com.svx.github.repository.TreeRepository;
 import com.svx.github.utility.FileUtility;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -154,7 +153,7 @@ public class VersionControl {
 
                     Path workingFilePath = repository.getPath().resolve(filePath);
                     Files.createDirectories(workingFilePath.getParent());
-                    Files.writeString(workingFilePath, BlobRepository.load(blobId, repository).getContent());
+                    Files.writeString(workingFilePath, Objects.requireNonNull(BlobRepository.load(blobId, repository)).getContent());
 
                     pulledFiles.add(filePath);
                 }
@@ -177,20 +176,6 @@ public class VersionControl {
             if (versionControl != null) {
                 versionControl.setCurrentCommit(latestCommit);
             }
-        }
-    }
-
-    private void restoreFilesFromCommit(Commit commit, Repository repository) throws IOException {
-        Tree tree = Tree.loadFromDisk(commit.getTreeId(), repository.getObjectsPath());
-        for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
-            String filename = entry.getKey();
-            String blobId = entry.getValue();
-
-            String blobContent = FileUtility.loadFromDisk(blobId, repository.getObjectsPath());
-
-            Path filePath = repository.getPath().resolve(filename);
-            Files.createDirectories(filePath.getParent());
-            Files.writeString(filePath, blobContent);
         }
     }
 }

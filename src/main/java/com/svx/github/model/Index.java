@@ -3,13 +3,16 @@ package com.svx.github.model;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.utility.FileUtility;
 import com.svx.github.utility.JsonUtility;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Index {
     private final Map<String, String> stagedFiles;
@@ -54,34 +57,36 @@ public class Index {
         Commit latestCommit = versionControl.getCurrentCommit();
         Tree latestTree;
 
-        if (latestCommit != null) {
-            latestTree = Tree.loadFromDisk(latestCommit.getTreeId(), repository.getObjectsPath());
-        } else {
-            latestTree = null;
-        }
+        latestTree = latestCommit != null ? Tree.loadFromDisk(latestCommit.getTreeId(), repository.getObjectsPath()) : null;
 
-        Files.walk(repoPath)
-                .filter(Files::isRegularFile)
-                .filter(path -> !path.startsWith(repository.getGitPath()))
-                .forEach(file -> {
-                    try {
-                        String blobId = Blob.computeBlobId(file);
-                        String relativePath = repoPath.relativize(file).toString();
+        try (Stream<Path> paths = Files.walk(repoPath)) {
+            paths.filter(Files::isRegularFile)
+                    .filter(path -> !path.startsWith(repository.getGitPath()))
+                    .forEach(file -> {
+                        try {
+                            String blobId = Blob.computeBlobId(file);
+                            String relativePath = repoPath.relativize(file).toString();
 
-                        if (latestTree != null) {
-                            String committedBlobId = latestTree.getEntries().get(relativePath);
-                            if (committedBlobId != null && committedBlobId.equals(blobId)) {
-                                return;
+                            if (latestTree != null) {
+                                String committedBlobId = latestTree.getEntries().get(relativePath);
+                                if (committedBlobId != null && committedBlobId.equals(blobId)) {
+                                    return;
+                                }
                             }
-                        }
 
-                        Blob blob = new Blob(Files.readString(file), repository);
-                        stagedFiles.put(relativePath, blob.getId());
-                        FileUtility.saveToDisk(blob.getId(), blob.getContent(), repository.getObjectsPath());
-                    } catch (Exception e) {
-                        System.err.println("Error detect and stage: " + e.getMessage());
-                    }
-                });
+                            try (BufferedReader reader = Files.newBufferedReader(file)) {
+                                String content = reader.lines().collect(Collectors.joining("\n"));
+                                Blob blob = new Blob(content, repository);
+                                stagedFiles.put(relativePath, blob.getId());
+                                FileUtility.saveToDisk(blob.getId(), blob.getContent(), repository.getObjectsPath());
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Error detecting and staging: " + e.getMessage());
+                        }
+                    });
+        } catch (IOException e) {
+            System.err.println("Error walking through files: " + e.getMessage());
+        }
 
         saveToIndexFile(repository);
     }

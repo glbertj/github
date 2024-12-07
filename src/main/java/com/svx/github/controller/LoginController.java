@@ -43,7 +43,7 @@ public class LoginController extends Controller<LoginView> {
             return;
         }
 
-        User authenticatedUser = null;
+        User authenticatedUser;
         try {
             authenticatedUser = username.contains("@") ? UserRepository.getByEmail(username) : UserRepository.getByUsername(username);
         } catch (SQLException e) {

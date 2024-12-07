@@ -48,9 +48,15 @@ public class NotificationBox extends HBox {
         messageLabel.setText(message);
 
         switch (type) {
-            case SUCCESS -> setStyle("-fx-background-color: #28a745; -fx-background-radius: 8;");
-            case ERROR -> setStyle("-fx-background-color: #d73a49; -fx-background-radius: 8;");
-            case INFO -> setStyle("-fx-background-color: #2b3137; -fx-background-radius: 8;");
+            case SUCCESS:
+                setStyle("-fx-background-color: #28a745; -fx-background-radius: 8;");
+                break;
+            case ERROR:
+                setStyle("-fx-background-color: #d73a49; -fx-background-radius: 8;");
+                break;
+            case INFO:
+                setStyle("-fx-background-color: #2b3137; -fx-background-radius: 8;");
+                break;
         }
 
         if (iconCode != null) {

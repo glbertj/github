@@ -94,7 +94,8 @@ public class ChessView extends View<StackPane> {
 
     public void hideValidMoves() {
         for (Node node : chessBoard.getChildren()) {
-            if (node instanceof ChessTile tile) {
+            if (node instanceof ChessTile) {
+                ChessTile tile = (ChessTile) node;
                 tile.setIsValidMove(false);
                 tile.setIsEatable(false);
                 tile.setIsEnPassantMove(false);
@@ -105,7 +106,8 @@ public class ChessView extends View<StackPane> {
 
     public void clearHighlightedTiles() {
         for (Node node : chessBoard.getChildren()) {
-            if (node instanceof ChessTile tile) {
+            if (node instanceof ChessTile) {
+                ChessTile tile = (ChessTile) node;
                 tile.setIsRecentMove(false);
             }
         }

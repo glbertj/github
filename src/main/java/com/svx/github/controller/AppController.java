@@ -94,9 +94,9 @@ public class AppController {
         }
 
         if (rootPane.getChildren().size() > 1) {
-            rootPane.getChildren().removeFirst();
+            rootPane.getChildren().remove(0);
         }
-        rootPane.getChildren().addFirst(newRoot);
+        rootPane.getChildren().add(0, newRoot);
     }
 
     public <T extends Parent> void openDialog(DialogController<? extends DialogView<T>> dialogController) {
@@ -117,11 +117,11 @@ public class AppController {
     }
 
     public void showOverlay() {
-        rootPane.getChildren().addLast(darkenOverlay);
+        rootPane.getChildren().add(darkenOverlay);
     }
 
     public void hideOverlay() {
-        rootPane.getChildren().removeLast();
+        rootPane.getChildren().remove(rootPane.getChildren().size() - 1);
     }
 
     public void logout() {

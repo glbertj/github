@@ -41,12 +41,21 @@ public class Chess {
     private static void promotePawn(ChessTile currentTile, Chess.PieceColor color, AppController appController) {
         appController.openDialog(new PromotePawnDialogController(appController, color));
 
-        ChessPiece promotedPiece = switch (promotionChoice) {
-            case ROOK -> new ChessPiece(Chess.PieceType.ROOK, color);
-            case BISHOP -> new ChessPiece(Chess.PieceType.BISHOP, color);
-            case KNIGHT -> new ChessPiece(Chess.PieceType.KNIGHT, color);
-            default -> new ChessPiece(Chess.PieceType.QUEEN, color);
-        };
+        ChessPiece promotedPiece;
+        switch (promotionChoice) {
+            case ROOK:
+                promotedPiece = new ChessPiece(Chess.PieceType.ROOK, color);
+                break;
+            case BISHOP:
+                promotedPiece = new ChessPiece(Chess.PieceType.BISHOP, color);
+                break;
+            case KNIGHT:
+                promotedPiece = new ChessPiece(Chess.PieceType.KNIGHT, color);
+                break;
+            default:
+                promotedPiece = new ChessPiece(Chess.PieceType.QUEEN, color);
+                break;
+        }
 
         currentTile.setPiece(promotedPiece);
         promotionChoice = null;

@@ -59,6 +59,7 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
             appController.showNotification("Error loading repositories.", NotificationBox.NotificationType.ERROR, "fas-times-circle");
         }
 
+        assert repositories != null;
         repositories.forEach(repo -> {
             if (repositoryExistsInList(repo)) {
                 view.getRepositoryList().getChildren().add(createRepositoryButton(repo));
@@ -69,7 +70,8 @@ public class CloneRepositoryDialogController extends DialogController<CloneRepos
     private boolean repositoryExistsInList(Repository repo) {
         return view.getRepositoryList().getChildren().stream()
                 .noneMatch(node -> {
-                    if (node instanceof HBox buttonContent) {
+                    if (node instanceof HBox) {
+                        HBox buttonContent = (HBox) node;
                         Repository existingRepo = (Repository) buttonContent.getUserData();
                         return existingRepo != null && existingRepo.equals(repo);
                     }

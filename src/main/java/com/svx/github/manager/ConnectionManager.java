@@ -3,7 +3,6 @@ package com.svx.github.manager;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;

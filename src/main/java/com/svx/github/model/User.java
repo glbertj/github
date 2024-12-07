@@ -1,14 +1,12 @@
 package com.svx.github.model;
 
-import com.svx.github.utility.CryptoUtility;
-
 import java.util.UUID;
 
 public class User {
     private final UUID id;
-    private String username;
-    private String email;
-    private String password;
+    private final String username;
+    private final String email;
+    private final String password;
 
     public User(UUID id, String username, String email, String password) {
         this.id = id;

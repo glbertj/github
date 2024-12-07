@@ -5,7 +5,6 @@ import com.svx.github.view.dialog.DialogView;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
-
 import java.util.Objects;
 
 public abstract class DialogController<T extends DialogView<? extends Parent>> {
@@ -21,13 +20,9 @@ public abstract class DialogController<T extends DialogView<? extends Parent>> {
 
     public void setActions() {
         view.getCancelButton().setOnAction(e -> hideDialog());
-        view.getCloseIcon().setOnMouseClicked(e -> {
-            hideDialog();
-        });
+        view.getCloseIcon().setOnMouseClicked(e -> hideDialog());
 
-        view.getCancelButton().setOnAction(e -> {
-            hideDialog();
-        });
+        view.getCancelButton().setOnAction(e -> hideDialog());
     }
 
     public Scene getScene() {

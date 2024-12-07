@@ -25,7 +25,7 @@ public class ComponentUtility {
         button.setUserData(item);
 
         switch (type) {
-            case REPOSITORY -> {
+            case REPOSITORY:
                 if (item instanceof Repository && view instanceof MainLayoutView) {
                     icon.setIconLiteral("fab-git-alt");
                     label.setText(((Repository) item).getName());
@@ -40,8 +40,8 @@ public class ComponentUtility {
                         ((MainLayoutView) view).switchSideBar();
                     });
                 }
-            }
-            case CLONE_REPOSITORY_DIALOG -> {
+                break;
+            case CLONE_REPOSITORY_DIALOG:
                 if (item instanceof Repository && view instanceof CloneRepositoryDialogView) {
                     icon.setIconLiteral("fab-git-alt");
                     label.setText(((Repository) item).getName());
@@ -49,7 +49,8 @@ public class ComponentUtility {
                     button.getChildren().addAll(icon, label);
                     button.setOnMouseClicked(e -> {
                         ((CloneRepositoryDialogView) view).getRepositoryList().getChildren().forEach(node -> {
-                            if (node instanceof HBox hbox) {
+                            if (node instanceof HBox) {
+                                HBox hbox = (HBox) node;
                                 hbox.getStyleClass().remove("active");
                             }
                         });
@@ -57,8 +58,8 @@ public class ComponentUtility {
                         button.getStyleClass().add("active");
                     });
                 }
-            }
-            case CHANGES -> {
+                break;
+            case CHANGES:
                 if (item instanceof String) {
                     label.setText((String) item);
                     button.getChildren().addAll(label);
@@ -66,15 +67,16 @@ public class ComponentUtility {
 
                 button.setOnMouseClicked(e -> {
                     ((MainLayoutView) view).getChangedFilesList().getChildren().forEach(node -> {
-                        if (node instanceof HBox hbox) {
+                        if (node instanceof HBox) {
+                            HBox hbox = (HBox) node;
                             hbox.getStyleClass().remove("active");
                         }
                     });
 
                     button.getStyleClass().add("active");
                 });
-            }
-            case HISTORY -> {
+                break;
+            case HISTORY:
                 if (item instanceof String) {
                     label.setText((String) item);
                     button.getChildren().addAll(label);
@@ -82,17 +84,17 @@ public class ComponentUtility {
 
                 button.setOnMouseClicked(e -> {
                     ((MainLayoutView) view).getHistoryList().getChildren().forEach(node -> {
-                        if (node instanceof HBox hbox) {
+                        if (node instanceof HBox) {
+                            HBox hbox = (HBox) node;
                             hbox.getStyleClass().remove("active");
                         }
                     });
 
                     button.getStyleClass().add("active");
                 });
-            }
-            default -> {
+                break;
+            default:
                 return null;
-            }
         }
 
         return button;

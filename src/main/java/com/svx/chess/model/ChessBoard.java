@@ -108,7 +108,8 @@ public class ChessBoard extends GridPane {
         double size = Math.min(boardWidth, boardHeight) / 8;
 
         for (Node node : getChildren()) {
-            if (node instanceof ChessTile tile) {
+            if (node instanceof ChessTile) {
+                ChessTile tile = (ChessTile) node;
                 tile.setPrefWidth(size);
                 tile.setPrefHeight(size);
             }

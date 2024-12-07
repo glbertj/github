@@ -41,6 +41,12 @@ public class ConnectionManager {
         }, 0, 1, TimeUnit.SECONDS);
     }
 
+    public static void stopConnectionMonitor() {
+        if (!scheduler.isShutdown()) {
+            scheduler.shutdownNow();
+        }
+    }
+
     public static void setAppController(AppController appController) {
         ConnectionManager.appController = appController;
     }

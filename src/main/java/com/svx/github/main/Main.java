@@ -1,6 +1,7 @@
 package com.svx.github.main;
 
 import com.svx.github.controller.AppController;
+import com.svx.github.manager.ConnectionManager;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -14,5 +15,10 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    @Override
+    public void stop() throws Exception {
+        ConnectionManager.stopConnectionMonitor();
     }
 }

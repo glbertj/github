@@ -5,7 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.*;
 
 public class ChessBoard extends GridPane {
-    private final Chess.PieceColor playerColor;
+    private Chess.PieceColor playerColor;
     private final ChessTile[][] tiles;
 
     private ChessTile whiteKingTile;
@@ -116,9 +116,20 @@ public class ChessBoard extends GridPane {
         }
     }
 
+    public void reset() {
+        for (ChessTile[] row : tiles) {
+            for (ChessTile tile : row) {
+                tile.setPiece(null);
+            }
+        }
+
+        addPieces();
+    }
+
     public ChessTile[][] getTiles() { return tiles; }
     public ChessTile getWhiteKingTile() { return whiteKingTile; }
     public void setWhiteKingTile(ChessTile whiteKingTile) { this.whiteKingTile = whiteKingTile; }
     public ChessTile getBlackKingTile() { return blackKingTile; }
     public void setBlackKingTile(ChessTile blackKingTile) { this.blackKingTile = blackKingTile; }
+    public void setPlayerColor(Chess.PieceColor playerColor) { this.playerColor = playerColor; }
 }

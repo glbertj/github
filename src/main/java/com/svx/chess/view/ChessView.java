@@ -23,8 +23,6 @@ public class ChessView extends View<StackPane> {
     // Left
     private ChessBoard chessBoard;
 
-    // Right
-    private Label onlineStatus;
     private FlowPane capturedWhiteBox;
     private FlowPane capturedBlackBox;
     private Button backToLoginButton;
@@ -38,10 +36,11 @@ public class ChessView extends View<StackPane> {
                 getClass().getResource("/com/svx/chess/style/game.css")
         ).toExternalForm();
 
-        playerColor = Math.random() > 0.5 ? Chess.PieceColor.WHITE : Chess.PieceColor.BLACK;
-
         HBox leftSection = new HBox();
+
+        playerColor = Math.random() > 0.5 ? Chess.PieceColor.WHITE : Chess.PieceColor.BLACK;
         chessBoard = new ChessBoard(playerColor);
+
         leftSection.getChildren().add(chessBoard);
         leftSection.setAlignment(Pos.CENTER);
 
@@ -136,7 +135,9 @@ public class ChessView extends View<StackPane> {
 
         Label onlineLabel = new Label("Online Status: ");
         onlineLabel.getStyleClass().add("primary-text");
-        onlineStatus = new Label();
+
+        // Right
+        Label onlineStatus = new Label();
 
         onlineStatus.textProperty().bind(Bindings.createStringBinding(() ->
                         ConnectionManager.isOnlineProperty().get() ? "Online" : "Offline",
@@ -148,15 +149,7 @@ public class ChessView extends View<StackPane> {
 
         onlineStatus.getStyleClass().add("primary-text");
         HBox onlineTextBox = new HBox(onlineLabel, onlineStatus);
-        backToLoginButton = new Button("BACK TO LOGIN");
-        backToLoginButton.getStyleClass().add("primary-button");
-
-        backToLoginButton.disableProperty().bind(
-                Bindings.createBooleanBinding(
-                        () -> !ConnectionManager.isOnlineProperty().get(),
-                        ConnectionManager.isOnlineProperty()
-                )
-        );
+        backToLoginButton = createBackToLoginButton();
 
         VBox bottomSection = new VBox(onlineTextBox, backToLoginButton);
         VBox.setVgrow(bottomSection, Priority.NEVER);
@@ -164,7 +157,26 @@ public class ChessView extends View<StackPane> {
         return new VBox(topSection, bottomSection);
     }
 
+    public Button createBackToLoginButton() {
+        Button button = new Button("Back to Login");
+        button.getStyleClass().add("primary-button");
+
+        button.disableProperty().bind(
+                Bindings.createBooleanBinding(
+                        () -> !ConnectionManager.isOnlineProperty().get(),
+                        ConnectionManager.isOnlineProperty()
+                )
+        );
+
+        button.setOnAction(e -> {
+
+        });
+
+        return button;
+    }
+
     public Chess.PieceColor getPlayerColor() { return playerColor; }
+    public void setPlayerColor(Chess.PieceColor playerColor) { this.playerColor = playerColor; }
     public ChessBoard getChessBoard() { return chessBoard; }
     public FlowPane getCapturedWhiteBox() { return capturedWhiteBox; }
     public FlowPane getCapturedBlackBox() { return capturedBlackBox; }

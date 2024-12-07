@@ -82,10 +82,12 @@ public class ChessTile extends StackPane {
     private void addChessPieceImage() {
         pieceProperty.addListener((observable) -> {
             ChessPiece newPiece = pieceProperty.get();
+
+            if (getChildren().size() == 5) {
+                getChildren().remove(4);
+            }
+
             if (newPiece != null) {
-                if (getChildren().size() == 5) {
-                    getChildren().remove(4);
-                }
                 getChildren().add(newPiece.getImageView());
             }
         });

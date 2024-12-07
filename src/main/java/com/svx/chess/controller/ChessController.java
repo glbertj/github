@@ -1,5 +1,6 @@
 package com.svx.chess.controller;
 
+import com.svx.chess.controller.dialog.CheckmateDialogController;
 import com.svx.chess.model.Chess;
 import com.svx.chess.model.ChessBoard;
 import com.svx.chess.model.ChessPiece;
@@ -16,7 +17,7 @@ import javafx.scene.layout.GridPane;
 
 public class ChessController extends Controller<ChessView> {
     private final ChessBoard chessBoard;
-    private final Chess.PieceColor playerColor;
+    private Chess.PieceColor playerColor;
 
     private boolean whiteTurn = true;
     private ChessTile selectedTile;
@@ -26,15 +27,11 @@ public class ChessController extends Controller<ChessView> {
 
     public ChessController(AppController appController) {
         super(new ChessView(), appController);
-
         chessBoard = view.getChessBoard();
         playerColor = view.getPlayerColor();
-
         Chess.setPlayerColor(playerColor);
-
-        setActions();
-
         SoundUtility.SoundType.START.play();
+        setActions();
     }
 
     @Override
@@ -93,9 +90,11 @@ public class ChessController extends Controller<ChessView> {
         if (Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getWhiteKingTile()) || Chess.isKingInCheck(chessBoard.getTiles(), chessBoard.getBlackKingTile())) {
             if (Chess.isCheckMate(chessBoard.getTiles(), chessBoard.getWhiteKingTile())) {
                 SoundUtility.SoundType.CHECKMATE.play();
+                appController.openDialog(new CheckmateDialogController(appController, Chess.PieceColor.BLACK, view.createBackToLoginButton(), this));
                 return;
             } else if (Chess.isCheckMate(chessBoard.getTiles(), chessBoard.getBlackKingTile())) {
                 SoundUtility.SoundType.CHECKMATE.play();
+                appController.openDialog(new CheckmateDialogController(appController, Chess.PieceColor.WHITE, view.createBackToLoginButton(), this));
                 return;
             }
 
@@ -107,6 +106,7 @@ public class ChessController extends Controller<ChessView> {
         selectedTile = targetTile;
         selectedTile.setIsRecentMove(true);
         int[] validMoves = Chess.getValidMoves(selectedTile, chessBoard.getTiles(), getKingTileForCurrentTurn());
+
         view.showValidMoves(selectedTile, validMoves);
     }
 
@@ -231,6 +231,21 @@ public class ChessController extends Controller<ChessView> {
             tile.setIsJumpMove(false);
             tile.setJustJumped(false);
         }
+    }
+
+    public void resetGame() {
+        playerColor = playerColor.equals(Chess.PieceColor.WHITE) ? Chess.PieceColor.BLACK : Chess.PieceColor.WHITE;
+        view.setPlayerColor(playerColor);
+        Chess.setPlayerColor(playerColor);
+
+        whiteTurn = true;
+        selectedTile = null;
+        capturedBlackPiece.clear();
+        capturedWhitePiece.clear();
+        view.clearHighlightedTiles();
+
+        chessBoard.setPlayerColor(playerColor);
+        chessBoard.reset();
     }
 
     private ChessTile getKingTileForCurrentTurn() {

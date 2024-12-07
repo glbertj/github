@@ -1,5 +1,6 @@
 package com.svx.github.controller;
 
+import com.svx.chess.controller.ChessController;
 import com.svx.github.controller.dialog.DialogController;
 import com.svx.github.manager.ConnectionManager;
 import com.svx.github.manager.RepositoryManager;
@@ -61,9 +62,9 @@ public class AppController {
 
     public void startApp() {
         this.primaryStage.setScene(appScene);
-        User currentUser = SessionManager.validateSession();
+        ConnectionManager.startConnectionMonitor();
 
-        primaryStage.show();
+        User currentUser = SessionManager.validateSession();
 
         try {
             if (currentUser != null && ConnectionManager.getConnection() != null) {
@@ -77,6 +78,10 @@ public class AppController {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        navigatePage(new ChessController(this));
+
+        primaryStage.show();
     }
 
     public <T extends Parent> void navigatePage(Controller<? extends View<T>> controller) {

@@ -8,6 +8,7 @@ import com.svx.chess.utility.SoundUtility;
 import com.svx.chess.view.ChessView;
 import com.svx.github.controller.AppController;
 import com.svx.github.controller.Controller;
+import com.svx.github.controller.LoginController;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -58,6 +59,8 @@ public class ChessController extends Controller<ChessView> {
                 view.getCapturedWhiteBox().getChildren().add(piece.getImageView());
             }
         });
+
+        view.getBackToLoginButton().setOnAction(e -> appController.navigatePage(new LoginController(appController)));
     }
 
     private void onTileClick(ChessTile targetTile, AppController appController) {

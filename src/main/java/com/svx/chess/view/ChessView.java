@@ -3,7 +3,9 @@ package com.svx.chess.view;
 import com.svx.chess.model.Chess;
 import com.svx.chess.model.ChessBoard;
 import com.svx.chess.model.ChessTile;
+import com.svx.github.manager.ConnectionManager;
 import com.svx.github.view.View;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -25,6 +27,7 @@ public class ChessView extends View<StackPane> {
     private Label onlineStatus;
     private FlowPane capturedWhiteBox;
     private FlowPane capturedBlackBox;
+    private Button backToLoginButton;
 
     @Override
     public void initializeView() {
@@ -131,17 +134,28 @@ public class ChessView extends View<StackPane> {
 
         Label onlineLabel = new Label("Online Status: ");
         onlineLabel.getStyleClass().add("primary-text");
-        onlineStatus = new Label("Offline");
-        if (onlineStatus.equals("Online")) {
-            onlineStatus.setStyle("-fx-text-fill: green");
-        } else {
-            onlineStatus.setStyle("-fx-text-fill: red");
-        }
+        onlineStatus = new Label();
+
+        onlineStatus.textProperty().bind(Bindings.createStringBinding(() ->
+                        ConnectionManager.isOnlineProperty().get() ? "Online" : "Offline",
+                ConnectionManager.isOnlineProperty()));
+
+        onlineStatus.styleProperty().bind(Bindings.createStringBinding(() ->
+                        ConnectionManager.isOnlineProperty().get() ? "-fx-text-fill: green;" : "-fx-text-fill: red;",
+                ConnectionManager.isOnlineProperty()));
+
         onlineStatus.getStyleClass().add("primary-text");
         HBox onlineTextBox = new HBox(onlineLabel, onlineStatus);
-        Button backToLoginButton = new Button("BACK TO LOGIN");
+        backToLoginButton = new Button("BACK TO LOGIN");
         backToLoginButton.getStyleClass().add("primary-button");
-        backToLoginButton.setDisable(true);
+
+        backToLoginButton.disableProperty().bind(
+                Bindings.createBooleanBinding(
+                        () -> !ConnectionManager.isOnlineProperty().get(),
+                        ConnectionManager.isOnlineProperty()
+                )
+        );
+
         VBox bottomSection = new VBox(onlineTextBox, backToLoginButton);
         VBox.setVgrow(bottomSection, Priority.NEVER);
 
@@ -152,4 +166,5 @@ public class ChessView extends View<StackPane> {
     public ChessBoard getChessBoard() { return chessBoard; }
     public FlowPane getCapturedWhiteBox() { return capturedWhiteBox; }
     public FlowPane getCapturedBlackBox() { return capturedBlackBox; }
+    public Button getBackToLoginButton() { return backToLoginButton; }
 }

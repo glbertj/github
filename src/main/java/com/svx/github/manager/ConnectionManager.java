@@ -1,6 +1,5 @@
 package com.svx.github.manager;
 
-import com.svx.github.controller.AppController;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -17,9 +16,8 @@ public class ConnectionManager {
     private static final String URL = "jdbc:mysql://localhost:3306/github";
     private static final String USER = "root";
     private static final String PASSWORD = "";
-    private static AppController appController;
 
-    private static final BooleanProperty isOnlineProperty = new SimpleBooleanProperty(false);
+    private static final BooleanProperty isOnlineProperty = new SimpleBooleanProperty(true);
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     private ConnectionManager() {}
@@ -47,11 +45,7 @@ public class ConnectionManager {
         }
     }
 
-    public static void setAppController(AppController appController) {
-        ConnectionManager.appController = appController;
-    }
-
     public static BooleanProperty isOnlineProperty() { return isOnlineProperty; }
 
-    public static boolean isOnline() { return isOnlineProperty.get(); }
+    public static boolean isNotOnline() { return !isOnlineProperty.get(); }
 }

@@ -3,6 +3,8 @@ package com.svx.github.controller;
 import com.svx.github.controller.dialog.AddRepositoryDialogController;
 import com.svx.github.controller.dialog.CloneRepositoryDialogController;
 import com.svx.github.controller.dialog.CreateRepositoryDialogController;
+import com.svx.github.controller.dialog.StartGameDialogController;
+import com.svx.github.manager.ConnectionManager;
 import com.svx.github.manager.RepositoryManager;
 import com.svx.github.model.*;
 import com.svx.github.repository.CommitRepository;
@@ -17,7 +19,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.fxmisc.richtext.InlineCssTextArea;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -348,6 +349,11 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         if (latestLocalCommit == null) {
             appController.showNotification("You are up to date with the upstream branch.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             resetMultiFunctionButton();
+            return;
+        }
+
+        if (ConnectionManager.isNotOnline()) {
+            appController.openDialog(new StartGameDialogController(appController));
             return;
         }
 

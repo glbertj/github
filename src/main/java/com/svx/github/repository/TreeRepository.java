@@ -1,7 +1,6 @@
 package com.svx.github.repository;
 
 import com.svx.github.manager.ConnectionManager;
-import com.svx.github.model.Repository;
 import com.svx.github.model.Tree;
 import com.svx.github.utility.JsonUtility;
 import java.sql.Connection;

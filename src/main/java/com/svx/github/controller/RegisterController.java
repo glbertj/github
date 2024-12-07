@@ -1,5 +1,7 @@
 package com.svx.github.controller;
 
+import com.svx.github.controller.dialog.StartGameDialogController;
+import com.svx.github.manager.ConnectionManager;
 import com.svx.github.model.NotificationBox;
 import com.svx.github.model.User;
 import com.svx.github.repository.UserRepository;
@@ -23,6 +25,10 @@ public class RegisterController extends Controller<RegisterView> {
     }
 
     private void handleRegister() {
+        if (ConnectionManager.isNotOnline()) {
+            appController.openDialog(new StartGameDialogController(appController));
+        }
+
         String username = view.getUsernameField().getText().trim();
         String email = view.getEmailField().getText().trim();
         String password = view.getPasswordField().getText();

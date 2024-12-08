@@ -32,6 +32,10 @@ public class ChessController extends Controller<ChessView> {
         Chess.setPlayerColor(playerColor);
         SoundUtility.SoundType.START.play();
         setActions();
+
+        if (playerColor != Chess.PieceColor.WHITE) {
+            randomBotMove();
+        }
     }
 
     @Override
@@ -39,7 +43,9 @@ public class ChessController extends Controller<ChessView> {
         ChessTile[][] tiles = chessBoard.getTiles();
         for (ChessTile[] row : tiles) {
             for (ChessTile tile : row) {
-                tile.setOnMouseClicked(e -> onTileClick(tile, appController));
+                tile.setOnMouseClicked(e -> {
+                    onTileClick(tile, appController);
+                });
             }
         }
 
@@ -99,6 +105,10 @@ public class ChessController extends Controller<ChessView> {
             }
 
             SoundUtility.SoundType.CHECK.play();
+        }
+
+        if ((playerColor != Chess.PieceColor.WHITE && whiteTurn) || (playerColor == Chess.PieceColor.WHITE && !whiteTurn)) {
+            randomBotMove();
         }
     }
 
@@ -246,6 +256,10 @@ public class ChessController extends Controller<ChessView> {
 
         chessBoard.setPlayerColor(playerColor);
         chessBoard.reset();
+
+        if (playerColor != Chess.PieceColor.WHITE) {
+            randomBotMove();
+        }
     }
 
     private ChessTile getKingTileForCurrentTurn() {
@@ -258,5 +272,32 @@ public class ChessController extends Controller<ChessView> {
         } else {
             chessBoard.setBlackKingTile(targetTile);
         }
+    }
+
+    private void randomBotMove() {
+        ChessTile[][] tiles = chessBoard.getTiles();
+        ChessTile[] allTiles = new ChessTile[64];
+        int index = 0;
+        for (ChessTile[] row : tiles) {
+            for (ChessTile tile : row) {
+                allTiles[index++] = tile;
+            }
+        }
+
+        ChessTile randomTile;
+        int[] validMoves;
+        do {
+            do {
+                randomTile = allTiles[(int) (Math.random() * 64)];
+            } while (randomTile.getPiece() == null || randomTile.getPiece().getColor() == playerColor);
+
+            validMoves = Chess.getValidMoves(randomTile, tiles, getKingTileForCurrentTurn());
+        } while (validMoves.length == 0);
+
+        selectPiece(randomTile);
+        int randomMove = validMoves[(int) (Math.random() * validMoves.length)];
+
+        ChessTile targetTile = tiles[randomMove / 8][randomMove % 8];
+        handleMove(randomTile.getPiece(), targetTile);
     }
 }

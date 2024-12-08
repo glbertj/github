@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ConnectionManager {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/github";
+    private static final String URL = "jdbc:mysql://localhost:3306/goathub";
     private static final String USER = "root";
     private static final String PASSWORD = "";
 

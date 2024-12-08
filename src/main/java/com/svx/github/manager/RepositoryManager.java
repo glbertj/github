@@ -21,7 +21,7 @@ import java.util.UUID;
 public class RepositoryManager {
     private static final ObjectProperty<Repository> currentRepository = new SimpleObjectProperty<>();
     private static final Map<Repository, VersionControl> versionControlMap = new HashMap<>();
-    private static final Path RECENT_REPOSITORY_FILE = Paths.get("C:/gittub/sessions/recent_repository.dat");
+    private static final Path RECENT_REPOSITORY_FILE = Paths.get("C:/goathub/sessions/recent_repository.dat");
 
     public static void setCurrentRepository(Repository repository) throws IOException, SQLException {
         currentRepository.set(repository);

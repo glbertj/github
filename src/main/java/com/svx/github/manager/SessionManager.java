@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class SessionManager {
-    private static final Path SESSION_FILE = Paths.get("C:/gittub/sessions/session.dat");
+    private static final Path SESSION_FILE = Paths.get("C:/goathub/sessions/session.dat");
 
     public static void createSession(User user) {
         try {

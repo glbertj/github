@@ -1,10 +1,12 @@
 package com.svx.chess.model;
 
+import javafx.animation.PauseTransition;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
+import javafx.util.Duration;
 
 public class ChessTile extends StackPane {
     private final ObjectProperty<ChessPiece> pieceProperty;
@@ -29,11 +31,12 @@ public class ChessTile extends StackPane {
         getStyleClass().add("tile");
 
         addValidMoveIndicator();
-        addEnemyIndicator();
         addRecentMoveIndicator();
         addCastleMoveIndicator();
         addEnPassantMoveIndicator();
+        addEnemyIndicator();
         addChessPieceImage();
+        addSizeAdjustor();
     }
 
     private void addValidMoveIndicator() {
@@ -42,15 +45,6 @@ public class ChessTile extends StackPane {
         validMoveCircle.setVisible(false);
         getChildren().add(validMoveCircle);
         validMoveCircle.visibleProperty().bind(isValidMove);
-    }
-
-    private void addEnemyIndicator() {
-        Circle enemyCircle = new Circle();
-        enemyCircle.setRadius(30.0);
-        enemyCircle.getStyleClass().add("enemy-circle");
-        enemyCircle.setVisible(false);
-        getChildren().add(enemyCircle);
-        enemyCircle.visibleProperty().bind(isEatable);
     }
 
     private void addRecentMoveIndicator() {
@@ -79,6 +73,14 @@ public class ChessTile extends StackPane {
         enPassantCircle.visibleProperty().bind(isEnPassantMove);
     }
 
+    private void addEnemyIndicator() {
+        Circle enemyCircle = new Circle();
+        enemyCircle.getStyleClass().add("enemy-circle");
+        enemyCircle.setVisible(false);
+        getChildren().add(enemyCircle);
+        enemyCircle.visibleProperty().bind(isEatable);
+    }
+
     private void addChessPieceImage() {
         pieceProperty.addListener((observable) -> {
             ChessPiece newPiece = pieceProperty.get();
@@ -94,10 +96,30 @@ public class ChessTile extends StackPane {
     }
 
     private void addSizeAdjustor() {
-        widthProperty().addListener((observable, oldValue, newValue) -> {
-            double size = Math.min(getWidth(), getHeight());
-            // TODO! Implement this
-        });
+        final PauseTransition pause = new PauseTransition(Duration.millis(5));
+        pause.setOnFinished(event -> adjustPieceSize());
+
+        widthProperty().addListener((observable, oldValue, newValue) -> pause.playFromStart());
+        heightProperty().addListener((observable, oldValue, newValue) -> pause.playFromStart());
+    }
+
+    private void adjustPieceSize() {
+        double size = Math.min(getWidth(), getHeight());
+        if (getPiece() != null && getPiece().getImageView() != null) {
+            getPiece().getImageView().setFitWidth(size / 1.5);
+            getPiece().getImageView().setFitHeight(size / 1.5);
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (getChildren().get(i) instanceof Circle) {
+                Circle circle = (Circle) getChildren().get(i);
+                circle.setRadius(size / 7.5);
+            }
+        }
+
+        Circle enemyCircle = (Circle) getChildren().get(3);
+        enemyCircle.setStrokeWidth(size / 12.5);
+        enemyCircle.setRadius(size / 2.5);
     }
 
     public ChessPiece getPiece() { return pieceProperty.get(); }

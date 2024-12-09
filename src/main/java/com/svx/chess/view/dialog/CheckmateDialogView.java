@@ -35,7 +35,7 @@ public class CheckmateDialogView extends DialogView<VBox> {
         bottomSection.getStyleClass().add("dialog-bottom-section");
         bottomSection.getChildren().addAll(
                 message,
-                new HBox(resetButton, toLoginButton)
+                new HBox(20, resetButton, toLoginButton)
         );
 
         root.getChildren().addAll(

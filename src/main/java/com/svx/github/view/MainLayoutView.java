@@ -72,6 +72,11 @@ public class MainLayoutView extends View<BorderPane> {
 
     // Main Content
     private final StackPane mainContent = new StackPane();
+    private VBox historyRoot;
+    private Label commitTitleLabel;
+    private Label commitOwnerLabel;
+    private Label commitIdLabel;
+    private Label historyChangesLabel;
     private InlineCssTextArea textArea;
     private Pane mainContentOverlay;
 
@@ -86,7 +91,7 @@ public class MainLayoutView extends View<BorderPane> {
 
         initializeTopBar();
         initializeSideBar();
-        initializeMainContent();
+        initializeTextArea();
 
         root.setTop(topBarContainer);
         root.setLeft(sideBar);
@@ -513,8 +518,7 @@ public class MainLayoutView extends View<BorderPane> {
         }
     }
 
-
-    private void initializeMainContent() {
+    private void initializeTextArea() {
         mainContent.getStyleClass().add("main-content");
         textArea = new InlineCssTextArea();
         textArea.getStyleClass().add("text-area");
@@ -529,6 +533,28 @@ public class MainLayoutView extends View<BorderPane> {
         mainContentOverlay.setVisible(false);
 
         mainContent.getChildren().addAll(textArea, mainContentOverlay);
+    }
+
+    // SORRY SUBCO I GIVE UP
+    public void initializeHistory() {
+        historyRoot = new VBox();
+        historyRoot.getStyleClass().add("history-root");
+
+        VBox topHistoryBar = new VBox();
+        topHistoryBar.getStyleClass().add("top-history-bar");
+
+        commitTitleLabel = new Label();
+        commitTitleLabel.getStyleClass().add("primary-text");
+
+        commitOwnerLabel = new Label();
+        commitOwnerLabel.getStyleClass().add("secondary-text");
+
+        commitIdLabel = new Label();
+        commitIdLabel.getStyleClass().add("secondary-text");
+
+        topHistoryBar.getChildren().addAll(commitIdLabel, new HBox(10, commitTitleLabel, commitOwnerLabel));
+
+        historyChangesLabel = new Label();
     }
 
     public enum OriginType {
@@ -563,4 +589,7 @@ public class MainLayoutView extends View<BorderPane> {
     public Label getHistoryLabel() { return historyLabel; }
     public VBox getHistoryList() { return historyList; }
     public InlineCssTextArea getTextArea() { return textArea; }
+    public Label getCommitTitleLabel() { return commitTitleLabel; }
+    public Label getCommitOwnerLabel() { return commitOwnerLabel; }
+    public Label getCommitIdLabel() { return commitIdLabel; }
 }

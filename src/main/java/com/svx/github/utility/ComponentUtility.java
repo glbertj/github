@@ -7,7 +7,6 @@ import com.svx.github.view.dialog.CloneRepositoryDialogView;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import org.kordamp.ikonli.javafx.FontIcon;
-
 import java.io.IOException;
 import java.sql.SQLException;
 

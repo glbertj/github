@@ -76,7 +76,9 @@ public class MainLayoutView extends View<BorderPane> {
     private Label commitTitleLabel;
     private Label commitOwnerLabel;
     private Label commitIdLabel;
+    private Label commitTimestampLabel;
     private Label historyChangesLabel;
+    private VBox historyChangedFilesList;
     private InlineCssTextArea textArea;
     private Pane mainContentOverlay;
 
@@ -92,6 +94,7 @@ public class MainLayoutView extends View<BorderPane> {
         initializeTopBar();
         initializeSideBar();
         initializeTextArea();
+        initializeHistory();
 
         root.setTop(topBarContainer);
         root.setLeft(sideBar);
@@ -540,6 +543,9 @@ public class MainLayoutView extends View<BorderPane> {
         historyRoot = new VBox();
         historyRoot.getStyleClass().add("history-root");
 
+        historyChangedFilesList = new VBox(10);
+        historyChangedFilesList.getStyleClass().add("history-changed-files-list");
+
         VBox topHistoryBar = new VBox();
         topHistoryBar.getStyleClass().add("top-history-bar");
 
@@ -552,7 +558,11 @@ public class MainLayoutView extends View<BorderPane> {
         commitIdLabel = new Label();
         commitIdLabel.getStyleClass().add("secondary-text");
 
-        topHistoryBar.getChildren().addAll(commitIdLabel, new HBox(10, commitTitleLabel, commitOwnerLabel));
+        commitTimestampLabel = new Label();
+        commitTimestampLabel.getStyleClass().add("secondary-text");
+
+        topHistoryBar.getChildren().addAll(commitTitleLabel, new HBox(10, commitOwnerLabel, new Label("\u2022"), commitIdLabel, new Label("\u2022"), commitTimestampLabel));
+        historyRoot.getChildren().addAll(topHistoryBar, historyChangedFilesList);
 
         historyChangesLabel = new Label();
     }
@@ -589,7 +599,12 @@ public class MainLayoutView extends View<BorderPane> {
     public Label getHistoryLabel() { return historyLabel; }
     public VBox getHistoryList() { return historyList; }
     public InlineCssTextArea getTextArea() { return textArea; }
+    public StackPane getMainContent() {return mainContent; }
     public Label getCommitTitleLabel() { return commitTitleLabel; }
     public Label getCommitOwnerLabel() { return commitOwnerLabel; }
     public Label getCommitIdLabel() { return commitIdLabel; }
+    public Label getCommitTimestampLabel() { return commitTimestampLabel; }
+    public VBox getHistoryRoot() { return historyRoot; }
+    public VBox getHistoryChangedFilesList() { return historyChangedFilesList; }
+    public Pane getMainContentOverlay() { return mainContentOverlay; }
 }

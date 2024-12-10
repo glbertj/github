@@ -135,6 +135,11 @@
     -fx-border-color: black;
 }
 
+.default-sidebar .list-button {
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: black;
+}
+
 .tab-label {
     -fx-background-color: #2b3137;
     -fx-max-width: 1000;
@@ -214,4 +219,35 @@
 
 .main-content .overlay {
     -fx-background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* History */
+
+.history-root .top-history-bar {
+    -fx-border-radius: 5px;
+    -fx-padding: 10px;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: black;
+}
+
+.history-root .primary-text {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.history-root .secondary-text {
+    -fx-font-weight: 600;
+    -fx-font-size: 16px;
+    -fx-text-fill: white;
+}
+
+.history-root .history-changes-label {
+    -fx-font-weight: 600;
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
+}
+
+.history-root .history-changed-files-list {
+    -fx-padding: 10px;
 }

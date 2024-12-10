@@ -6,9 +6,11 @@ import com.svx.github.controller.dialog.CreateRepositoryDialogController;
 import com.svx.github.controller.dialog.StartGameDialogController;
 import com.svx.github.manager.ConnectionManager;
 import com.svx.github.manager.RepositoryManager;
+import com.svx.github.manager.SessionManager;
 import com.svx.github.model.*;
 import com.svx.github.repository.CommitRepository;
 import com.svx.github.repository.RepositoryRepository;
+import com.svx.github.repository.TreeRepository;
 import com.svx.github.utility.*;
 import com.svx.github.view.MainLayoutView;
 import javafx.collections.ListChangeListener;
@@ -18,9 +20,12 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import org.fxmisc.richtext.InlineCssTextArea;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -156,6 +161,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         );
         ObservableList<Node> changedFileList = view.getChangedFilesList().getChildren();
         view.clearTextArea();
+        view.getMainContent().getChildren().clear();
 
         if (!changedFileList.isEmpty()) {
             Node button = changedFileList.get(0);
@@ -178,6 +184,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         );
         ObservableList<Node> historyList = view.getHistoryList().getChildren();
         view.clearTextArea();
+        view.getMainContent().getChildren().clear();
 
         if (!historyList.isEmpty()) {
             Node button = historyList.get(0);
@@ -515,8 +522,11 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void renderDifferences(List<LineDifference> differences) {
+        StackPane mainContent = view.getMainContent();
+        mainContent.getChildren().clear();
         InlineCssTextArea styledTextArea = view.getTextArea();
         styledTextArea.clear();
+        mainContent.getChildren().addAll(styledTextArea, view.getMainContentOverlay());
 
         for (int i = 0; i < differences.size(); i++) {
             LineDifference line = differences.get(i);
@@ -561,29 +571,32 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void showCommitDetails(Commit commit) {
-        InlineCssTextArea styledTextArea = view.getTextArea();
-        styledTextArea.clear();
+        StackPane mainContent = view.getMainContent();
+        mainContent.getChildren().clear();
+        mainContent.getChildren().addAll(view.getHistoryRoot(), view.getMainContentOverlay());
 
-        int start = styledTextArea.getLength();
-        styledTextArea.appendText("Commit Details:\n");
-        styledTextArea.setStyle(start, styledTextArea.getLength(), "-fx-fill: white;");
+        Repository repository = RepositoryManager.getCurrentRepository();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a");
+        LocalDateTime timestamp = commit.getTimestamp();
 
-        appendStyledLine(styledTextArea, "ID: ", commit.getId(), "-fx-fill: lightgray;");
-        appendStyledLine(styledTextArea, "Message: ", commit.getMessage(), "-fx-fill: lightgreen;");
-        appendStyledLine(styledTextArea, "Timestamp: ", commit.getTimestamp().toString(), "-fx-fill: lightblue;");
-        appendStyledLine(styledTextArea, "Tree ID: ", commit.getTreeId() + "\n", "-fx-fill: lightcoral;");
+        view.getCommitTitleLabel().setText(commit.getMessage());
+        view.getCommitOwnerLabel().setText("Owner");
+        view.getCommitIdLabel().setText(commit.getId().substring(0, 7) + "...");
+        view.getCommitTimestampLabel().setText(timestamp.format(formatter));
 
         Tree tree = Tree.loadFromDisk(commit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
-        styledTextArea.appendText("Tree Entries:\n");
-        styledTextArea.setStyle(styledTextArea.getLength() - 13, styledTextArea.getLength(), "-fx-fill: white;");
+        view.getHistoryChangedFilesList().getChildren().clear();
 
         for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
-            appendStyledLine(
-                    styledTextArea,
-                    "  " + entry.getKey(),
-                    " -> " + entry.getValue(),
-                    "-fx-fill: lightgray;"
-            );
+
+            view.getHistoryChangedFilesList().getChildren().add(new Label(entry.getKey() + ": " + entry.getValue()));
+//
+//            appendStyledLine(
+//                    styledTextArea,
+//                    "  " + entry.getKey(),
+//                    " -> " + entry.getValue(),
+//                    "-fx-fill: lightgray;"
+//            );
         }
     }
 

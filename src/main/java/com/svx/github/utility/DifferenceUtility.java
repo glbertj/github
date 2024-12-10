@@ -23,14 +23,14 @@ public class DifferenceUtility {
 
         if (isOldEmpty && !isNewEmpty) {
             for (String newLine : newLines) {
-                diff.add(new LineDifference(" +\t|   " + newLine, LineDifference.LineType.ADDED));
+                diff.add(new LineDifference(" +\t   " + newLine, LineDifference.LineType.ADDED));
             }
             return diff;
         }
 
         if (!isOldEmpty && isNewEmpty) {
             for (String oldLine : oldLines) {
-                diff.add(new LineDifference(" -\t|   " + oldLine, LineDifference.LineType.REMOVED));
+                diff.add(new LineDifference(" -\t   " + oldLine, LineDifference.LineType.REMOVED));
             }
             return diff;
         }
@@ -41,18 +41,18 @@ public class DifferenceUtility {
 
             if (oldLine != null && newLine != null) {
                 if (oldLine.equals(newLine)) {
-                    diff.add(new LineDifference("  \t|   " + oldLines[oldIndex], LineDifference.LineType.UNCHANGED));
+                    diff.add(new LineDifference("  \t   " + oldLines[oldIndex], LineDifference.LineType.UNCHANGED));
                 } else {
-                    diff.add(new LineDifference(" -\t|   " + oldLines[oldIndex], LineDifference.LineType.REMOVED, highlightDiffs(oldLines[oldIndex], newLines[newIndex])));
-                    diff.add(new LineDifference(" +\t|   " + newLines[newIndex], LineDifference.LineType.ADDED, highlightDiffs(newLines[newIndex], oldLines[oldIndex])));
+                    diff.add(new LineDifference(" -\t   " + oldLines[oldIndex], LineDifference.LineType.REMOVED, highlightDiffs(oldLines[oldIndex], newLines[newIndex])));
+                    diff.add(new LineDifference(" +\t   " + newLines[newIndex], LineDifference.LineType.ADDED, highlightDiffs(newLines[newIndex], oldLines[oldIndex])));
                 }
                 oldIndex++;
                 newIndex++;
             } else if (oldLine != null) {
-                diff.add(new LineDifference(" -\t|   " + oldLines[oldIndex], LineDifference.LineType.REMOVED));
+                diff.add(new LineDifference(" -\t   " + oldLines[oldIndex], LineDifference.LineType.REMOVED));
                 oldIndex++;
             } else {
-                diff.add(new LineDifference(" +\t|   " + newLines[newIndex], LineDifference.LineType.ADDED));
+                diff.add(new LineDifference(" +\t   " + newLines[newIndex], LineDifference.LineType.ADDED));
                 newIndex++;
             }
         }

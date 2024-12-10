@@ -224,14 +224,13 @@
 /* History */
 
 .history-root .top-history-bar {
-    -fx-border-radius: 5px;
     -fx-padding: 10px;
     -fx-border-width: 0 0 1 0;
     -fx-border-color: black;
 }
 
 .history-root .primary-text {
-    -fx-font-size: 16px;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
 }
@@ -250,4 +249,9 @@
 
 .history-root .history-changed-files-list {
     -fx-padding: 10px;
+}
+
+.history-root .commit-description-container {
+    -fx-padding: 10px;
+    -fx-background-color: #2d3339;
 }

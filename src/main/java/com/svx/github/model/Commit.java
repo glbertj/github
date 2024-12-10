@@ -60,6 +60,18 @@ public class Commit {
         return timestamp;
     }
 
+    public String getSummary() {
+        return message.split("\n")[0];
+    }
+
+    public String getDescription() {
+        String[] parts = message.split("\n", 2);
+        if (parts.length > 1) {
+            return parts[1];
+        }
+        return "";
+    }
+
     public static Commit loadFromDisk(String id, Path objectsPath) {
         String content = FileUtility.loadFromDisk(id, objectsPath);
 
@@ -73,6 +85,8 @@ public class Commit {
                 parentId = line.substring(7).trim();
             } else if (line.startsWith("message ")) {
                 message = line.substring(8).trim();
+            } else if (line.startsWith("description ")) {
+                message = message + "\n" + line.substring(12).trim();
             } else if (line.startsWith("timestamp ")) {
                 timestamp = LocalDateTime.parse(line.substring(10).trim());
             }

@@ -446,7 +446,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
-        String commitMessage = view.getCommitSummaryTextField().getText() + "\n\n" + view.getCommitDescriptionTextArea();
+        String commitMessage = view.getCommitSummaryTextField().getText() + "\ndescription " + view.getCommitDescriptionTextArea().getText();
 
         VersionControl versionControl = RepositoryManager.getVersionControl();
         try {
@@ -485,7 +485,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         while (commitId != null && !commitId.isBlank()) {
             Commit commit = Commit.loadFromDisk(commitId, currentRepo.getObjectsPath());
 
-            HBox button = ComponentUtility.createListButton(commit.getMessage(), view, ComponentUtility.listButtonType.HISTORY);
+            HBox button = ComponentUtility.createListButton(commit.getSummary(), view, ComponentUtility.listButtonType.HISTORY);
             if (button == null) return;
 
             button.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> showCommitDetails(commit));
@@ -575,28 +575,34 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         mainContent.getChildren().clear();
         mainContent.getChildren().addAll(view.getHistoryRoot(), view.getMainContentOverlay());
 
-        Repository repository = RepositoryManager.getCurrentRepository();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a");
         LocalDateTime timestamp = commit.getTimestamp();
 
-        view.getCommitTitleLabel().setText(commit.getMessage());
+        view.getCommitTitleLabel().setText(commit.getSummary());
         view.getCommitOwnerLabel().setText("Owner");
-        view.getCommitIdLabel().setText(commit.getId().substring(0, 7) + "...");
+        view.getCommitIdLabel().setText(commit.getId().substring(0, 7));
         view.getCommitTimestampLabel().setText(timestamp.format(formatter));
+
+        String commitDescription = commit.getDescription();
+        HBox commitDescriptionContainer = view.getCommitDescriptionContainer();
+        if (commitDescription.isEmpty()) {
+            commitDescriptionContainer.getChildren().clear();
+            commitDescriptionContainer.setVisible(false);
+            commitDescriptionContainer.setManaged(false);
+        } else {
+            commitDescriptionContainer.setVisible(true);
+            commitDescriptionContainer.setManaged(true);
+            if (!commitDescriptionContainer.getChildren().contains(view.getCommitDescriptionLabel())) {
+                commitDescriptionContainer.getChildren().add(view.getCommitDescriptionLabel());
+            }
+            view.getCommitDescriptionLabel().setText(commitDescription);
+        }
 
         Tree tree = Tree.loadFromDisk(commit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
         view.getHistoryChangedFilesList().getChildren().clear();
 
         for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
-
-            view.getHistoryChangedFilesList().getChildren().add(new Label(entry.getKey() + ": " + entry.getValue()));
-//
-//            appendStyledLine(
-//                    styledTextArea,
-//                    "  " + entry.getKey(),
-//                    " -> " + entry.getValue(),
-//                    "-fx-fill: lightgray;"
-//            );
+            view.getHistoryChangedFilesList().getChildren().add(new Label("> " + entry.getKey()));
         }
     }
 

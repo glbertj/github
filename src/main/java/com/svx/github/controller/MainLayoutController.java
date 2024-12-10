@@ -77,6 +77,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 RepositoryManager.removeRepository();
                 updateChangedFilesList();
                 updateHistoryTab();
+                updateMultiFunctionButton();
                 appController.showNotification("Repository removed successfully.", NotificationBox.NotificationType.SUCCESS, "fas-check-circle");
             } else {
                 appController.showNotification("No repository selected.", NotificationBox.NotificationType.ERROR, "fas-exclamation-circle");
@@ -258,7 +259,15 @@ public class MainLayoutController extends Controller<MainLayoutView> {
                 filteredRepositories = Repository.getRepositories().stream()
                         .filter(repo -> {
                             String repoName = repo.getName().toLowerCase();
-                            int distance = LevenshteinUtility.getLevenshteinDistance(repoName, searchTerm);
+                            String substringToCompare;
+
+                            if (searchTerm.length() > repoName.length()) {
+                                substringToCompare = repoName;
+                            } else {
+                                substringToCompare = repoName.substring(0, searchTerm.length());
+                            }
+
+                            int distance = LevenshteinUtility.getLevenshteinDistance(substringToCompare, searchTerm);
                             return distance <= 3;
                         })
                         .collect(Collectors.toList());

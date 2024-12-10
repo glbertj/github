@@ -72,6 +72,11 @@ public class MainLayoutView extends View<BorderPane> {
 
     // Main Content
     private final StackPane mainContent = new StackPane();
+    private VBox historyRoot;
+    private Label commitTitleLabel;
+    private Label commitOwnerLabel;
+    private Label commitIdLabel;
+    private Label historyChangesLabel;
     private InlineCssTextArea textArea;
     private Pane mainContentOverlay;
 
@@ -86,7 +91,7 @@ public class MainLayoutView extends View<BorderPane> {
 
         initializeTopBar();
         initializeSideBar();
-        initializeMainContent();
+        initializeTextArea();
 
         root.setTop(topBarContainer);
         root.setLeft(sideBar);
@@ -152,13 +157,13 @@ public class MainLayoutView extends View<BorderPane> {
     public void switchOriginButton(OriginType type) {
         switch (type) {
             case FETCH:
-                switchOriginButton("Fetch Origin", "fas-sync-alt", "some time");
+                switchOriginButton("Fetch Origin", "fas-sync-alt", "Check for updates");
                 break;
             case PUSH:
-                switchOriginButton("Push", "fas-arrow-up", "some time");
+                switchOriginButton("Push", "fas-arrow-up", "Push changes");
                 break;
             case PULL:
-                switchOriginButton("Pull", "fas-arrow-down", "some time");
+                switchOriginButton("Pull", "fas-arrow-down", "Pull Changes");
                 break;
         }
     }
@@ -513,8 +518,7 @@ public class MainLayoutView extends View<BorderPane> {
         }
     }
 
-
-    private void initializeMainContent() {
+    private void initializeTextArea() {
         mainContent.getStyleClass().add("main-content");
         textArea = new InlineCssTextArea();
         textArea.getStyleClass().add("text-area");
@@ -563,4 +567,7 @@ public class MainLayoutView extends View<BorderPane> {
     public Label getHistoryLabel() { return historyLabel; }
     public VBox getHistoryList() { return historyList; }
     public InlineCssTextArea getTextArea() { return textArea; }
+    public Label getCommitTitleLabel() { return commitTitleLabel; }
+    public Label getCommitOwnerLabel() { return commitOwnerLabel; }
+    public Label getCommitIdLabel() { return commitIdLabel; }
 }

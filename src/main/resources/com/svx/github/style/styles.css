@@ -57,7 +57,7 @@ Label {
 }
 
 .list-button {
-    -fx-padding: 12 12;
+    -fx-padding: 4 12;
     -fx-background-color: #24292e;
     -fx-alignment: center-left;
 }

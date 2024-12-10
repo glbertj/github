@@ -4,7 +4,7 @@
     -fx-background-radius: 0;
 }
 
-.label {
+.game-root .label {
     -fx-font-size: 24px;
     -fx-padding: 6 0;
 }

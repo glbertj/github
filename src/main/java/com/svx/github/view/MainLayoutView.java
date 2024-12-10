@@ -535,6 +535,28 @@ public class MainLayoutView extends View<BorderPane> {
         mainContent.getChildren().addAll(textArea, mainContentOverlay);
     }
 
+    // SORRY SUBCO I GIVE UP
+    public void initializeHistory() {
+        historyRoot = new VBox();
+        historyRoot.getStyleClass().add("history-root");
+
+        VBox topHistoryBar = new VBox();
+        topHistoryBar.getStyleClass().add("top-history-bar");
+
+        commitTitleLabel = new Label();
+        commitTitleLabel.getStyleClass().add("primary-text");
+
+        commitOwnerLabel = new Label();
+        commitOwnerLabel.getStyleClass().add("secondary-text");
+
+        commitIdLabel = new Label();
+        commitIdLabel.getStyleClass().add("secondary-text");
+
+        topHistoryBar.getChildren().addAll(commitIdLabel, new HBox(10, commitTitleLabel, commitOwnerLabel));
+
+        historyChangesLabel = new Label();
+    }
+
     public enum OriginType {
         FETCH, PUSH, PULL
     }

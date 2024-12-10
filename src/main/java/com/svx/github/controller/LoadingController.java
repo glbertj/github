@@ -38,7 +38,7 @@ public class LoadingController extends Controller<LoadingView>{
         progressBar.progressProperty().bind(service.progressProperty());
 
         service.setOnSucceeded(e -> {
-            appController.navigatePage(new ChessController(appController));
+            appController.navigatePage(new LoginController(appController));
         });
 
         service.start();

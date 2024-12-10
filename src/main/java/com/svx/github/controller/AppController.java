@@ -78,6 +78,8 @@ public class AppController {
             navigatePage(new LoginController(this));
         }
 
+//        navigatePage(new ChessController(this));
+
         primaryStage.show();
     }
 

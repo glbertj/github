@@ -527,22 +527,34 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             String paragraphStyle;
             switch (line.getType()) {
                 case ADDED:
-                    paragraphStyle = "-fx-background-color: rgba(17,58,27,1); -fx-fill: white;";
+                    paragraphStyle = "-fx-background-color: rgba(17,58,27,0.5); " +
+                            "-fx-fill: white; " +
+                            "-fx-background-insets: 0; " +
+                            "-fx-padding: 5px;" +
+                            "-fx-font-weight: 500;";
                     break;
                 case REMOVED:
-                    paragraphStyle = "-fx-background-color: rgba(69,12,15,1); -fx-fill: white;";
+                    paragraphStyle = "-fx-background-color: rgba(69,12,15,0.5); " +
+                            "-fx-fill: white; " +
+                            "-fx-background-insets: 0; " +
+                            "-fx-padding: 5px;" +
+                            "-fx-font-weight: 500;";
                     break;
                 default:
-                    paragraphStyle = "-fx-background-color: transparent; -fx-fill: white;";
+                    paragraphStyle = "-fx-background-color: transparent; " +
+                            "-fx-fill: white; " +
+                            "-fx-padding: 5px;" +
+                            "-fx-font-weight: 500;";
                     break;
             }
+
             styledTextArea.setParagraphStyle(i, paragraphStyle);
 
             for (Highlight highlight : line.getHighlights()) {
                 styledTextArea.setStyle(
                         start + highlight.start(),
                         start + highlight.end(),
-                        "-fx-fill: white; -fx-background-color: rgba(0, 255, 0, 0.6);"
+                        "-fx-fill: white; -fx-background-color: rgba(0, 255, 0, 0.6); -fx-font-weight: 500; "
                 );
             }
         }
@@ -554,7 +566,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         int start = styledTextArea.getLength();
         styledTextArea.appendText("Commit Details:\n");
-        styledTextArea.setStyle(start, styledTextArea.getLength(), "-fx-font-weight: bold; -fx-fill: white;");
+        styledTextArea.setStyle(start, styledTextArea.getLength(), "-fx-fill: white;");
 
         appendStyledLine(styledTextArea, "ID: ", commit.getId(), "-fx-fill: lightgray;");
         appendStyledLine(styledTextArea, "Message: ", commit.getMessage(), "-fx-fill: lightgreen;");
@@ -563,7 +575,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
 
         Tree tree = Tree.loadFromDisk(commit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
         styledTextArea.appendText("Tree Entries:\n");
-        styledTextArea.setStyle(styledTextArea.getLength() - 13, styledTextArea.getLength(), "-fx-font-weight: bold; -fx-fill: white;");
+        styledTextArea.setStyle(styledTextArea.getLength() - 13, styledTextArea.getLength(), "-fx-fill: white;");
 
         for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
             appendStyledLine(

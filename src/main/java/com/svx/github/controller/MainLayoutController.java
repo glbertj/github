@@ -575,7 +575,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         LocalDateTime timestamp = commit.getTimestamp();
 
         view.getCommitTitleLabel().setText(commit.getSummary());
-        view.getCommitOwnerLabel().setText("Owner");
+        view.getCommitOwnerLabel().setText(UserSingleton.getCurrentUser().getUsername());
         view.getCommitIdLabel().setText(commit.getId().substring(0, 7));
         view.getCommitTimestampLabel().setText(timestamp.format(formatter));
 

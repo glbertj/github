@@ -18,7 +18,7 @@ public class CloneRepositoryDialogView extends DialogView<VBox> {
         root = new VBox(10);
         root.getStyleClass().add("dialog-root");
 
-        HBox titleBar = createTitleBar("Add Local Repository");
+        HBox titleBar = createTitleBar("Clone Repository");
 
         Label selectRepositoryLabel = new Label("Your Repositories");
         selectRepositoryLabel.getStyleClass().add("dialog-section-title");

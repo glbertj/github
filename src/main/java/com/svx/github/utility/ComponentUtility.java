@@ -33,8 +33,8 @@ public class ComponentUtility {
                     button.setOnMouseClicked(e -> {
                         try {
                             RepositoryManager.setCurrentRepository((Repository) item);
-                        } catch (IOException | SQLException ex) {
-                            throw new RuntimeException(ex);
+                        } catch (IOException | SQLException ignored) {
+
                         }
                         ((MainLayoutView) view).switchSideBar();
                     });

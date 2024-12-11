@@ -173,6 +173,8 @@ public class ChessController extends Controller<ChessView> {
     }
 
     private void capturePiece(ChessTile targetTile) {
+        targetTile.getPiece().getImageView().setFitWidth(50);
+        targetTile.getPiece().getImageView().setFitHeight(50);
         if (targetTile.getPiece().getColor() == Chess.PieceColor.WHITE) {
             capturedWhitePiece.add(targetTile.getPiece());
         } else {

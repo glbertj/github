@@ -161,7 +161,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         );
         ObservableList<Node> changedFileList = view.getChangedFilesList().getChildren();
         view.clearTextArea();
-        view.getMainContent().getChildren().clear();
+        view.changeMainContent(view.getTextArea());
 
         if (!changedFileList.isEmpty()) {
             Node button = changedFileList.get(0);
@@ -184,13 +184,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         );
         ObservableList<Node> historyList = view.getHistoryList().getChildren();
         view.clearTextArea();
-        view.getMainContent().getChildren().clear();
+        view.changeMainContent(view.getHistoryRoot());
 
         if (!historyList.isEmpty()) {
             Node button = historyList.get(0);
             button.fireEvent(mouseClickEvent);
         } else {
-            view.clearTextArea();
+            view.getMainContent().getChildren().remove(0);
         }
     }
 
@@ -446,7 +446,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
             return;
         }
 
-        String commitMessage = view.getCommitSummaryTextField().getText() + "\n\n" + view.getCommitDescriptionTextArea();
+        String commitMessage = view.getCommitSummaryTextField().getText() + "\ndescription " + view.getCommitDescriptionTextArea().getText();
 
         VersionControl versionControl = RepositoryManager.getVersionControl();
         try {
@@ -485,7 +485,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         while (commitId != null && !commitId.isBlank()) {
             Commit commit = Commit.loadFromDisk(commitId, currentRepo.getObjectsPath());
 
-            HBox button = ComponentUtility.createListButton(commit.getMessage(), view, ComponentUtility.listButtonType.HISTORY);
+            HBox button = ComponentUtility.createListButton(commit.getSummary(), view, ComponentUtility.listButtonType.HISTORY);
             if (button == null) return;
 
             button.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> showCommitDetails(commit));
@@ -522,11 +522,9 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void renderDifferences(List<LineDifference> differences) {
-        StackPane mainContent = view.getMainContent();
-        mainContent.getChildren().clear();
         InlineCssTextArea styledTextArea = view.getTextArea();
         styledTextArea.clear();
-        mainContent.getChildren().addAll(styledTextArea, view.getMainContentOverlay());
+        view.changeMainContent(styledTextArea);
 
         for (int i = 0; i < differences.size(); i++) {
             LineDifference line = differences.get(i);
@@ -571,32 +569,36 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void showCommitDetails(Commit commit) {
-        StackPane mainContent = view.getMainContent();
-        mainContent.getChildren().clear();
-        mainContent.getChildren().addAll(view.getHistoryRoot(), view.getMainContentOverlay());
+        view.changeMainContent(view.getHistoryRoot());
 
-        Repository repository = RepositoryManager.getCurrentRepository();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a");
         LocalDateTime timestamp = commit.getTimestamp();
 
-        view.getCommitTitleLabel().setText(commit.getMessage());
-        view.getCommitOwnerLabel().setText("Owner");
-        view.getCommitIdLabel().setText(commit.getId().substring(0, 7) + "...");
+        view.getCommitTitleLabel().setText(commit.getSummary());
+        view.getCommitOwnerLabel().setText(UserSingleton.getCurrentUser().getUsername());
+        view.getCommitIdLabel().setText(commit.getId().substring(0, 7));
         view.getCommitTimestampLabel().setText(timestamp.format(formatter));
+
+        String commitDescription = commit.getDescription();
+        HBox commitDescriptionContainer = view.getCommitDescriptionContainer();
+        if (commitDescription.isEmpty()) {
+            commitDescriptionContainer.getChildren().clear();
+            commitDescriptionContainer.setVisible(false);
+            commitDescriptionContainer.setManaged(false);
+        } else {
+            commitDescriptionContainer.setVisible(true);
+            commitDescriptionContainer.setManaged(true);
+            if (!commitDescriptionContainer.getChildren().contains(view.getCommitDescriptionLabel())) {
+                commitDescriptionContainer.getChildren().add(view.getCommitDescriptionLabel());
+            }
+            view.getCommitDescriptionLabel().setText(commitDescription);
+        }
 
         Tree tree = Tree.loadFromDisk(commit.getTreeId(), RepositoryManager.getCurrentRepository().getObjectsPath());
         view.getHistoryChangedFilesList().getChildren().clear();
 
         for (Map.Entry<String, String> entry : tree.getEntries().entrySet()) {
-
-            view.getHistoryChangedFilesList().getChildren().add(new Label(entry.getKey() + ": " + entry.getValue()));
-//
-//            appendStyledLine(
-//                    styledTextArea,
-//                    "  " + entry.getKey(),
-//                    " -> " + entry.getValue(),
-//                    "-fx-fill: lightgray;"
-//            );
+            view.getHistoryChangedFilesList().getChildren().add(new Label("> " + entry.getKey()));
         }
     }
 

@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Popup;
 import javafx.util.Duration;
 import org.fxmisc.richtext.InlineCssTextArea;
@@ -77,6 +78,8 @@ public class MainLayoutView extends View<BorderPane> {
     private Label commitOwnerLabel;
     private Label commitIdLabel;
     private Label commitTimestampLabel;
+    private Label commitDescriptionLabel;
+    private HBox commitDescriptionContainer;
     private Label historyChangesLabel;
     private VBox historyChangedFilesList;
     private InlineCssTextArea textArea;
@@ -535,7 +538,7 @@ public class MainLayoutView extends View<BorderPane> {
         mainContentOverlay.setMouseTransparent(true);
         mainContentOverlay.setVisible(false);
 
-        mainContent.getChildren().addAll(textArea, mainContentOverlay);
+        changeMainContent(textArea);
     }
 
     // SORRY SUBCO I GIVE UP
@@ -561,10 +564,31 @@ public class MainLayoutView extends View<BorderPane> {
         commitTimestampLabel = new Label();
         commitTimestampLabel.getStyleClass().add("secondary-text");
 
-        topHistoryBar.getChildren().addAll(commitTitleLabel, new HBox(10, commitOwnerLabel, new Label("\u2022"), commitIdLabel, new Label("\u2022"), commitTimestampLabel));
-        historyRoot.getChildren().addAll(topHistoryBar, historyChangedFilesList);
+        commitDescriptionContainer = new HBox();
+        commitDescriptionContainer.getStyleClass().add("commit-description-container");
+
+        commitDescriptionLabel = new Label();
+        commitDescriptionLabel.getStyleClass().add("secondary-text");
+
+        FontIcon commitIcon = new FontIcon("fas-file");
+        commitIcon.setIconColor(Color.WHITE);
+
+        FontIcon clockIcon = new FontIcon("fas-clock");
+        clockIcon.setIconColor(Color.WHITE);
+
+        HBox upperTop = new HBox(10, commitOwnerLabel, commitIcon, commitIdLabel, clockIcon, commitTimestampLabel);
+        upperTop.setAlignment(Pos.CENTER_LEFT);
+
+        commitDescriptionContainer.getChildren().add(commitDescriptionLabel);
+        topHistoryBar.getChildren().addAll(commitTitleLabel, upperTop);
+        historyRoot.getChildren().addAll(topHistoryBar, commitDescriptionContainer, historyChangedFilesList);
 
         historyChangesLabel = new Label();
+    }
+
+    public void changeMainContent(Parent parent) {
+        mainContent.getChildren().clear();
+        mainContent.getChildren().addAll(parent, mainContentOverlay);
     }
 
     public enum OriginType {
@@ -604,6 +628,8 @@ public class MainLayoutView extends View<BorderPane> {
     public Label getCommitOwnerLabel() { return commitOwnerLabel; }
     public Label getCommitIdLabel() { return commitIdLabel; }
     public Label getCommitTimestampLabel() { return commitTimestampLabel; }
+    public Label getCommitDescriptionLabel() { return commitDescriptionLabel; }
+    public HBox getCommitDescriptionContainer() { return commitDescriptionContainer; }
     public VBox getHistoryRoot() { return historyRoot; }
     public VBox getHistoryChangedFilesList() { return historyChangedFilesList; }
     public Pane getMainContentOverlay() { return mainContentOverlay; }

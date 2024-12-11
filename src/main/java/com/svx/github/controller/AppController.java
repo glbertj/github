@@ -75,10 +75,8 @@ public class AppController {
             RepositoryManager.loadRecentRepository();
             showNotification("Valid session found!", NotificationBox.NotificationType.SUCCESS, "fas-sign-in-alt");
         } else {
-            navigatePage(new LoginController(this));
+            navigatePage(new LoadingController(this));
         }
-
-//        navigatePage(new ChessController(this));
 
         primaryStage.show();
     }

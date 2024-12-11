@@ -538,7 +538,7 @@ public class MainLayoutView extends View<BorderPane> {
         mainContentOverlay.setMouseTransparent(true);
         mainContentOverlay.setVisible(false);
 
-        mainContent.getChildren().addAll(textArea, mainContentOverlay);
+        changeMainContent(textArea);
     }
 
     // SORRY SUBCO I GIVE UP
@@ -584,6 +584,11 @@ public class MainLayoutView extends View<BorderPane> {
         historyRoot.getChildren().addAll(topHistoryBar, commitDescriptionContainer, historyChangedFilesList);
 
         historyChangesLabel = new Label();
+    }
+
+    public void changeMainContent(Parent parent) {
+        mainContent.getChildren().clear();
+        mainContent.getChildren().addAll(parent, mainContentOverlay);
     }
 
     public enum OriginType {

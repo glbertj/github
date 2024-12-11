@@ -161,7 +161,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         );
         ObservableList<Node> changedFileList = view.getChangedFilesList().getChildren();
         view.clearTextArea();
-        view.getMainContent().getChildren().clear();
+        view.changeMainContent(view.getTextArea());
 
         if (!changedFileList.isEmpty()) {
             Node button = changedFileList.get(0);
@@ -184,13 +184,13 @@ public class MainLayoutController extends Controller<MainLayoutView> {
         );
         ObservableList<Node> historyList = view.getHistoryList().getChildren();
         view.clearTextArea();
-        view.getMainContent().getChildren().clear();
+        view.changeMainContent(view.getHistoryRoot());
 
         if (!historyList.isEmpty()) {
             Node button = historyList.get(0);
             button.fireEvent(mouseClickEvent);
         } else {
-            view.clearTextArea();
+            view.getMainContent().getChildren().remove(0);
         }
     }
 
@@ -522,11 +522,9 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void renderDifferences(List<LineDifference> differences) {
-        StackPane mainContent = view.getMainContent();
-        mainContent.getChildren().clear();
         InlineCssTextArea styledTextArea = view.getTextArea();
         styledTextArea.clear();
-        mainContent.getChildren().addAll(styledTextArea, view.getMainContentOverlay());
+        view.changeMainContent(styledTextArea);
 
         for (int i = 0; i < differences.size(); i++) {
             LineDifference line = differences.get(i);
@@ -571,9 +569,7 @@ public class MainLayoutController extends Controller<MainLayoutView> {
     }
 
     private void showCommitDetails(Commit commit) {
-        StackPane mainContent = view.getMainContent();
-        mainContent.getChildren().clear();
-        mainContent.getChildren().addAll(view.getHistoryRoot(), view.getMainContentOverlay());
+        view.changeMainContent(view.getHistoryRoot());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm:ss a");
         LocalDateTime timestamp = commit.getTimestamp();

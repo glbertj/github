@@ -25,9 +25,9 @@ public class LoadingController extends Controller<LoadingView>{
                 return new Task<>() {
                     @Override
                     protected Void call() throws Exception {
-                        for (int i = 0; i <= 100; i++) {
-                            updateProgress(i, 100);
-                            Thread.sleep(20);
+                        for (int i = 0; i <= 300; i++) {
+                            updateProgress(i, 300);
+                            Thread.sleep(5);
                         }
                         return null;
                     }

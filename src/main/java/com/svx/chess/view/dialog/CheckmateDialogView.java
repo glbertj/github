@@ -26,12 +26,12 @@ public class CheckmateDialogView extends DialogView<VBox> {
         HBox titleBar = createTitleBar("Checkmate");
 
         Label message = new Label("Checkmate! " + color + " wins!");
-        resetButton = new Button("Reset");
+        resetButton = new Button("New Game");
         resetButton.getStyleClass().add("primary-button");
 
         cancelButton = new Button("Cancel");
 
-        VBox bottomSection = new VBox(10);
+        VBox bottomSection = new VBox(20);
         bottomSection.getStyleClass().add("dialog-bottom-section");
         bottomSection.getChildren().addAll(
                 message,

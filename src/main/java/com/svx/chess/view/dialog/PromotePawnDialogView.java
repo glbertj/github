@@ -24,6 +24,8 @@ public class PromotePawnDialogView extends DialogView<HBox> {
         root = new HBox();
         root.getStyleClass().add("dialog-root");
 
+        double size = 100;
+
         ChessPiece queenPiece = new ChessPiece(Chess.PieceType.QUEEN, color);
         ChessPiece rookPiece = new ChessPiece(Chess.PieceType.ROOK, color);
         ChessPiece bishopPiece = new ChessPiece(Chess.PieceType.BISHOP, color);
